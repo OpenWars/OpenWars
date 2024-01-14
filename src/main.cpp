@@ -1,5 +1,5 @@
 #include "config/config.cpp"
-#include "game/map/map.h"
+#include "game/map/map.cpp"
 #include "input/mouse_handler.cpp"
 #include "raylib.h"
 #include "rlgl.h"
