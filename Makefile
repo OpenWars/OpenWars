@@ -1,13 +1,10 @@
 CXX = g++
-CXXFLAGS = -Wall -O0
+CXXFLAGS = -Wall -O0 -lraylib
 
-all: compile
+all: openwars
 
 clean:
-	$(RM) ./out/main
+	$(RM) ./out/openwars
 
-compile:
-	$(CXX) $(CXXFLAGS) -o ./out/main ./src/main.cpp -lraylib
-
-test:
-	./out/main
+openwars:
+	$(CXX) -o ./out/openwars ./src/main.cpp $(CXXFLAGS)
