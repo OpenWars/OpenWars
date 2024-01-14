@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -Wall -O0 -lraylib
+CXXFLAGS = -Wall -Wextra -O0 -lraylib
 
 all: openwars
 
