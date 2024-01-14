@@ -8,4 +8,5 @@ struct Map {
     std::vector<std::vector<std::string>> tiles;
 };
 Map parse(std::string name);
+void draw(Map map);
 } // namespace Map
