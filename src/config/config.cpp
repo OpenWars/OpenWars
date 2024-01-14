@@ -9,9 +9,9 @@ namespace Config {
 char *CONFIG_PATH = nullptr;
 void initialize() {
     if (std::getenv("HOME")) {
-        strcat(std::getenv("HOME"), "/.config/openwars");
+        CONFIG_PATH = strcat(std::getenv("HOME"), "/.config/openwars");
     } else {
-        strcat(std::getenv("APPDATA"), "/openwars");
+        CONFIG_PATH = strcat(std::getenv("APPDATA"), "/openwars");
     }
     // TODO: Mac (or does linux implementation fix it?)
 
