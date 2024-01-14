@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -Wall -O0 -lraylib
+CXXFLAGS = -Wall -O0
 
 all: compile
 
