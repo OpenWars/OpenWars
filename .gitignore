@@ -1,0 +1,2 @@
+out/
+.clangd # You probably don't need it, just a workaround for VSCodium
