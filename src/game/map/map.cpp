@@ -1,4 +1,4 @@
-#include "map.h"
+#include "tiles.cpp"
 #include "../../config/config.h"
 #include <fstream>
 #include <sstream>
@@ -31,6 +31,27 @@ Map::Map Map::parse(std::string name) {
                static_cast<int>(mapArray.size()), mapArray};
 }
 
-void Map::draw(Map map){
-    
+void Map::draw(Map map, int screenWidth, int screenHeight) {
+    int rows = map.height;
+    int cols = map.width;
+    int cellWidth = screenWidth / cols;
+    int cellHeight = screenHeight / rows;
+
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            // Calculate cell position
+            int xPos = j * cellWidth;
+            int yPos = i * cellHeight;
+
+            // Get the image index for the current cell
+            std::string imageIndex = map.tiles[i][j];
+
+            // Draw image in the cell
+            DrawTextureRec(
+                Texture2D(tilesIndex[imageIndex]),
+                {0, 0, static_cast<float>(tilesIndex[imageIndex].width),
+                 static_cast<float>(-tilesIndex[imageIndex].height)},
+                {static_cast<float>(xPos), static_cast<float>(yPos)}, WHITE);
+        }
+    }
 }

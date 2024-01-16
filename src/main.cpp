@@ -4,22 +4,12 @@
 #include "raylib.h"
 #include "rlgl.h"
 
-void Draw(Camera2D camera) {
+void Draw(Camera2D camera, Map::Map parsedMap) {
     ClearBackground(RAYWHITE);
 
     BeginMode2D(camera);
 
-    // Draw the 3d grid, rotated 90 degrees and centered around 0,0
-    // just so we have something in the XY plane
-    rlPushMatrix();
-    rlTranslatef(0, 25 * 50, 0);
-    rlRotatef(90, 1, 0, 0);
-    DrawGrid(100, 50);
-    rlPopMatrix();
-
-    // Draw a reference circle
-    DrawCircle(100, 100, 50, YELLOW);
-
+    Map::draw(parsedMap, GetScreenWidth(), GetScreenHeight());
     EndMode2D();
 }
 
@@ -36,6 +26,7 @@ int main(void) {
     Config::initialize();
 
     Map::Map parsedMap = Map::parse("map.csv");
+    Map::load_images();
 
     while (!WindowShouldClose()) {
         if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON))
@@ -43,7 +34,7 @@ int main(void) {
         handle_zoom(camera);
 
         BeginDrawing();
-        Draw(camera);
+        Draw(camera, parsedMap);
         EndDrawing();
     }
     CloseWindow();
