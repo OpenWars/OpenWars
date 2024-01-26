@@ -1,10 +1,20 @@
+#include <iostream>
+void poto(void){
+	std::cout << "<S DEBUG>\n";
+	std::cout << "ABCDEFGHIJKLMNOPRSTUVWXYZ\n";
+	std::cout << "ABCDEFGHIJKLMNOPRSTUVWXYZ\n";
+	std::cout << "ABCDEFGHIJKLMNOPRSTUVWXYZ\n";
+	std::cout << "ABCDEFGHIJKLMNOPRSTUVWXYZ\n";
+	std::cout << "<E DEBUG>\n";
+};
+
 #include "config/config.cpp"
 #include "game/map/map.cpp"
 #include "input/mouse_handler.cpp"
 #include "raylib.h"
 #include "rlgl.h"
 
-void Draw(Camera2D camera, Map::Map parsedMap) {
+void Draw(Camera2D camera, Map::map_t parsedMap) {
     ClearBackground(RAYWHITE);
 
     BeginMode2D(camera);
@@ -22,13 +32,26 @@ int main(void) {
     camera.zoom = 1.0f;
 
     SetTargetFPS(60);
-
-    Config::initialize();
-
-    Map::Map parsedMap = Map::parse("map.csv");
+	
+    int config_code = Config::initialize();
+	
+	if(config_code < 0) {
+		std::cerr <<	"Exception raised while trying to initialize the "
+						"configuration API: " <<
+						std::to_string(config_code) <<
+						".\n";
+		return 1;
+	}
+	
+    Map::map_t parsedMap = Map::parse("map.csv");
+	
+	poto();
+	
     Map::load_images();
-
-    while (!WindowShouldClose()) {
+	
+	
+	while(!WindowShouldClose()) {
+		/*
         if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON))
             handle_map_movement(camera);
         handle_zoom(camera);
@@ -36,6 +59,7 @@ int main(void) {
         BeginDrawing();
         Draw(camera, parsedMap);
         EndDrawing();
+		*/
     }
     CloseWindow();
 

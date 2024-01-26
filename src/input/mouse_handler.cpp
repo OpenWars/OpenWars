@@ -1,3 +1,6 @@
+#ifndef __openwars__input__mouse_handler__cxx__
+#define __openwars__input__mouse_handler__cxx__
+
 #include "raylib.h"
 #include "raymath.h"
 
@@ -32,3 +35,5 @@ void handle_zoom(Camera2D &camera) {
             camera.zoom = zoomIncrement;
     }
 }
+
+#endif

@@ -1,26 +1,37 @@
+#ifndef __openwars__config__config__cxx__
+#define __openwars__config__config__cxx__
+
 #include "config.h"
+
+#include <filesystem>
 #include <cstdlib>
 #include <cstring>
-#include <filesystem>
-#include <sys/stat.h>
-#include <sys/types.h>
 
 namespace Config {
-char *CONFIG_PATH = nullptr;
-void initialize() {
-    if (std::getenv("HOME")) {
-        CONFIG_PATH = strcat(std::getenv("HOME"), "/.config/openwars");
-    } else {
-        CONFIG_PATH = strcat(std::getenv("APPDATA"), "/openwars");
-    }
-    // TODO: Mac (or does linux implementation fix it?)
+	int initialize(void) {
+		// We check if the env. variable "HOME" is set, if it's true, then we
+		// set "CONFIG_PATH" as the value of "HOME".
+		if(std::getenv("HOME")) {
+			CONFIG_PATH = std::strcat(std::getenv("HOME"), "/.config/openwars");
+		}
+		
+		// We do the same but with "APPDATA".
+		if(std::getenv("APPDATA")) {
+			CONFIG_PATH = std::strcat(std::getenv("APPDATA"), "/openwars");
+		}
+		
+		// If "CONFIG_DATA" wasn't set, we return.
+		if(CONFIG_PATH == nullptr) {
+			return -1;
+		}
+		
+		// TODO : Handle errors.
+		std::filesystem::create_directory(std::strcat(CONFIG_PATH, "maps"));
+		std::filesystem::create_directory(std::strcat(CONFIG_PATH, "content"));
+		std::filesystem::create_directory(std::strcat(CONFIG_PATH, "logs"));
+		
+		return 0;
+	};
+}; // namespace Config
 
-    struct stat configPath;
-    if (stat(CONFIG_PATH, &configPath) != 0) {
-        std::filesystem::create_directories(std::string(CONFIG_PATH) + "/maps");
-        std::filesystem::create_directories(std::string(CONFIG_PATH) + "/content");
-        std::filesystem::create_directories(std::string(CONFIG_PATH) + "/logs");
-    }
-    // just assume that it isn't created, it could be a file though
-}
-} // namespace Config
+#endif
