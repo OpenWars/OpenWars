@@ -1,9 +1,14 @@
 #ifndef __openwars__config__config__h__
 #define __openwars__config__config__h__
 
-namespace Config {
-	char *CONFIG_PATH = nullptr;
-	int initialize();
-}; // namespace Config
+class Config {
+	private:
+		const char *err = nullptr;
+
+	public:
+		Config(void);
+
+		const char *get_error(void);
+};
 
 #endif
