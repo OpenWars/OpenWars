@@ -4,7 +4,16 @@ namespace Raylib {
 	#include <raylib.h>
 };
 
+#include "./config/config.cpp"
+
 int main(void) {
+	OpenWars::Config config;
+
+	if(config.load() < 0) {
+		std::cerr << "{CONFIG_LOAD_ERROR}" << config.get_error() << ".\n";
+		return 1;
+	}
+
 	const int screenWidth = 800;
 	const int screenHeight = 450;
 
