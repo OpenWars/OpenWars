@@ -1,6 +1,8 @@
 #include "game/scene/scene.h"
 #include <iostream>
 
+#include <sol/sol.hpp>
+
 namespace Raylib {
 	#include <raylib.h>
 };
