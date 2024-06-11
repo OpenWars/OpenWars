@@ -3,3 +3,4 @@ out/
 .clang-format
 **/*.swp
 .vscode/
+sol2/
