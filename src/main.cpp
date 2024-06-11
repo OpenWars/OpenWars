@@ -1,3 +1,4 @@
+#include "game/scene/scene.h"
 #include <iostream>
 
 namespace Raylib {
@@ -7,6 +8,7 @@ namespace Raylib {
 #include "./config/config.cpp"
 
 int main(void) {
+	Scene::Scenes currentScene = Scene::Scenes::LOADING;
 	OpenWars::Config config;
 
 	if(config.load() < 0) {
