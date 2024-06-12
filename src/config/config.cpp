@@ -1,7 +1,7 @@
 #ifndef __openwars__config__config__cxx__
 #define __openwars__config__config__cxx__
 
-#include "config.h"
+#include "config.hpp"
 
 #include <filesystem>
 #include <cstdlib>

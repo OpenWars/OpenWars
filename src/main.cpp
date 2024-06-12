@@ -1,13 +1,13 @@
-#include "game/scene/scene.h"
-#include <iostream>
+#include "game/scene/scene.hpp"
+#include "game/lua/lua.hpp"
+#include "config/config.cpp"
 
-#include <sol/sol.hpp>
+#include <iostream>
 
 namespace Raylib {
 	#include <raylib.h>
 };
 
-#include "./config/config.cpp"
 
 int main(void) {
 	Scene::Scenes currentScene = Scene::Scenes::LOADING;
