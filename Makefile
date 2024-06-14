@@ -9,6 +9,7 @@ LDFLAGS		+= `pkg-config lua --cflags --libs`
 
 CPPCHECK	= cppcheck
 CLANGXX		= clang++
+VALGRIND	= valgrind
 
 all: openwars
 
@@ -25,3 +26,10 @@ check:
 openwars:
 	$(MKDIR) ./out/
 	$(CXX) $(CXXFLAGS) -o ./out/openwars ./src/main.cpp $(LDFLAGS)
+
+test:
+	$(VALGRIND) \
+		--leak-check=full \
+		--show-leak-kinds=all \
+		--track-origins=yes \
+		./out/openwars
