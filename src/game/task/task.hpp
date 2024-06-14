@@ -16,6 +16,19 @@ namespace OpenWars {
 			task_callback_t callback;
 		} task_t;
 
+		typedef struct _pawn_ctx_t {
+			std::mutex mtx_tasks;
+			std::mutex mtx_fin;
+
+			std::queue<task_t> tasks;
+
+			u32 fin[256] = { 0x00000000 };
+			u8 fin_i = 0;
+
+			bool should_deinit = false;
+			unsigned int deinit_count = 0;
+		} pawn_ctx_t;
+
 		class Pawn {
 			private:
 				const char *err_str = nullptr;
@@ -26,9 +39,9 @@ namespace OpenWars {
 
 				const char *get_error(void);
 
-				int create(std::queue<task_t> *tasks_queue, std::queue<u32> *finished_tasks, std::mutex *tasks_mutex);
-				bool created(void);
-				void destruct(void);
+				int init(pawn_ctx_t *pawn_ctx);
+				bool initialized(void);
+				void deinit(void);
 		};
 
 		class King {
@@ -38,9 +51,7 @@ namespace OpenWars {
 				Pawn *pawns = nullptr;
 				unsigned int number_of_pawns = 0;
 
-				std::queue<task_t> tasks_queue;
-				std::queue<u32> finished_tasks;
-				std::mutex tasks_mutex;
+				pawn_ctx_t pawn_ctx;
 
 				u32 inc_task_id = 0x00000000;
 
@@ -50,12 +61,15 @@ namespace OpenWars {
 				const char *get_error(void);
 				unsigned int get_cpu_threads(void);
 
-				bool created(void);
+				bool initialized(void);
 				int init_pawns(void);
 				void deinit_pawns(void);
 
-				u32 schedule(task_callback_t callback, bool report);
-				u32 schedule(task_callback_t callback);
+				u32 push(task_callback_t callback, bool report);
+				u32 push(task_callback_t callback);
+
+				bool finished(u32 task_id);
+				void remove_finished(u32 task_id);
 		};
 	};
 };
