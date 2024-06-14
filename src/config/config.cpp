@@ -53,8 +53,6 @@ namespace OpenWars {
 	};
 
 	int Config::create_dirs(const char *path) {
-		std::printf("Hola: %s\n", path);
-
 		try {
 			std::filesystem::create_directories(path);
 		} catch(std::filesystem::filesystem_error& e) {
