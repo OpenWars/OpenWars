@@ -5,44 +5,63 @@
 #include <new>
 #include <chrono>
 
+#include <cstdio>
+
 namespace OpenWars {
 	namespace Tasks {
-		void pawn_loop(tasks_queue_t *tasks_queue_ptr, std::mutex *tasks_mutex) {
+		void pawn_wait(void) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		};
+
+		void pawn_loop(std::queue<task_t> *tasks_queue, std::queue<u32> *finished_tasks, std::mutex *tasks_mutex) {
 			task_t curr_task;
 
 			while(true) {
-				// While it's blocked (if it's blocked), wait 1ms and check again.
+				// If it's blocked, wait 1 ms and check again.
 				while(tasks_mutex->try_lock() == false) {
 					std::this_thread::sleep_for(std::chrono::milliseconds(1));
 				};
 
-				if(tasks_queue_ptr->empty()) {
+				if(tasks_queue->empty()) {
 					curr_task.id = 0x00000000;
 					curr_task.report = false;
-					curr_task.callback = [](void) {};
+					curr_task.callback = pawn_wait;
 				} else {
-					curr_task = tasks_queue_ptr->front();
-					tasks_queue_ptr->pop();
+					curr_task = tasks_queue->front();
+
+					// "BRK".
+					if(curr_task.id != 0xffffff00)
+						tasks_queue->pop();
 				}
 
 				tasks_mutex->unlock();
+
+				// "BRK".
+				if(curr_task.id == 0xffffff00)
+					break;
+
+				curr_task.callback();
+
+				// [TODO] : Mutex-ify "finished_tasks".
+				if(curr_task.report)
+					finished_tasks->push(curr_task.id);					
 			};
 		};
 
 		// Class `Pawn`.
 		Pawn::~Pawn(void) {
-			// [TODO]
+			destruct();
 		};
 
 		const char *Pawn::get_error(void) {
 			return err_str;
 		};
 
-		int Pawn::create(tasks_queue_t *tasks_queue, std::mutex *tasks_mutex) {
+		int Pawn::create(std::queue<task_t> *tasks_queue, std::queue<u32> *finished_tasks, std::mutex *tasks_mutex) {
 			if(created()) return -1;
 
 			try {
-				thread_ptr = new std::thread(pawn_loop, tasks_queue, tasks_mutex);
+				thread_ptr = new std::thread(pawn_loop, tasks_queue, finished_tasks, tasks_mutex);
 			} catch(std::bad_alloc& e) {
 				err_str = "Couldn't allocate a Thread";
 				return -1;
@@ -58,12 +77,13 @@ namespace OpenWars {
 		};
 
 		void Pawn::destruct(void) {
-			// [TODO]
+			if(thread_ptr != nullptr)
+				delete thread_ptr;
 		};
 
 		// Class `King`.
 		King::~King(void) {
-			// [TODO]
+			deinit_pawns();
 		};
 
 		const char *King::get_error(void) {
@@ -75,99 +95,78 @@ namespace OpenWars {
 			return std::thread::hardware_concurrency();
 		};
 
+		bool King::created(void) {
+			return (number_of_pawns > 0);
+		};
+
 		int King::init_pawns(void) {
-			// [TODO]
-			return -7050;
+			if(created()) {
+				err_str = "All pawns are alive";
+				return -1;
+			}
+
+			unsigned int n = get_cpu_threads();
+			if(n < 1) n = 1;
+
+			try {
+				pawns = new Pawn[n];
+			} catch(std::bad_alloc& e) {
+				err_str = "Couldn't allocate enough memory for the pawns";
+				return -1;
+			};
+
+			number_of_pawns = n;
+
+			for(unsigned int i = 0; i < n; i++) {
+				if(pawns[i].create(&tasks_queue, &finished_tasks, &tasks_mutex) < 0) {
+					err_str = pawns[i].get_error();
+					deinit_pawns();
+
+					return -1;
+				}
+			};
+
+			return 0;
 		};
 
 		void King::deinit_pawns(void) {
-			// [TODO]
+			if(created() == false) return;
+
+			for(unsigned int i = 0; i < number_of_pawns; i++)
+				pawns[i].destruct();
+			
+			delete[] pawns;
+			number_of_pawns = 0;
+
+			while(tasks_queue.empty() == false)
+				tasks_queue.pop();
+
+			while(finished_tasks.empty() == false)
+				finished_tasks.pop();
+			
+			inc_task_id = 0x00000000;
 		};
 
-		u32 King::schedule(void) {
-			// [TODO]
-			return -7050;
-		};
-	};
-	
-	/*
-	TasksList::task_callback_t TasksList::pop_task(void) {
-		// [TODO]
-	};
+		u32 King::schedule(task_callback_t callback, bool report) {
+			if(created() == false) return (-1);
 
-	TaskHandler::TaskHandler(void) {};
+			u32 id = report
+				? (inc_task_id++)
+				: 0x00000000;
 
-	TaskHandler::~TaskHandler(void) {
-		destruct();
-	};
+			tasks_queue.push(task_t {
+				id,
+				report,
+				callback,
+			});
 
-	const char *TaskHandler::get_error(void) {
-		return err_str;
-	};
-
-	int TaskHandler::create(TasksList *tasks_ptr) {
-	};
-
-	bool TaskHandler::created(void) {
-		return (t_ptr != nullptr);
-	};
-	
-	void TaskHandler::destruct(void) {
-		// [TODO]
-		delete t_ptr;
-	};
-
-	TaskScheduler::TaskScheduler(void) {
-		// [TODO]
-	};
-
-	TaskScheduler::~TaskScheduler(void) {
-		if(task_handlers == nullptr) return;
-		destruct_handlers();
-	};
-
-	const char *TaskScheduler::get_error(void) {
-		return err_str;
-	};
-
-	int TaskScheduler::create_handlers(void) {
-		if(created == true) return -1;
-
-		unsigned int tn = get_cpu_threads();
-		if(tn < 2) tn = 2;
-
-		tn--;
-
-		try {
-			task_handlers = new TaskHandler[tn - 1];
-		} catch(std::bad_alloc& e) {
-			err_str = "Couldn't allocate enough memory for task handlers";
-			return -1;
+			return id;
 		};
 
-		for(unsigned int i = 0; i < tn; i++) {
-			if(task_handlers[i].create(&tasks_queue) < 0) {
-				err_str = task_handlers[i].get_error();
-				destruct_handlers();
-
-				return -1;
-			}
+		u32 King::schedule(task_callback_t callback) {
+			return schedule(callback, false);
 		};
-
-		number_of_task_handlers = tn;
 	};
-
-	void TaskScheduler::destruct_handlers(void) {
-		for(unsigned int i = 0; i < number_of_task_handlers; i++)
-			task_handlers[i].destruct();
-	};
-
-	int TaskScheduler::schedule(void) {
-		// [TODO]
-
-		return -1;
-	};
-	*/
 };
 
 #endif

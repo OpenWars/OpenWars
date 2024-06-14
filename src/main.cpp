@@ -6,7 +6,7 @@
 #include "game/task/task.hpp"
 
 #include <cstdio>
-#include <iostream>
+#include <ratio>
 
 namespace Raylib {
 	#include <raylib.h>
@@ -52,9 +52,10 @@ int main(void) {
 
 		Raylib::EndMode2D();
 		Raylib::EndDrawing();
-	}
+	};
 
 	Raylib::CloseWindow();
+	tasks_king.deinit_pawns();
 
 	return 0;
 }

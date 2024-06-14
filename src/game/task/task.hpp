@@ -16,8 +16,6 @@ namespace OpenWars {
 			task_callback_t callback;
 		} task_t;
 
-		typedef std::queue<task_t> tasks_queue_t;
-
 		class Pawn {
 			private:
 				const char *err_str = nullptr;
@@ -28,7 +26,7 @@ namespace OpenWars {
 
 				const char *get_error(void);
 
-				int create(tasks_queue_t *tasks_queue, std::mutex *tasks_mutex);
+				int create(std::queue<task_t> *tasks_queue, std::queue<u32> *finished_tasks, std::mutex *tasks_mutex);
 				bool created(void);
 				void destruct(void);
 		};
@@ -37,12 +35,14 @@ namespace OpenWars {
 			private:
 				const char *err_str = nullptr;
 
-				bool created = false;
 				Pawn *pawns = nullptr;
-				unsigned int number_of_task_handlers = 0;
+				unsigned int number_of_pawns = 0;
 
-				tasks_queue_t tasks_queue;
+				std::queue<task_t> tasks_queue;
+				std::queue<u32> finished_tasks;
 				std::mutex tasks_mutex;
+
+				u32 inc_task_id = 0x00000000;
 
 			public:
 				~King(void);
@@ -50,10 +50,12 @@ namespace OpenWars {
 				const char *get_error(void);
 				unsigned int get_cpu_threads(void);
 
+				bool created(void);
 				int init_pawns(void);
 				void deinit_pawns(void);
 
-				u32 schedule(void);
+				u32 schedule(task_callback_t callback, bool report);
+				u32 schedule(task_callback_t callback);
 		};
 	};
 };
