@@ -5,6 +5,7 @@
 #include "game/task/task.cpp"
 #include "game/task/task.hpp"
 
+#include <cstdio>
 #include <iostream>
 
 namespace Raylib {
@@ -16,13 +17,14 @@ int main(void) {
 	OpenWars::Config config;
 
 	if(config.load() < 0) {
-		std::cerr << "{CONFIG_LOAD_ERROR}" << config.get_error() << ".\n";
+		std::fprintf(stderr, "{CONFIG_LOAD_ERROR} %s\n", config.get_error());
 		return 1;
 	}
 
-	OpenWars::TaskScheduler task_scheduler;
-	if(task_scheduler.create_handlers() < 0) {
-		std::cerr << "{TASK_SCHEDULER_CREATE_ERROR}" << task_scheduler.get_error() << ".\n";
+	OpenWars::Tasks::King tasks_king;
+
+	if(tasks_king.init_pawns() < 0) {
+		std::fprintf(stderr, "{TASK_SCHEDULER_CREATE_ERROR} %s\n", tasks_king.get_error());
 		return 1;
 	}
 

@@ -4,46 +4,57 @@
 #include "../../defs.hpp"
 #include <thread>
 #include <queue>
+#include <mutex>
 
 namespace OpenWars {
-	typedef void (*task_callback_t)(void);
-	typedef std::queue<task_callback_t> tasks_queue_t;
+	namespace Tasks {
+		typedef void (*task_callback_t)(void);
 
-	class TaskHandler {
-		private:
-			const char *err_str = nullptr;
+		typedef struct {
+			u32 id;
+			bool report;
+			task_callback_t callback;
+		} task_t;
 
-			std::thread *thread_ptr = nullptr;
-			tasks_queue_t *tasks_queue = nullptr;
+		typedef std::queue<task_t> tasks_queue_t;
 
-		public:
-			const char *get_error(void);
+		class Pawn {
+			private:
+				const char *err_str = nullptr;
+				std::thread *thread_ptr = nullptr;
 
-			int create(tasks_queue_t *tasks_ptr);
-			bool created(void);
-			void destruct(void);
-	};
+			public:
+				~Pawn(void);
 
-	class TaskScheduler {
-		private:
-			const char *err_str = nullptr;
+				const char *get_error(void);
 
-			bool created = false;
-			TaskHandler *task_handlers = nullptr;
-			unsigned int number_of_task_handlers = 0;
+				int create(tasks_queue_t *tasks_queue, std::mutex *tasks_mutex);
+				bool created(void);
+				void destruct(void);
+		};
 
-			tasks_queue_t tasks_queue;
+		class King {
+			private:
+				const char *err_str = nullptr;
 
-		public:
-			TaskScheduler(void);
-			~TaskScheduler(void);
+				bool created = false;
+				Pawn *pawns = nullptr;
+				unsigned int number_of_task_handlers = 0;
 
-			const char *get_error(void);
-			unsigned int get_cpu_threads(void);
+				tasks_queue_t tasks_queue;
+				std::mutex tasks_mutex;
 
-			int create_handlers(void);
-			void destruct_handlers(void);
-			int schedule(void);
+			public:
+				~King(void);
+
+				const char *get_error(void);
+				unsigned int get_cpu_threads(void);
+
+				int init_pawns(void);
+				void deinit_pawns(void);
+
+				u32 schedule(void);
+		};
 	};
 };
 
