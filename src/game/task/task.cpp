@@ -4,8 +4,7 @@
 #include "task.hpp"
 #include <new>
 #include <chrono>
-
-#include <cstdio>
+#include <thread>
 
 namespace OpenWars {
 	namespace Tasks {
@@ -13,55 +12,69 @@ namespace OpenWars {
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		};
 
-		void pawn_loop(std::queue<task_t> *tasks_queue, std::queue<u32> *finished_tasks, std::mutex *tasks_mutex) {
+		void pawn_loop(pawn_ctx_t *pawn_ctx) {
 			task_t curr_task;
 
 			while(true) {
+				if(pawn_ctx->should_deinit)
+					break;
+
 				// If it's blocked, wait 1 ms and check again.
-				while(tasks_mutex->try_lock() == false) {
+				while(pawn_ctx->mtx_tasks.try_lock() == false) {
 					std::this_thread::sleep_for(std::chrono::milliseconds(1));
 				};
 
-				if(tasks_queue->empty()) {
+				if(pawn_ctx->tasks.empty()) {
 					curr_task.id = 0x00000000;
 					curr_task.report = false;
 					curr_task.callback = pawn_wait;
 				} else {
-					curr_task = tasks_queue->front();
-
-					// "BRK".
-					if(curr_task.id != 0xffffff00)
-						tasks_queue->pop();
+					curr_task = pawn_ctx->tasks.front();
+					pawn_ctx->tasks.pop();
 				}
 
-				tasks_mutex->unlock();
-
-				// "BRK".
-				if(curr_task.id == 0xffffff00)
-					break;
+				pawn_ctx->mtx_tasks.unlock();
 
 				curr_task.callback();
 
 				// [TODO] : Mutex-ify "finished_tasks".
-				if(curr_task.report)
-					finished_tasks->push(curr_task.id);					
+				if(curr_task.report) {
+				// If it's blocked, wait 1 ms and check again.
+					while(pawn_ctx->mtx_fin.try_lock() == false) {
+						std::this_thread::sleep_for(std::chrono::milliseconds(1));
+					};
+
+					pawn_ctx->fin[pawn_ctx->fin_i] = curr_task.id;
+					pawn_ctx->fin_i++;
+					pawn_ctx->fin[pawn_ctx->fin_i] = 0x00000000;
+
+					pawn_ctx->mtx_fin.unlock();			
+				}
 			};
+
+			while(pawn_ctx->mtx_fin.try_lock() == false) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			};
+
+			pawn_ctx->deinit_count++;
+
+			pawn_ctx->mtx_fin.unlock();			
 		};
 
 		// Class `Pawn`.
 		Pawn::~Pawn(void) {
-			destruct();
+			deinit();
 		};
 
 		const char *Pawn::get_error(void) {
 			return err_str;
 		};
 
-		int Pawn::create(std::queue<task_t> *tasks_queue, std::queue<u32> *finished_tasks, std::mutex *tasks_mutex) {
-			if(created()) return -1;
+		int Pawn::init(pawn_ctx_t *pawn_ctx) {
+			if(initialized()) return -1;
 
 			try {
-				thread_ptr = new std::thread(pawn_loop, tasks_queue, finished_tasks, tasks_mutex);
+				thread_ptr = new std::thread(pawn_loop, pawn_ctx);
 			} catch(std::bad_alloc& e) {
 				err_str = "Couldn't allocate a Thread";
 				return -1;
@@ -72,11 +85,11 @@ namespace OpenWars {
 			return 0;
 		};
 
-		bool Pawn::created(void) {
+		bool Pawn::initialized(void) {
 			return (thread_ptr != nullptr);
 		};
 
-		void Pawn::destruct(void) {
+		void Pawn::deinit(void) {
 			if(thread_ptr != nullptr)
 				delete thread_ptr;
 		};
@@ -95,19 +108,21 @@ namespace OpenWars {
 			return std::thread::hardware_concurrency();
 		};
 
-		bool King::created(void) {
+		bool King::initialized(void) {
 			return (number_of_pawns > 0);
 		};
 
 		int King::init_pawns(void) {
-			if(created()) {
+			if(initialized()) {
 				err_str = "All pawns are alive";
 				return -1;
 			}
 
+			pawn_ctx.should_deinit = false;
+
 			unsigned int n = get_cpu_threads();
 			if(n < 1) n = 1;
-
+			
 			try {
 				pawns = new Pawn[n];
 			} catch(std::bad_alloc& e) {
@@ -118,7 +133,7 @@ namespace OpenWars {
 			number_of_pawns = n;
 
 			for(unsigned int i = 0; i < n; i++) {
-				if(pawns[i].create(&tasks_queue, &finished_tasks, &tasks_mutex) < 0) {
+				if(pawns[i].init(&pawn_ctx) < 0) {
 					err_str = pawns[i].get_error();
 					deinit_pawns();
 
@@ -130,31 +145,45 @@ namespace OpenWars {
 		};
 
 		void King::deinit_pawns(void) {
-			if(created() == false) return;
+			if(initialized() == false) return;
 
-			for(unsigned int i = 0; i < number_of_pawns; i++)
-				pawns[i].destruct();
+			pawn_ctx.should_deinit = true;
+
+			while(true) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(2));
+
+				while(pawn_ctx.mtx_fin.try_lock() == false) {
+					std::this_thread::sleep_for(std::chrono::milliseconds(2));
+				};
+
+				if(pawn_ctx.deinit_count == number_of_pawns) break;
+				pawn_ctx.mtx_fin.unlock();
+			};
 			
 			delete[] pawns;
+
+			pawn_ctx.should_deinit = false;
+			pawn_ctx.deinit_count = 0;
 			number_of_pawns = 0;
 
-			while(tasks_queue.empty() == false)
-				tasks_queue.pop();
+			while(pawn_ctx.tasks.empty() == false)
+				pawn_ctx.tasks.pop();
 
-			while(finished_tasks.empty() == false)
-				finished_tasks.pop();
+			pawn_ctx.fin_i = 0;
+			for(u16 i = 0; i < 256; i++)
+				pawn_ctx.fin[i] = 0x00;
 			
 			inc_task_id = 0x00000000;
 		};
 
-		u32 King::schedule(task_callback_t callback, bool report) {
-			if(created() == false) return (-1);
+		u32 King::push(task_callback_t callback, bool report) {
+			if(initialized() == false) return (-1);
 
 			u32 id = report
 				? (inc_task_id++)
-				: 0x00000000;
+				: 0xffffffff;
 
-			tasks_queue.push(task_t {
+			pawn_ctx.tasks.push(task_t {
 				id,
 				report,
 				callback,
@@ -163,8 +192,44 @@ namespace OpenWars {
 			return id;
 		};
 
-		u32 King::schedule(task_callback_t callback) {
-			return schedule(callback, false);
+		u32 King::push(task_callback_t callback) {
+			return push(callback, false);
+		};
+
+		bool King::finished(u32 task_id) {
+			// If it's blocked, wait 1 ms and check again.
+			while(pawn_ctx.mtx_fin.try_lock() == false) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			};
+
+			bool has_id = false;
+
+			for(u16 i = 0; i < 256; i++) {
+				if(pawn_ctx.fin[i] != task_id) continue;
+
+				has_id = true;
+				break;
+			};
+
+			pawn_ctx.mtx_fin.unlock();
+
+			return has_id;
+		};
+
+		void King::remove_finished(u32 task_id) {
+			// If it's blocked, wait 1 ms and check again.
+			while(pawn_ctx.mtx_fin.try_lock() == false) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			};
+
+			for(u16 i = 0; i < 256; i++) {
+				if(pawn_ctx.fin[i] != task_id) continue;
+
+				pawn_ctx.fin[i] = 0x00000000;
+				break;
+			};
+
+			pawn_ctx.mtx_fin.unlock();
 		};
 	};
 };
