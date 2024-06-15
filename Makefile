@@ -2,7 +2,7 @@ RM			= rm -f
 MKDIR		= mkdir -p
 
 CXX			= g++
-CXXFLAGS	= -std=c++17 -Wall -Wextra -Wpedantic -O2
+CXXFLAGS	= -std=c++17 -Wall -Wextra -Wpedantic
 LDFLAGS		= -Isol2/include
 LDFLAGS		+= `pkg-config raylib --cflags --libs`
 LDFLAGS		+= `pkg-config lua --cflags --libs`
@@ -10,6 +10,12 @@ LDFLAGS		+= `pkg-config lua --cflags --libs`
 CPPCHECK	= cppcheck
 CLANGXX		= clang++
 VALGRIND	= valgrind
+
+ifeq ($(origin DEBUG), environment)
+	CXXFLAGS += -Og -g -DOPENWARS_DEBUG
+else
+	CXXFLAGS += -O2
+endif
 
 all: openwars
 
