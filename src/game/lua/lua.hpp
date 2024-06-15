@@ -1,5 +1,5 @@
-#ifndef __openwars__game__lua__lua__hpp
-#define __openwars__game__lua__lua__hpp
+#ifndef __openwars__game__lua__lua__hpp__
+#define __openwars__game__lua__lua__hpp__
 
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
