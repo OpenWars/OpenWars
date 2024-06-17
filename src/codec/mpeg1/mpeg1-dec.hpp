@@ -4,19 +4,30 @@
 #include "../player.hpp"
 #include "../../io/files.hpp"
 
+#include <cstdio> // Debug purposes
+
 namespace OpenWars {
 	namespace Codec {
 		class DecMPEG1 : public VideoPlayer {
 			private:
-				const char *err_str = nullptr;
-				
-				FileStream fs;
-
 				typedef enum _STAGE {
 					NOT_OPEN,
 					HEADER_NOT_LOADED,
 				} STAGE;
 
+				typedef enum _PACKETS {
+					START_CODE_PREFIX = 0x000001,
+					PROGRAM_END = 0xb9,
+					PACK_HEADER = 0xba,
+					MPEG_AUDIO = 0xc0,
+					MPEG_VIDEO = 0xe0,
+					MPEG_AUDIO_MASK = 0x1f,
+					MPEG_VIDEO_MASK = 0x0f,
+				} PACKETS;
+
+				const char *err_str = nullptr;
+				
+				FileStream fs;
 				STAGE stage = STAGE::NOT_OPEN;
 
 				int load_header(void);
