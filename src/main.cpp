@@ -6,7 +6,6 @@
 #include "game/task/task.hpp"
 
 #include <cstdio>
-#include <ratio>
 
 namespace Raylib {
 	#include <raylib.h>
