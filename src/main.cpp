@@ -13,7 +13,7 @@ namespace Raylib {
 };
 
 int main(void) {
-	Scene::Scenes currentScene = Scene::Scenes::LOADING;
+	OpenWars::SceneController sceneController;
 	OpenWars::Config config;
 
 	if(config.load() < 0) {
