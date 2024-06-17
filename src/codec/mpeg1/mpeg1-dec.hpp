@@ -4,8 +4,6 @@
 #include "../player.hpp"
 #include "../../io/files.hpp"
 
-#include <cstdio> // Debug purposes
-
 namespace OpenWars {
 	namespace Codec {
 		class DecMPEG1 : public VideoPlayer {
