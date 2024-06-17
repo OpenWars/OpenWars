@@ -142,10 +142,10 @@ namespace OpenWars {
 			ErrorOr<void> writeI64LE(i64 value);
 			
 			ErrorOr<float> readF32(void);
-			ErrorOr<float> readF64(void);
+			ErrorOr<double> readF64(void);
 			
 			ErrorOr<void> writeF32(float value);
-			ErrorOr<void> writeF64(float value);
+			ErrorOr<void> writeF64(double value);
 	};
 };
 

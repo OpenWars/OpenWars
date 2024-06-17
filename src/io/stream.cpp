@@ -275,7 +275,7 @@ namespace OpenWars {
 		return value;
 	};
 	
-	ErrorOr<float> BaseStream::readF64(void) {
+	ErrorOr<double> BaseStream::readF64(void) {
 		ErrorOr<u64> raw_value = readU64BE();
 		if(raw_value.error) return Error { raw_value.error };
 		
@@ -290,7 +290,7 @@ namespace OpenWars {
 		return writeU32BE(*raw_value);
 	};
 	
-	ErrorOr<void> BaseStream::writeF64(float value) {
+	ErrorOr<void> BaseStream::writeF64(double value) {
 		u64 *raw_value = (u64 *)(&value);
 		return writeU64BE(*raw_value);
 	};
