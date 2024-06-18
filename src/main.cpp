@@ -3,7 +3,6 @@
 #include "game/lua/lua.hpp"
 #include "config/config.cpp"
 #include "game/task/task.cpp"
-#include "game/task/task.hpp"
 
 #include <cstdio>
 
