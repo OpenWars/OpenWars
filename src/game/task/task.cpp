@@ -8,12 +8,15 @@
 
 namespace OpenWars {
 	namespace Tasks {
-		void pawn_wait(void) {
+		int pawn_wait(void) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+			return 0;
 		};
 
 		void pawn_loop(pawn_ctx_t *pawn_ctx) {
 			task_t curr_task;
+			int task_status = 0;
 
 			while(true) {
 				if(pawn_ctx->should_deinit)
@@ -21,11 +24,11 @@ namespace OpenWars {
 
 				// If it's blocked, wait 1 ms and check again.
 				while(pawn_ctx->mtx_tasks.try_lock() == false)
-					pawn_wait();
+					(void)pawn_wait();
 
 				if(pawn_ctx->tasks.empty()) {
-					curr_task.id = 0x00000000;
-					curr_task.report = false;
+					curr_task.success = nullptr;
+					curr_task.failure = nullptr;
 					curr_task.callback = pawn_wait;
 				} else {
 					curr_task = pawn_ctx->tasks.front();
@@ -34,24 +37,27 @@ namespace OpenWars {
 
 				pawn_ctx->mtx_tasks.unlock();
 
-				curr_task.callback();
+				task_status = curr_task.callback();
 
-				// [TODO] : Mutex-ify "finished_tasks".
-				if(curr_task.report) {
-				// If it's blocked, wait 1 ms and check again.
+				if((task_status == 0) & (curr_task.success != nullptr)) {
 					while(pawn_ctx->mtx_fin.try_lock() == false)
-						pawn_wait();
+						(void)pawn_wait();
 
-					pawn_ctx->fin[pawn_ctx->fin_i] = curr_task.id;
-					pawn_ctx->fin_i++;
-					pawn_ctx->fin[pawn_ctx->fin_i] = 0x00000000;
+					pawn_ctx->fin.push(curr_task.success);
+					pawn_ctx->mtx_fin.unlock();
+				}
 
-					pawn_ctx->mtx_fin.unlock();			
+				if((task_status < 0) & (curr_task.failure != nullptr)) {
+					while(pawn_ctx->mtx_fin.try_lock() == false)
+						(void)pawn_wait();
+
+					pawn_ctx->fin.push(curr_task.failure);
+					pawn_ctx->mtx_fin.unlock();
 				}
 			};
 
 			while(pawn_ctx->mtx_fin.try_lock() == false)
-				pawn_wait();
+				(void)pawn_wait();
 
 			pawn_ctx->deinit_count++;
 
@@ -147,11 +153,10 @@ namespace OpenWars {
 			pawn_ctx.should_deinit = true;
 
 			while(true) {
-				std::this_thread::sleep_for(std::chrono::milliseconds(2));
+				wait();
 
-				while(pawn_ctx.mtx_fin.try_lock() == false) {
-					std::this_thread::sleep_for(std::chrono::milliseconds(2));
-				};
+				while(pawn_ctx.mtx_fin.try_lock() == false)
+					wait();
 
 				if(pawn_ctx.deinit_count == number_of_pawns) break;
 				pawn_ctx.mtx_fin.unlock();
@@ -166,67 +171,44 @@ namespace OpenWars {
 			while(pawn_ctx.tasks.empty() == false)
 				pawn_ctx.tasks.pop();
 
-			pawn_ctx.fin_i = 0;
-			for(u16 i = 0; i < 256; i++)
-				pawn_ctx.fin[i] = 0x00;
-			
-			inc_task_id = 0x00000000;
+			while(pawn_ctx.fin.empty() == false)
+				pawn_ctx.fin.pop();
 		};
 
-		u32 King::push(task_callback_t callback, bool report) {
-			if(initialized() == false) return (-1);
-
-			u32 id = report
-				? (inc_task_id++)
-				: 0xffffffff;
+		int King::push(const char *success, const char *failure, task_callback_t callback) {
+			if(initialized() == false) return -1;
 
 			pawn_ctx.tasks.push(task_t {
-				id,
-				report,
+				success,
+				failure,
 				callback,
 			});
 
-			return id;
+			return 0;
 		};
 
-		u32 King::push(task_callback_t callback) {
-			return push(callback, false);
+		int King::push(task_callback_t callback) {
+			return push(nullptr, nullptr, callback);
 		};
 
-		bool King::finished(u32 task_id) {
-			// If it's blocked, wait 1 ms and check again.
-			while(pawn_ctx.mtx_fin.try_lock() == false) {
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			};
+		fin_queue_t * King::lock_fin(void) {
+			if(fin_locked) return (&pawn_ctx.fin);
 
-			bool has_id = false;
+			while(pawn_ctx.mtx_fin.try_lock() == false)
+				pawn_wait();
 
-			for(u16 i = 0; i < 256; i++) {
-				if(pawn_ctx.fin[i] != task_id) continue;
-
-				has_id = true;
-				break;
-			};
-
-			pawn_ctx.mtx_fin.unlock();
-
-			return has_id;
+			fin_locked = true;
+			
+			return (&pawn_ctx.fin);
 		};
 
-		void King::remove_finished(u32 task_id) {
-			// If it's blocked, wait 1 ms and check again.
-			while(pawn_ctx.mtx_fin.try_lock() == false) {
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			};
+		void King::unlock_fin(void) {
+			if(fin_locked)
+				pawn_ctx.mtx_fin.unlock();
+		};
 
-			for(u16 i = 0; i < 256; i++) {
-				if(pawn_ctx.fin[i] != task_id) continue;
-
-				pawn_ctx.fin[i] = 0x00000000;
-				break;
-			};
-
-			pawn_ctx.mtx_fin.unlock();
+		void King::wait(void) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(5));
 		};
 	};
 };
