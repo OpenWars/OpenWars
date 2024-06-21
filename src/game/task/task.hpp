@@ -8,21 +8,24 @@
 
 namespace OpenWars {
 	namespace Tasks {
-		typedef void (*task_callback_t)(void);
+		typedef int (*task_callback_t)(void);
 
 		typedef struct {
-			u32 id;
-			bool report;
+			const char *success;
+			const char *failure;
 			task_callback_t callback;
 		} task_t;
+
+		typedef std::queue<const char *> fin_queue_t;
+		typedef std::queue<task_t> task_queue_t;
 
 		typedef struct _pawn_ctx_t {
 			std::mutex mtx_tasks;
 			std::mutex mtx_fin;
 
-			std::queue<task_t> tasks;
+			task_queue_t tasks;
 
-			u32 fin[256] = { 0x00000000 };
+			fin_queue_t fin;
 			u8 fin_i = 0;
 
 			bool should_deinit = false;
@@ -52,8 +55,7 @@ namespace OpenWars {
 				unsigned int number_of_pawns = 0;
 
 				pawn_ctx_t pawn_ctx;
-
-				u32 inc_task_id = 0x00000000;
+				bool fin_locked = false;
 
 			public:
 				~King(void);
@@ -65,11 +67,12 @@ namespace OpenWars {
 				int init_pawns(void);
 				void deinit_pawns(void);
 
-				u32 push(task_callback_t callback, bool report);
-				u32 push(task_callback_t callback);
+				int push(const char *success, const char *failure, task_callback_t callback);
+				int push(task_callback_t callback);
 
-				bool finished(u32 task_id);
-				void remove_finished(u32 task_id);
+				fin_queue_t * lock_fin(void);
+				void unlock_fin(void);
+				void wait(void);
 		};
 	};
 };
