@@ -20,9 +20,8 @@ namespace OpenWars {
 					break;
 
 				// If it's blocked, wait 1 ms and check again.
-				while(pawn_ctx->mtx_tasks.try_lock() == false) {
-					std::this_thread::sleep_for(std::chrono::milliseconds(1));
-				};
+				while(pawn_ctx->mtx_tasks.try_lock() == false)
+					pawn_wait();
 
 				if(pawn_ctx->tasks.empty()) {
 					curr_task.id = 0x00000000;
@@ -40,9 +39,8 @@ namespace OpenWars {
 				// [TODO] : Mutex-ify "finished_tasks".
 				if(curr_task.report) {
 				// If it's blocked, wait 1 ms and check again.
-					while(pawn_ctx->mtx_fin.try_lock() == false) {
-						std::this_thread::sleep_for(std::chrono::milliseconds(1));
-					};
+					while(pawn_ctx->mtx_fin.try_lock() == false)
+						pawn_wait();
 
 					pawn_ctx->fin[pawn_ctx->fin_i] = curr_task.id;
 					pawn_ctx->fin_i++;
@@ -52,9 +50,8 @@ namespace OpenWars {
 				}
 			};
 
-			while(pawn_ctx->mtx_fin.try_lock() == false) {
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			};
+			while(pawn_ctx->mtx_fin.try_lock() == false)
+				pawn_wait();
 
 			pawn_ctx->deinit_count++;
 
