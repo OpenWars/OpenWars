@@ -15,9 +15,7 @@ namespace OpenWars {
 			~LuaState(void);
 
 			const char *get_error(void);
-			int load_script(const char *path);
-			int unload_script(void);
-			int run_script(void);
+			int run_script(const char *path);
 	};
 };
 
