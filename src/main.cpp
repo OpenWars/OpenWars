@@ -1,6 +1,6 @@
 #include "defs.hpp"
 #include "game/scene/scene.hpp"
-#include "game/lua/lua.hpp"
+#include "game/lua/lua.cpp"
 #include "config/config.cpp"
 #include "game/task/task.cpp"
 
