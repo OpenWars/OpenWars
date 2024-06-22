@@ -4,7 +4,7 @@
 #include <cstdarg>
 
 namespace OpenWars {
-	typedef int (*log_callback_t)(void);
+	typedef void (*log_callback_t)(const char *);
 
 	// \x1b[93m[\x1b[91mOpen[31mWars[93m]\x1b[0m
 	// \x1b[96m[\x1b[95mDEBUG\x1b[96m]\x1b[0m

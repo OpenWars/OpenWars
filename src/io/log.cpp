@@ -4,6 +4,10 @@
 #include "log.hpp"
 #include <cstdio>
 
-namespace OpenWars {};
+namespace OpenWars {
+	log_callback_t log_f = [](const char *text) -> void {
+		return;
+	};
+};
 
 #endif
