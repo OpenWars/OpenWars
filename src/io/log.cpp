@@ -5,8 +5,20 @@
 #include <cstdio>
 
 namespace OpenWars {
-	log_callback_t log_f = [](const char *text) -> void {
-		return;
+	void log_f_debug(const char *s) {
+		#ifdef OPENWARS_DEBUG
+			(void)s;
+		#else
+			(void)s;
+		#endif
+	};
+
+	void log_f_info(const char *s) {
+		std::printf(s);
+	};
+
+	void log_f_error(const char *s) {
+		std::fprintf(stderr, s);
 	};
 };
 
