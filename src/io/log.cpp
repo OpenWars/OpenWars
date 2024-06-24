@@ -3,9 +3,10 @@
 
 #include "log.hpp"
 #include <cstdio>
+#include <new>
 
 namespace OpenWars {
-	void log_f_debug(const char *s) {
+	int default_log_debug(const char *s) {
 		#ifdef OPENWARS_DEBUG
 			(void)s;
 		#else
@@ -13,12 +14,44 @@ namespace OpenWars {
 		#endif
 	};
 
-	void log_f_info(const char *s) {
-		std::printf(s);
+	int log_f_debug(const char *s) {
+		return default_log_debug(s);
 	};
 
-	void log_f_error(const char *s) {
-		std::fprintf(stderr, s);
+	int log_f_info(const char *s) {
+		return default_log_info(s);
+	};
+
+	int log_f_error(const char *s) {
+		return default_log_error(s);
+	};
+
+	int log_debug(const char *format, ...) {
+		char *buff = nullptr;
+
+		try {
+			buff = new char[16385];
+		} catch(std::bad_alloc& e) {
+			return -1;
+		};
+
+		va_list args;
+		va_start(args, format);
+
+		int res = std::vsnprintf(buff, 16385, format, args);
+
+		va_end(args);
+
+		if(res != 0) {
+			delete[] buff;
+			return res;
+		}
+
+		res = log_f_debug(buff);
+
+		delete[] buff;
+
+		return res;
 	};
 };
 
