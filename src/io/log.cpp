@@ -2,54 +2,53 @@
 #define __openwars__io__log__cpp__
 
 #include "log.hpp"
+#include <cstdarg>
 #include <cstdio>
-#include <new>
 
 namespace OpenWars {
-	int default_log_debug(const char *s) {
-		#ifdef OPENWARS_DEBUG
-			(void)s;
-		#else
-			(void)s;
-		#endif
-	};
+	const char	*_TEXT_LOG = "\x1b[93m[\x1b[91mOpen\x1b[31mWars\x1b[93m]\x1b[0m",
+				*_TEXT_DEBUG_LOG = "\x1b[96m[\x1b[95mDEBUG\x1b[96m]\x1b[0m ",
+				*_TEXT_INFO_LOG = "\x1b[93m[\x1b[33mINFO\x1b[93m]\x1b[0m ",
+				*_TEXT_ERROR_LOG = "\x1b[97m[\x1b[31mERROR\x1b[97m]\x1b[0m ";
+	
+	int log_something(std::FILE *file, const char *pre, const char *format, std::va_list args) {
+		(void)std::fprintf(file, _TEXT_LOG);
+		(void)std::fprintf(file, pre);
+		int res = std::vfprintf(file, format, args);
 
-	int log_f_debug(const char *s) {
-		return default_log_debug(s);
-	};
-
-	int log_f_info(const char *s) {
-		return default_log_info(s);
-	};
-
-	int log_f_error(const char *s) {
-		return default_log_error(s);
+		return res;
 	};
 
 	int log_debug(const char *format, ...) {
-		char *buff = nullptr;
-
-		try {
-			buff = new char[16385];
-		} catch(std::bad_alloc& e) {
-			return -1;
-		};
-
 		va_list args;
 		va_start(args, format);
 
-		int res = std::vsnprintf(buff, 16385, format, args);
+		int res = log_something(stdout, _TEXT_DEBUG_LOG, format, args);
 
 		va_end(args);
 
-		if(res != 0) {
-			delete[] buff;
-			return res;
-		}
+		return res;
+	};
 
-		res = log_f_debug(buff);
+	int log_info(const char *format, ...) {
+		va_list args;
+		va_start(args, format);
 
-		delete[] buff;
+		int res = log_something(stdout, _TEXT_INFO_LOG, format, args);
+
+		va_end(args);
+
+		return res;
+	};
+
+	int log_error(const char *format, ...) {
+		va_list args;
+		va_start(args, format);
+
+		(void)log_something(stdout, _TEXT_ERROR_LOG, format, args);
+		int res = log_something(stderr, _TEXT_ERROR_LOG, format, args);
+
+		va_end(args);
 
 		return res;
 	};
