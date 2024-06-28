@@ -3,6 +3,14 @@
 
 #include "scene.hpp"
 
-OpenWars::SceneController::SceneController(){}
+namespace OpenWars {
+	SceneController::SceneController(void) {
+		// [TODO]
+	};
+
+	SceneController::~SceneController(void) {
+		// [TODO]
+	};
+};
 
 #endif

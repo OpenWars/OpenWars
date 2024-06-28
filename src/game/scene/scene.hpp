@@ -15,21 +15,21 @@ namespace OpenWars {
 
 	class SceneController {
 		public:
-		OpenWars::Scenes currentScene = OpenWars::Scenes::LOADING;
+			OpenWars::Scenes currentScene = OpenWars::Scenes::LOADING;
 
-		SceneController();
-		~SceneController();
+			SceneController();
+			~SceneController();
 	};
 
 	// Scenes::MAIN
 	class MainScene {
 		public:
-		const char* playerName;
+			const char* playerName;
 
-		MainScene(const char* playerName);
-		~MainScene();
+			MainScene(const char* playerName);
+			~MainScene();
 
-		void render();
+			void render();
 	};
 
 	// TODO Scenes::GAME - Until map format is finished.

@@ -3,12 +3,18 @@
 
 #include "scene.hpp"
 
-OpenWars::MainScene::MainScene(const char* playerName) {
-	this->playerName = playerName;
-}
+namespace OpenWars {
+	MainScene::MainScene(const char* playerName) {
+		this->playerName = playerName;
+	}
 
-void OpenWars::MainScene::render(){
-	// TODO
-}
+	void MainScene::render(){
+		// TODO
+	}
+
+	MainScene::~MainScene() {
+		// [TODO]
+	};
+};
 
 #endif
