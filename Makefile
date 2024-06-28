@@ -2,7 +2,8 @@ RM			= rm -f
 MKDIR		= mkdir -p
 
 SOURCES		= $(shell find src -type f -iname "*.cpp")
-OBJECTS		= $(foreach x, $(basename $(SOURCES)), $(x).o)
+#OBJECTS		= $(foreach x, $(basename $(SOURCES)), ./out/$(x).o)
+OBJECTS		= $(patsubst src/%.cpp,out/%.o,$(SOURCES))
 TARGET		= ./out/openwars
 
 CXX			= g++
@@ -35,11 +36,13 @@ check:
 		$(LDFLAGS)
 
 openwars: $(OBJECTS)
-	$(MKDIR) ./out/src
 	$(LD) -o $(TARGET) $^ $(LDFLAGS)
 
-%.o: %.cpp
+out/%.o: src/%.cpp | create_dirs
 	$(CXX) -c $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+
+create_dirs:
+	@$(MKDIR) $(sort $(dir $(OBJECTS)))
 
 test:
 	$(VALGRIND) \
