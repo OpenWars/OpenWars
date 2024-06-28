@@ -1,7 +1,6 @@
 #ifndef __openwars__io__files__cpp__
 #define __openwars__io__files__cpp__
 
-#include "stream.cpp"
 #include "files.hpp"
 #include <cerrno>
 #include <cstring>

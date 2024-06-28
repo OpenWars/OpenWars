@@ -4,9 +4,6 @@
 #include "stream.hpp"
 
 namespace OpenWars {
-	void BaseStream::skipg(i64 pos) { seekg(pos, seekdir::cur); };
-	void BaseStream::skipp(i64 pos) { seekp(pos, seekdir::cur); };
-
 	ErrorOr<u8> BaseStream::readU8(void) {
 		u8 buff[1];
 		ErrorOr<void> e = read(buff, 1);
