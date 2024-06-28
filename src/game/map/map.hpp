@@ -1,47 +1,33 @@
-#ifndef __openwars__game__map__map__h__
-#define __openwars__game__map__map__h__
+#ifndef __openwars__game__map__map__hpp__
+#define __openwars__game__map__map__hpp__
 
-#include <raylib.h>
-#include <string>
-#include <vector>
-#include <cstdint>
-#include <unordered_map>
+#include "../../defs.hpp"
+#include "../../visual/visual.hpp"
 
-namespace Map {
+namespace OpenWars {
 	typedef struct {
-		bool		is_ready;
-		uint16_t	id;
-		uint16_t	width;
-		uint16_t	height;
-		// Big-Endian R8G8B8A8 format.
-		uint8_t		*data;
+		u16			id;
+		u16			textures_len;
+		texture_t	*textures;
 	} map_tile_t;
-	
-	typedef std::unordered_map<uint16_t, map_tile_t *> map_tiles_index_t;
-	
+
 	typedef struct {
 		// The map width and height, in tiles.
-		uint16_t			width;
-		uint16_t			height;
+		u16			width;
+		u16			height;
 		// A table that links the tiles IDs, to the tiles themselves.
-		map_tiles_index_t	index;
+		map_tile_t	*tiles_map;
 		// A pointer to the map tiles data.
-		uint16_t			*tiles;
+		u16			*tiles;
 		// The map's thumbnail.
-		map_tile_t			thumb;
-		
-		// The decoder status code. If negative, that's bad.
-		int					status_code;
-		const char			*status_message = nullptr;
-		
-		// The name of the mod for which this map was made.
+		texture_t	*thumbnail;
+		// The name of the game for which this map was made.
 		// It may be a Git repository link.
 		// E.g.: "openwars", or "https://github.com/ilaicraftYT/OpenWars".
-		char				*mod;
+		char		*mod;
 	} map_t;
-	
-	map_t load(const char *name);
-	void draw(map_t map, int screenWidth, int screenHeight);
-} // namespace Map
+
+	extern ErrorOr<map_t *> load_map(const char *path);
+};
 
 #endif
