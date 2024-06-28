@@ -1,8 +1,13 @@
 RM			= rm -f
 MKDIR		= mkdir -p
 
+SOURCES		= $(shell find src -type f -iname "*.cpp")
+OBJECTS		= $(foreach x, $(basename $(SOURCES)), $(x).o)
+TARGET		= ./out/openwars
+
 CXX			= g++
 CXXFLAGS	= -std=c++17 -Wall -Wextra -Wpedantic
+LD			= $(CXX)
 LDFLAGS		= -Isol2/include
 LDFLAGS		+= `pkg-config raylib --cflags --libs`
 LDFLAGS		+= `pkg-config lua --cflags --libs`
@@ -20,7 +25,7 @@ endif
 all: openwars
 
 clean:
-	$(RM) ./out/openwars
+	$(RM) $(TARGET) $(OBJECTS)
 
 check:
 	$(CPPCHECK) --language=c++ --std=c++17 ./src/main.cpp
@@ -29,13 +34,16 @@ check:
 		./src/main.cpp \
 		$(LDFLAGS)
 
-openwars:
-	$(MKDIR) ./out/
-	$(CXX) $(CXXFLAGS) -o ./out/openwars ./src/main.cpp $(LDFLAGS)
+openwars: $(OBJECTS)
+	$(MKDIR) ./out/src
+	$(LD) -o $(TARGET) $^ $(LDFLAGS)
+
+%.o: %.cpp
+	$(CXX) -c $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 test:
 	$(VALGRIND) \
 		--leak-check=full \
 		--show-leak-kinds=all \
 		--track-origins=yes \
-		./out/openwars
+		$(TARGET)
