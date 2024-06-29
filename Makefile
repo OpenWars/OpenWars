@@ -2,7 +2,6 @@ RM			= rm -f
 MKDIR		= mkdir -p
 
 SOURCES		= $(shell find src -type f -iname "*.cpp")
-#OBJECTS		= $(foreach x, $(basename $(SOURCES)), ./out/$(x).o)
 OBJECTS		= $(patsubst src/%.cpp,out/%.o,$(SOURCES))
 TARGET		= ./out/openwars
 
