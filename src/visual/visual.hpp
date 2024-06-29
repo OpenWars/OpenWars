@@ -4,17 +4,18 @@
 #include "../defs.hpp"
 
 namespace OpenWars {
-	typedef int (*texture_callback_t)(float x, float y, float w, float h, float t);
-
 	typedef struct {
-		u16					width;
-		u16					height;
-		// Big-Endian RGBA8888 format.
-		u8					*data;
-		texture_callback_t	callback;
+		u16				width;
+		u16				height;
+		uintptr_t		data_ptr;
 	} texture_t;
 
-	extern ErrorOr<texture_t *> create_bitmap_texture(u16 width, u16 height, u8 *pixels);
+	// "pixels" as Big-Endian RGBA8888, from top-left to bottom-right.
+	ErrorOr<texture_t *> create_bitmap_texture(u16 width, u16 height, u8 *pixels);
+
+	ErrorOr<void> draw_texture(texture_t *texture, float x, float y, float w, float h, float a, float t);
+
+	void free_texture(texture_t *texture);
 };
 
 #endif
