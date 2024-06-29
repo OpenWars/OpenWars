@@ -39,7 +39,7 @@ openwars: $(OBJECTS)
 	$(LD) -o $(TARGET) $^ $(LDFLAGS)
 
 out/%.o: src/%.cpp | create_dirs
-	$(CXX) -c $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -c $^ -o $@ $(LDFLAGS)
 
 create_dirs:
 	@$(MKDIR) $(sort $(dir $(OBJECTS)))
