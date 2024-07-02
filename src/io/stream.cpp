@@ -266,8 +266,9 @@ namespace OpenWars {
 		ErrorOr<u32> raw_value = readU32BE();
 		if(raw_value.error) return Error { raw_value.error };
 		
-		u32 value_u32 = raw_value.value();
-		float value = *(float *)&value_u32;
+		u32 v32 = raw_value.value();
+		u32 *v32p = (&v32);
+		float value = *(float *)v32p;
 		
 		return value;
 	};
@@ -276,8 +277,9 @@ namespace OpenWars {
 		ErrorOr<u64> raw_value = readU64BE();
 		if(raw_value.error) return Error { raw_value.error };
 		
-		u64 value_u64 = raw_value.value();
-		double value = *(double *)&value_u64;
+		u64 v64 = raw_value.value();
+		u64 *v64p = (&v64);
+		double value = *(double *)v64p;
 		
 		return value;
 	};
