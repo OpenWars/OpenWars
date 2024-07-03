@@ -44,6 +44,7 @@ namespace OpenWars {
 		};
 
 		Raylib::Texture2D r_tex = Raylib::LoadTextureFromImage(r_img);
+		Raylib::UnloadImageColors(r_col);
 		Raylib::UnloadImage(r_img);
 
 		tex->width = width;
@@ -113,6 +114,36 @@ namespace OpenWars {
 
 		delete texture;
 		texture = nullptr;
+	};
+
+	ErrorOr<texture_t *> load_texture_from_file(const char *filepath) {
+		texture_t *tex;
+		c_texture_thingy_t *thing;
+
+		try {
+			tex = new texture_t;
+			thing = new c_texture_thingy_t;
+		} catch(std::bad_alloc &e) {
+			return Error {
+				"Couldn't allocate enough memory for a bitmap texture"
+			};
+		};
+
+		Raylib::Image r_img = Raylib::LoadImage(filepath);
+		Raylib::Texture2D r_tex = Raylib::LoadTextureFromImage(r_img);
+
+		tex->width = r_img.width;
+		tex->height = r_img.height;
+
+		Raylib::UnloadImage(r_img);
+
+		// [TODO] Handle vector-based images.
+		thing->is_bitmap = true;
+		thing->tex = (&r_tex);
+
+		tex->data_ptr = (uintptr_t)thing;
+
+		return tex;
 	};
 };
 

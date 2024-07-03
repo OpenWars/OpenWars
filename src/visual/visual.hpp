@@ -16,6 +16,8 @@ namespace OpenWars {
 	ErrorOr<void> draw_texture(texture_t *texture, float x, float y, float w, float h, float a, float t);
 
 	void free_texture(texture_t *texture);
+
+	ErrorOr<texture_t *> load_texture_from_file(const char *filepath);
 };
 
 #endif
