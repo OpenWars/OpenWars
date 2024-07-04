@@ -149,9 +149,15 @@ namespace OpenWars {
 			avcodec_free_context(&mp->codec_ctx_video);
 		if(mp->codec_ctx_audio != nullptr)
 			avcodec_free_context(&mp->codec_ctx_audio);
+		if(mp->fmt_ctx != nullptr)
+			avformat_close_input(&mp->fmt_ctx);
+		if(mp->av_frame != nullptr)
+			av_frame_free(&mp->av_frame);
 
-		avformat_free_context(mp->fmt_ctx);
+		mp->codec_ctx_video = nullptr;
+		mp->codec_ctx_audio = nullptr;
 		mp->fmt_ctx = nullptr;
+		mp->av_frame = nullptr;
 
 		delete mp;
 		i_ptr = (uintptr_t)nullptr;
@@ -175,6 +181,49 @@ namespace OpenWars {
 
 	ErrorOr<void> MediaPlayer::process(void) {
 		// [TODO]
+		if(i_ptr == (uintptr_t)nullptr)
+			return Error { "There is no media" };
+		
+		i_mp_ptr_t *mp = (i_mp_ptr_t *)i_ptr;
+
+		mp->av_frame = av_frame_alloc();
+		if(mp->av_frame == nullptr) {
+			return Error {
+				"Couldn't allocate enough memory for a video frame"
+			};
+		}
+
+		int e;
+
+		AVPacket packet;
+		while(av_read_frame(mp->fmt_ctx, &packet) >= 0) {
+			if(packet.stream_index == mp->str_video->index) {
+				e = avcodec_send_packet(mp->codec_ctx_video, &packet);
+				if(e < 0) {
+					close();
+
+					if(av_strerror(e, err_buff, 128) == 0)
+						return Error { err_buff };
+
+					return Error { "Couldn't send next frame request" };
+				}
+
+				while(true) {
+					e = avcodec_receive_frame(mp->codec_ctx_video, mp->av_frame);
+
+					if(e < 0) {
+						close();
+
+						if(av_strerror(e, err_buff, 128) == 0)
+							return Error { err_buff };
+
+						return Error { "Couldn't receive next frame" };
+					}
+				};
+			}
+
+			av_packet_unref(&packet);
+		};
 	};
 
 	ErrorOr<MediaPlayer::video_frame_t *> MediaPlayer::get_frame(void) {
