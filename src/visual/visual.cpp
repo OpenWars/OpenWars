@@ -18,10 +18,12 @@ namespace OpenWars {
 	ErrorOr<texture_t *> create_bitmap_texture(u16 width, u16 height, u8 *pixels) {
 		texture_t *tex;
 		c_texture_thingy_t *thing;
+		Raylib::Texture2D *r_tex_ptr;
 
 		try {
 			tex = new texture_t;
 			thing = new c_texture_thingy_t;
+			r_tex_ptr = new Raylib::Texture2D;
 		} catch(std::bad_alloc &e) {
 			return Error {
 				"Couldn't allocate enough memory for a bitmap texture"
@@ -43,14 +45,15 @@ namespace OpenWars {
 			};
 		};
 
-		Raylib::Texture2D r_tex = Raylib::LoadTextureFromImage(r_img);
+		*r_tex_ptr = Raylib::LoadTextureFromImage(r_img),
+
 		Raylib::UnloadImageColors(r_col);
 		Raylib::UnloadImage(r_img);
 
 		tex->width = width;
 		tex->height = height;
 		thing->is_bitmap = true;
-		thing->tex = (&r_tex);
+		thing->tex = r_tex_ptr;
 
 		tex->data_ptr = (uintptr_t)thing;
 
@@ -157,22 +160,24 @@ namespace OpenWars {
 
 	ErrorOr<font_t *> load_font_from_file(const char *filepath) {
 		font_t *font;
+		Raylib::Font *r_font_ptr;
 
 		try {
 			font = new font_t;
+			r_font_ptr = new Raylib::Font;
 		} catch(std::bad_alloc &e) {
 			return Error {
 				"Couldn't allocate enough memory for a font"
 			};
 		};
 
-		Raylib::Font r_font = Raylib::LoadFont(filepath);
-		font->data_ptr = (uintptr_t)(&r_font);
+		*r_font_ptr = Raylib::LoadFont(filepath);
+		font->data_ptr = (uintptr_t)r_font_ptr;
 
 		return font;
 	};
 
-	ErrorOr<void> draw_font(font_t *font, const char *text, float x, float y, float size, float spacing) {
+	ErrorOr<void> draw_font(font_t *font, const char *text, float x, float y, float size, float spacing, color_t color) {
 		if(font == nullptr)
 			return Error { "Font is NULL" };
 		if(font->data_ptr == (uintptr_t)nullptr)
@@ -182,7 +187,12 @@ namespace OpenWars {
 							text,
 							{ x, y },
 							size, spacing,
-							Raylib::WHITE);
+							Raylib::Color {
+								color.r,
+								color.g,
+								color.b,
+								color.a
+							});
 		
 		return Error { nullptr };
 	};

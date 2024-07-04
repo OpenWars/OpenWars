@@ -5,6 +5,13 @@
 
 namespace OpenWars {
 	typedef struct {
+		u8	r = 0xff;
+		u8	g = 0x00;
+		u8	b = 0xff;
+		u8	a = 0xff;
+	} color_t;
+
+	typedef struct {
 		u16				width;
 		u16				height;
 		uintptr_t		data_ptr;
@@ -23,7 +30,7 @@ namespace OpenWars {
 
 	ErrorOr<texture_t *> load_texture_from_file(const char *filepath);
 
-	ErrorOr<void> draw_font(font_t *font, const char *text, float x, float y, float size, float spacing);
+	ErrorOr<void> draw_font(font_t *font, const char *text, float x, float y, float size, float spacing, color_t color);
 
 	void free_font(font_t *font);
 
