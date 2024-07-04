@@ -145,6 +145,34 @@ namespace OpenWars {
 
 		return tex;
 	};
+
+	void free_font(font_t *font) {
+		if(font->data_ptr != (uintptr_t)nullptr) {
+			Raylib::UnloadFont(*(Raylib::Font *)font->data_ptr);
+			font->data_ptr = (uintptr_t)nullptr;
+		}
+
+		delete font;
+	};
+
+	ErrorOr<font_t *> load_font_from_file(const char *filepath) {
+		font_t *font;
+
+		try {
+			font = new font_t;
+		} catch(std::bad_alloc &e) {
+			return Error {
+				"Couldn't allocate enough memory for a font"
+			};
+		};
+
+		Raylib::Font r_font = Raylib::LoadFont(filepath);
+		font->data_ptr = (uintptr_t)(&r_font);
+
+		return font;
+	};
+
+	void 
 };
 
 #endif
