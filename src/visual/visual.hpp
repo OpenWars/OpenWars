@@ -23,6 +23,8 @@ namespace OpenWars {
 
 	ErrorOr<texture_t *> load_texture_from_file(const char *filepath);
 
+	ErrorOr<void> draw_font(font_t *font, const char *text, float x, float y, float size, float spacing);
+
 	void free_font(font_t *font);
 
 	ErrorOr<font_t *> load_font_from_file(const char *filepath);

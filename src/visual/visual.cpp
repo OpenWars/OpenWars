@@ -172,7 +172,18 @@ namespace OpenWars {
 		return font;
 	};
 
-	void 
+	ErrorOr<void> draw_font(font_t *font, const char *text, float x, float y, float size, float spacing) {
+		if(font == nullptr)
+			return Error { "Font is NULL" };
+		if(font->data_ptr == (uintptr_t)nullptr)
+			return Error { "Font pointer is NULL" };
+
+		Raylib::DrawTextEx(	*(Raylib::Font *)font->data_ptr,
+							text,
+							{ x, y },
+							size, spacing,
+							Raylib::WHITE);
+	};
 };
 
 #endif
