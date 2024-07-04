@@ -183,6 +183,8 @@ namespace OpenWars {
 							{ x, y },
 							size, spacing,
 							Raylib::WHITE);
+		
+		return Error { nullptr };
 	};
 };
 
