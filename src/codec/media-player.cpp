@@ -21,8 +21,12 @@ namespace OpenWars {
 		AVCodecContext *codec_ctx_audio = nullptr;
 		AVCodecContext *codec_ctx_video = nullptr;
 
-		// [TODO]
 		AVFrame *av_frame = nullptr;
+		AVFrame *av_frame_rgb32 = nullptr;
+		SwsContext *sws_ctx = nullptr;
+		u8 *frame_buff = nullptr;
+
+		MediaPlayer::video_frame_t frame;
 	} i_mp_ptr_t;
 
 	ErrorOr<void> MediaPlayer::open(const char *filepath) {
@@ -99,8 +103,53 @@ namespace OpenWars {
 
 				return Error { "Couldn't open video stream context" };
 			}
-		}
 
+			mp->av_frame = av_frame_alloc();
+			if(mp->av_frame == nullptr) {
+				close();
+
+				return Error {
+					"Couldn't allocate enough memory for a video frame"
+				};
+			}
+
+			mp->av_frame_rgb32 = av_frame_alloc();
+			if(mp->av_frame_rgb32 == nullptr) {
+				close();
+				
+				return Error {
+					"Couldn't allocate enough memory for a converted video frame"
+				};
+			}
+
+			// SWS_FAST_BILINEAR, SWS_BILINEAR, SWS_CUBIC, SWS_X,
+			// SWS_POINT, SWS_AREA, SWS_BICUBLIN, SWS_GAUSS, SWS_SINC,
+			// SWS_LANCZOS, SWS_SPLINE
+
+			mp->sws_ctx = sws_getContext(codec_ctx->width, codec_ctx->height, codec_ctx->pix_fmt, codec_ctx->width, codec_ctx->height, AV_PIX_FMT_RGBA, SWS_POINT, nullptr, nullptr, nullptr);
+
+			if(mp->sws_ctx == nullptr) {
+				close();
+				return Error { "Couldn't create a SWS context" };
+			}
+
+			u64 fb_len = av_image_get_buffer_size(AV_PIX_FMT_RGBA, codec_ctx->width, codec_ctx->height, true);
+
+			mp->frame_buff = (u8 *)av_malloc(fb_len);
+
+			if(mp->frame_buff == nullptr) {
+				close();
+				return Error {
+					"Couldn't allocate enough memory for the video framebuffer"
+				};
+			}
+
+			av_image_fill_arrays(mp->av_frame_rgb32->data, mp->av_frame_rgb32->linesize, mp->frame_buff, AV_PIX_FMT_RGBA, codec_ctx->width, codec_ctx->height, true);
+
+			mp->frame.width = codec_ctx->width;
+			mp->frame.height = codec_ctx->height;
+			mp->frame.data = mp->frame_buff;
+		}
 
 		if(mp->str_audio != nullptr) {
 			AVCodec *codec = avcodec_find_decoder(mp->str_audio->codecpar->codec_id);
@@ -153,11 +202,19 @@ namespace OpenWars {
 			avformat_close_input(&mp->fmt_ctx);
 		if(mp->av_frame != nullptr)
 			av_frame_free(&mp->av_frame);
+		if(mp->av_frame_rgb32 != nullptr)
+			av_frame_free(&mp->av_frame_rgb32);
+		if(mp->frame_buff != nullptr)
+			av_free(mp->frame_buff);
+
+		sws_freeContext(mp->sws_ctx);
 
 		mp->codec_ctx_video = nullptr;
 		mp->codec_ctx_audio = nullptr;
 		mp->fmt_ctx = nullptr;
 		mp->av_frame = nullptr;
+		mp->av_frame_rgb32 = nullptr;
+		mp->sws_ctx = nullptr;
 
 		delete mp;
 		i_ptr = (uintptr_t)nullptr;
@@ -180,18 +237,10 @@ namespace OpenWars {
 	};
 
 	ErrorOr<void> MediaPlayer::process(void) {
-		// [TODO]
 		if(i_ptr == (uintptr_t)nullptr)
 			return Error { "There is no media" };
 		
 		i_mp_ptr_t *mp = (i_mp_ptr_t *)i_ptr;
-
-		mp->av_frame = av_frame_alloc();
-		if(mp->av_frame == nullptr) {
-			return Error {
-				"Couldn't allocate enough memory for a video frame"
-			};
-		}
 
 		int e;
 
@@ -223,7 +272,14 @@ namespace OpenWars {
 	};
 
 	ErrorOr<MediaPlayer::video_frame_t *> MediaPlayer::get_frame(void) {
-		// [TODO]
+		if(i_ptr == (uintptr_t)nullptr)
+			return Error { "There is no media" };
+		
+		i_mp_ptr_t *mp = (i_mp_ptr_t *)i_ptr;
+
+		sws_scale(mp->sws_ctx, mp->av_frame->data, mp->av_frame->linesize, 0, mp->codec_ctx_video->height, mp->av_frame_rgb32->data, mp->av_frame_rgb32->linesize);
+
+		return (&mp->frame);
 	};
 
 	ErrorOr<MediaPlayer::audio_samples_t *> MediaPlayer::get_samples(void) {
