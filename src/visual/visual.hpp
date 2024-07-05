@@ -24,6 +24,8 @@ namespace OpenWars {
 	// "pixels" as Big-Endian RGBA8888, from top-left to bottom-right.
 	ErrorOr<texture_t *> create_bitmap_texture(u16 width, u16 height, u8 *pixels);
 
+	ErrorOr<void> update_bitmap_texture(texture_t *tex, u8 *pixels);
+
 	ErrorOr<void> draw_texture(texture_t *texture, float x, float y, float w, float h, float a, float t);
 
 	void free_texture(texture_t *texture);
