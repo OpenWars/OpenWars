@@ -37,7 +37,7 @@ namespace OpenWars {
 		u64 iwh = (width * height * 4);
 
 		for(u64 i = 0; i < iwh; i += 4) {
-			r_col[i] = {
+			r_col[i >> 2] = {
 				pixels[i | 0x0],
 				pixels[i | 0x1],
 				pixels[i | 0x2],
