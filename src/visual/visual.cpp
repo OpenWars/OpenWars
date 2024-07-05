@@ -45,7 +45,7 @@ namespace OpenWars {
 			};
 		};
 
-		*r_tex_ptr = Raylib::LoadTextureFromImage(r_img),
+		*r_tex_ptr = Raylib::LoadTextureFromImage(r_img);
 
 		Raylib::UnloadImageColors(r_col);
 		Raylib::UnloadImage(r_img);
