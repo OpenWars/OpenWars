@@ -4,7 +4,7 @@
 #include "../defs.hpp"
 
 namespace OpenWars {
-	typedef struct {
+	typedef struct _color_t {
 		u8	r = 0xff;
 		u8	g = 0x00;
 		u8	b = 0xff;
