@@ -7,7 +7,9 @@ namespace OpenWars {
 	typedef struct {
 		u64			samples;
 		// (-1.0)...(1.0) samples.
-		float	*data;
+		float		*data;
+		float		*time;
+		float		*duration;
 
 		uintptr_t	data_ptr;
 	} sound_t;
