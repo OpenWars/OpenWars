@@ -21,6 +21,8 @@ namespace OpenWars {
 		uintptr_t		data_ptr;
 	} font_t;
 
+	ErrorOr<void> init_video(void);
+
 	// "pixels" as Big-Endian RGBA8888, from top-left to bottom-right.
 	ErrorOr<texture_t *> create_bitmap_texture(u16 width, u16 height, u8 *pixels);
 

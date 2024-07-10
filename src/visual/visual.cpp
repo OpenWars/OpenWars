@@ -9,6 +9,11 @@ namespace Raylib {
 };
 
 namespace OpenWars {
+	ErrorOr<void> init_video(void) {
+		// For now, it does nothing (Raylib inits video at InitWindow).
+		return Error { nullptr };
+	};
+
 	typedef struct {
 		bool				is_bitmap;
 		Raylib::Texture2D	*tex;

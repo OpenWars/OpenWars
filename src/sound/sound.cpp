@@ -9,6 +9,11 @@ namespace Raylib {
 };
 
 namespace OpenWars {
+	ErrorOr<void> init_audio(void) {
+		// For now, it does nothing (Raylib inits audio at InitWindow).
+		return Error { nullptr };
+	};
+
 	typedef struct _c_isptr_t {
 		Raylib::Music	r_music;
 	} _isptr_t;
