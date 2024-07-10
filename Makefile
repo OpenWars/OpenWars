@@ -36,11 +36,11 @@ endif
 all: openwars
 
 clean:
-	$(RM) $(TARGET) $(OBJECTS)
+	@$(RM) $(TARGET) $(OBJECTS)
 
 check:
-	$(CPPCHECK) --language=c++ --std=c++17 ./src/main.cpp
-	$(CLANGXX) --analyze -Xclang -analyzer-output=html $(CXXFLAGS) \
+	@$(CPPCHECK) --language=c++ --std=c++17 ./src/main.cpp
+	@$(CLANGXX) --analyze -Xclang -analyzer-output=html $(CXXFLAGS) \
 		-o ./out/analysis \
 		./src/main.cpp \
 		$(LDFLAGS)
@@ -49,7 +49,7 @@ openwars: $(OBJECTS)
 	$(LD) -o $(TARGET) $^ $(LDFLAGS)
 
 out/%.o: src/%.cpp | create_dirs
-	$(CXX) $(CXXFLAGS) -c $^ -o $@ $(LDFLAGS)
+	@$(CXX) $(CXXFLAGS) -c $^ -o $@ $(LDFLAGS)
 
 create_dirs:
 	@$(MKDIR) $(sort $(dir $(OBJECTS)))
