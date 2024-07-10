@@ -14,6 +14,11 @@ namespace OpenWars {
 		return Error { nullptr };
 	};
 
+	ErrorOr<void> deinit_video(void) {
+		// Sample as `init_video`.
+		return Error { nullptr };
+	};
+
 	typedef struct {
 		bool				is_bitmap;
 		Raylib::Texture2D	*tex;

@@ -15,6 +15,7 @@ namespace OpenWars {
 	} sound_t;
 
 	ErrorOr<void> init_audio(void);
+	ErrorOr<void> deinit_audio(void);
 	
 	ErrorOr<sound_t *> load_sound_from_file(const char *filepath);
 	ErrorOr<void> update_sound(sound_t *s);

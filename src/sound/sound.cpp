@@ -14,6 +14,11 @@ namespace OpenWars {
 		return Error { nullptr };
 	};
 
+	ErrorOr<void> deinit_audio(void) {
+		// Sample as `init_audio`.
+		return Error { nullptr };
+	};
+
 	typedef struct _c_isptr_t {
 		Raylib::Music	r_music;
 	} _isptr_t;
