@@ -12,8 +12,8 @@ namespace OpenWars {
 	} color_t;
 
 	typedef struct {
-		u16				width;
-		u16				height;
+		u32				width;
+		u32				height;
 		uintptr_t		data_ptr;
 	} texture_t;
 
@@ -25,9 +25,9 @@ namespace OpenWars {
 	ErrorOr<void> deinit_video(void);
 
 	// "pixels" as Big-Endian RGBA8888, from top-left to bottom-right.
-	ErrorOr<texture_t *> create_bitmap_texture(u16 width, u16 height, u8 *pixels);
+	ErrorOr<texture_t *> create_bitmap_texture(u32 width, u32 height, u8 *pixels);
 
-	ErrorOr<void> update_bitmap_texture(texture_t *tex, u16 width, u16 height, u8 *pixels);
+	ErrorOr<void> update_bitmap_texture(texture_t *tex, u32 width, u32 height, u8 *pixels);
 	ErrorOr<void> update_bitmap_texture(texture_t *tex, u8 *pixels);
 	ErrorOr<void> update_bitmap_texture(texture_t *tex);
 

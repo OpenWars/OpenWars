@@ -25,7 +25,7 @@ namespace OpenWars {
 	} c_texture_thingy_t;
 
 	// "pixels" as Big-Endian RGBA8888, from top-left to bottom-right.
-	ErrorOr<texture_t *> create_bitmap_texture(u16 width, u16 height, u8 *pixels) {
+	ErrorOr<texture_t *> create_bitmap_texture(u32 width, u32 height, u8 *pixels) {
 		texture_t *tex;
 		c_texture_thingy_t *thing;
 		Raylib::Texture2D *r_tex_ptr;
