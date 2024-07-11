@@ -10,6 +10,7 @@ namespace OpenWars {
 		EMPTY,
 		TEXTURE,
 		AUDIO_STREAM,
+		FONT,
 	} AUDITOR_RESOURCES;
 
 	ErrorOr<void> init_auditor(void);
