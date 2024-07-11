@@ -62,7 +62,7 @@ namespace OpenWars {
 		if(p->empty()) {
 			log_debug("Auditor is happy :D\n");
 		} else {
-			log_error("Auditor is not happy, because there are still %u elements that were not de-audited.\n", p->size());
+			log_debug("Auditor is not happy, because there are still %u elements that were not de-audited.\n", p->size());
 		}
 
 		delete p;
