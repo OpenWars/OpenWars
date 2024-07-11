@@ -43,11 +43,13 @@ namespace OpenWars {
 
 	int log_error(const char *format, ...) {
 		va_list args;
+
 		va_start(args, format);
-
 		(void)log_something(stdout, _TEXT_ERROR_LOG, format, args);
-		int res = log_something(stderr, _TEXT_ERROR_LOG, format, args);
+		va_end(args);
 
+		va_start(args, format);
+		int res = log_something(stderr, _TEXT_ERROR_LOG, format, args);
 		va_end(args);
 
 		return res;
