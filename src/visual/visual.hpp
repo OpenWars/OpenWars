@@ -14,11 +14,11 @@ namespace OpenWars {
 	typedef struct {
 		u32				width;
 		u32				height;
-		uintptr_t		data_ptr;
+		uintptr_t		p_data;
 	} texture_t;
 
 	typedef struct {
-		uintptr_t		data_ptr;
+		uintptr_t		p_data;
 	} font_t;
 
 	ErrorOr<void> init_video(int width, int height, const char *title);
@@ -29,24 +29,23 @@ namespace OpenWars {
 
 	bool should_close_window(void);
 
+	// [Texture]
+	ErrorOr<texture_t *> create_bitmap_texture(u32 width, u32 height);
+	ErrorOr<texture_t *> load_texture_from_file(const char *filepath);
+
 	// "pixels" as Big-Endian RGBA8888, from top-left to bottom-right.
-	ErrorOr<texture_t *> create_bitmap_texture(u32 width, u32 height, u8 *pixels);
-
-	ErrorOr<void> update_bitmap_texture(texture_t *tex, u32 width, u32 height, u8 *pixels);
 	ErrorOr<void> update_bitmap_texture(texture_t *tex, u8 *pixels);
-	ErrorOr<void> update_bitmap_texture(texture_t *tex);
-
-	ErrorOr<void> draw_texture(texture_t *texture, float x, float y, float w, float h, float a, float t);
 
 	void free_texture(texture_t *texture);
 
-	ErrorOr<texture_t *> load_texture_from_file(const char *filepath);
+	ErrorOr<void> draw_texture(texture_t *texture, float x, float y, float w, float h, float a, float t);
 
-	ErrorOr<void> draw_font(font_t *font, const char *text, float x, float y, float size, float spacing, color_t color);
+	// [Font]
+	ErrorOr<font_t *> load_font_from_file(const char *filepath);
 
 	void free_font(font_t *font);
 
-	ErrorOr<font_t *> load_font_from_file(const char *filepath);
+	ErrorOr<void> draw_font(font_t *font, const char *text, float x, float y, float size, float spacing, color_t color);
 };
 
 #endif
