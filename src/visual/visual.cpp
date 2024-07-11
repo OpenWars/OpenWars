@@ -55,6 +55,7 @@ namespace OpenWars {
 		return Raylib::WindowShouldClose();
 	};
 
+	// [Texture]
 	typedef struct {
 		Raylib::Texture2D	r_tex;
 		u8					*pixels;
@@ -82,6 +83,8 @@ namespace OpenWars {
 		tex->width = width;
 		tex->height = height;
 		tex->p_data = (uintptr_t)thing;
+
+		(void)audit(AUDITOR_RESOURCES::TEXTURE, "Bitmap texture");
 
 		return tex;
 	};
@@ -150,6 +153,8 @@ namespace OpenWars {
 
 		delete texture;
 		texture = nullptr;
+
+		(void)deaudit(AUDITOR_RESOURCES::TEXTURE, "Bitmap texture");
 	};
 
 	ErrorOr<texture_t *> load_texture_from_file(const char *filepath) {
@@ -173,9 +178,12 @@ namespace OpenWars {
 
 		tex->p_data = (uintptr_t)thing;
 
+		(void)audit(AUDITOR_RESOURCES::TEXTURE, "Bitmap texture");
+
 		return tex;
 	};
 
+	// [Font]
 	void free_font(font_t *font) {
 		if(font == nullptr)
 			return;
@@ -186,6 +194,8 @@ namespace OpenWars {
 		}
 
 		delete font;
+
+		(void)deaudit(AUDITOR_RESOURCES::FONT, "Font");
 	};
 
 	ErrorOr<font_t *> load_font_from_file(const char *filepath) {
@@ -203,6 +213,8 @@ namespace OpenWars {
 
 		*r_font_ptr = Raylib::LoadFont(filepath);
 		font->p_data = (uintptr_t)r_font_ptr;
+
+		(void)audit(AUDITOR_RESOURCES::FONT, "Font");
 
 		return font;
 	};
