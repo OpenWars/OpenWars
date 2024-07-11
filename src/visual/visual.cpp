@@ -9,14 +9,49 @@ namespace Raylib {
 };
 
 namespace OpenWars {
-	ErrorOr<void> init_video(void) {
-		// For now, it does nothing (Raylib inits video at InitWindow).
+	Raylib::Camera2D p_r_camera;
+
+	ErrorOr<void> init_video(int width, int height, const char *title) {
+		Raylib::InitWindow(width, height, title);
+
+		while(Raylib::IsWindowReady() == false);
+
+		p_r_camera = {
+			{ 0.0, 0.0 },
+			{ 0.0, 0.0 },
+			0.0,
+			1.0
+		};
+
+		Raylib::SetTargetFPS(60);
+
 		return Error { nullptr };
 	};
 
 	ErrorOr<void> deinit_video(void) {
-		// Sample as `init_video`.
+		Raylib::CloseWindow();
+
 		return Error { nullptr };
+	};
+
+	ErrorOr<void> init_frame(void) {
+		Raylib::BeginDrawing();
+		Raylib::ClearBackground(Raylib::BLACK);
+
+		Raylib::BeginMode2D(p_r_camera);
+
+		return Error { nullptr };
+	};
+
+	ErrorOr<void> swap_buffers(void) {
+		Raylib::EndMode2D();
+		Raylib::EndDrawing();
+
+		return Error { nullptr };
+	};
+
+	bool should_close_window(void) {
+		return Raylib::WindowShouldClose();
 	};
 
 	typedef struct {

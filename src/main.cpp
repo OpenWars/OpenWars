@@ -3,14 +3,14 @@
 #include "logic/lua/lua.hpp"
 #include "config/config.hpp"
 #include "logic/task/task.hpp"
+#include "visual/visual.hpp"
 
 #include <cstdio>
 
-namespace Raylib {
-	#include <raylib.h>
-};
-
 int main(void) {
+	const int screenWidth = 800;
+	const int screenHeight = 450;
+
 	OpenWars::SceneController sceneController;
 	OpenWars::Config config;
 
@@ -26,33 +26,17 @@ int main(void) {
 		return 1;
 	}
 
-	const int screenWidth = 800;
-	const int screenHeight = 450;
+	OpenWars::init_video(screenWidth, screenHeight, "OpenWars");
 
-	Raylib::InitWindow(screenWidth, screenHeight, "OpenWars");
-
-	Raylib::Camera2D camera = {
-		{ 0.0, 0.0 },
-		{ 0.0, 0.0 },
-		0.0,
-		1.0
-	};
-
-	Raylib::SetTargetFPS(60);
-
-	while(Raylib::WindowShouldClose() != true) {
-		Raylib::BeginDrawing();
-		Raylib::ClearBackground(Raylib::BLACK);
-
-		Raylib::BeginMode2D(camera);
+	while(OpenWars::should_close_window() == false) {
+		OpenWars::init_frame();
 
 		// [TODO]
 
-		Raylib::EndMode2D();
-		Raylib::EndDrawing();
+		OpenWars::swap_buffers();
 	};
 
-	Raylib::CloseWindow();
+	OpenWars::deinit_video();
 	tasks_king.deinit_pawns();
 
 	return 0;
