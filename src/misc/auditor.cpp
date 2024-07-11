@@ -88,13 +88,21 @@ namespace OpenWars {
 			return Error { "Auditor is empty" };
 
 		p_audits_t *p = (p_audits_t *)p_audits;
+		u32 id = ((p_audits_hash32(add) << 8) | res);
 
-		p->remove({
-			res,
-			((p_audits_hash32(add) << 8) | res),
-		});
+		p_audits_t::iterator it = p->begin();
+		u32 i = 0;
 
-		return Error { nullptr };
+		while(i < p->size()) {
+			if((it->res == res) && (it->id == id)) {
+				p->erase(it);
+				return Error { nullptr };
+			}
+
+			std::advance(it, 1);
+		};
+
+		return Error { "Couldn't find that resource" };
 	};
 };
 

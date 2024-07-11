@@ -7,7 +7,9 @@ namespace OpenWars {
 	extern uintptr_t p_audits;
 
 	typedef enum {
-		TEXTURE, AUDIO_STREAM,
+		EMPTY,
+		TEXTURE,
+		AUDIO_STREAM,
 	} AUDITOR_RESOURCES;
 
 	ErrorOr<void> init_auditor(void);
