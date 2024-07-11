@@ -2,6 +2,7 @@
 #define __openwars__game__visual__visual__cpp__
 
 #include "visual.hpp"
+#include "../misc/auditor.hpp"
 #include <new>
 
 namespace Raylib {
@@ -55,20 +56,17 @@ namespace OpenWars {
 	};
 
 	typedef struct {
-		bool				is_bitmap;
-		Raylib::Texture2D	*tex;
-	} c_texture_thingy_t;
+		Raylib::Texture2D	r_tex;
+		u8					*pixels;
+	} p_tex_t;
 
-	// "pixels" as Big-Endian RGBA8888, from top-left to bottom-right.
-	ErrorOr<texture_t *> create_bitmap_texture(u32 width, u32 height, u8 *pixels) {
+	ErrorOr<texture_t *> create_bitmap_texture(u32 width, u32 height) {
 		texture_t *tex;
-		c_texture_thingy_t *thing;
-		Raylib::Texture2D *r_tex_ptr;
+		p_tex_t *thing;
 
 		try {
 			tex = new texture_t;
-			thing = new c_texture_thingy_t;
-			r_tex_ptr = new Raylib::Texture2D;
+			thing = new p_tex_t;
 		} catch(std::bad_alloc &e) {
 			return Error {
 				"Couldn't allocate enough memory for a bitmap texture"
@@ -76,33 +74,35 @@ namespace OpenWars {
 		};
 
 		Raylib::Image r_img = Raylib::GenImageColor(width, height, Raylib::BLACK);
+		thing->r_tex = Raylib::LoadTextureFromImage(r_img);
+		thing->pixels = nullptr;
 
-		Raylib::Color *r_col = Raylib::LoadImageColors(r_img);
-
-		u64 iwh = (width * height * 4);
-
-		for(u64 i = 0; i < iwh; i += 4) {
-			r_col[i >> 2] = {
-				pixels[i | 0x0],
-				pixels[i | 0x1],
-				pixels[i | 0x2],
-				pixels[i | 0x3],
-			};
-		};
-
-		*r_tex_ptr = Raylib::LoadTextureFromImage(r_img);
-
-		Raylib::UnloadImageColors(r_col);
 		Raylib::UnloadImage(r_img);
 
 		tex->width = width;
 		tex->height = height;
-		thing->is_bitmap = true;
-		thing->tex = r_tex_ptr;
-
-		tex->data_ptr = (uintptr_t)thing;
+		tex->p_data = (uintptr_t)thing;
 
 		return tex;
+	};
+
+	// "pixels" as Big-Endian RGBA8888, from top-left to bottom-right.
+	ErrorOr<void> update_bitmap_texture(texture_t *tex, u8 *pixels) {
+		if(tex == nullptr)
+			return Error { "Texture pointer is NULL" };
+		if(tex->p_data == (uintptr_t)nullptr)
+			return Error { "Texture data pointer is NULL" };
+
+		p_tex_t *thing = (p_tex_t *)(tex->p_data);
+
+		if(pixels == nullptr)
+			pixels = thing->pixels;
+		if(pixels == nullptr)
+			return Error { "Texture pixel data pointer is NULL" };
+
+		Raylib::UpdateTexture(thing->r_tex, pixels);
+
+		return Error { nullptr };
 	};
 
 	ErrorOr<void> draw_texture(texture_t *texture, float x, float y, float w, float h, float a, float t) {
@@ -111,54 +111,42 @@ namespace OpenWars {
 		if(texture == nullptr)
 			return Error { "Texture pointer is NULL" };
 
-		if(texture->data_ptr == 0)
+		if(texture->p_data == 0)
 			return Error { "Texture data pointer is NULL" };
 
-		c_texture_thingy_t *thing = (c_texture_thingy_t *)texture->data_ptr;
+		p_tex_t *thing = (p_tex_t *)(texture->p_data);
 
-		if(thing->is_bitmap) {
-			Raylib::DrawTexturePro(
-				*thing->tex,
-				{
-					0, 0,
-					(float)thing->tex->width,
-					(float)thing->tex->height,
-				},
-				{
-					x, y,
-					w, h,
-				},
-				{ 0.0, 0.0 },
-				a,
-				Raylib::WHITE
-			);
+		Raylib::DrawTexturePro(
+			thing->r_tex,
+			{
+				0, 0,
+				(float)(thing->r_tex.width),
+				(float)(thing->r_tex.height),
+			},
+			{
+				x, y,
+				w, h,
+			},
+			{ 0.0, 0.0 },
+			a,
+			Raylib::WHITE
+		);
 
-			return Error { nullptr };
-		} else {
-			return Error { "Vector textures are TODOs" };
-		}
+		return Error { nullptr };
 	};
 
 	void free_texture(texture_t *texture) {
 		if(texture == nullptr)
 			return;
-		if(texture->data_ptr == 0)
+		if(texture->p_data == (uintptr_t)nullptr)
 			return;
 
-		c_texture_thingy_t *thing = (c_texture_thingy_t *)texture->data_ptr;
+		p_tex_t *thing = (p_tex_t *)(texture->p_data);
 
-		if(thing->is_bitmap) {
-			if(thing->tex != nullptr) {
-				Raylib::UnloadTexture(*thing->tex);
-				thing->tex = nullptr;
-			}
+		Raylib::UnloadTexture(thing->r_tex);
 
-			delete thing;
-			thing = nullptr;
-		} else {
-			// [TODO] Handle vector stuff.
-			return;
-		}
+		delete thing;
+		thing = nullptr;
 
 		delete texture;
 		texture = nullptr;
@@ -166,11 +154,11 @@ namespace OpenWars {
 
 	ErrorOr<texture_t *> load_texture_from_file(const char *filepath) {
 		texture_t *tex;
-		c_texture_thingy_t *thing;
+		p_tex_t *thing;
 
 		try {
 			tex = new texture_t;
-			thing = new c_texture_thingy_t;
+			thing = new p_tex_t;
 		} catch(std::bad_alloc &e) {
 			return Error {
 				"Couldn't allocate enough memory for a bitmap texture"
@@ -178,26 +166,23 @@ namespace OpenWars {
 		};
 
 		Raylib::Image r_img = Raylib::LoadImage(filepath);
-		Raylib::Texture2D r_tex = Raylib::LoadTextureFromImage(r_img);
+		thing->r_tex = Raylib::LoadTextureFromImage(r_img);
 
 		tex->width = r_img.width;
 		tex->height = r_img.height;
 
-		Raylib::UnloadImage(r_img);
-
-		// [TODO] Handle vector-based images.
-		thing->is_bitmap = true;
-		thing->tex = (&r_tex);
-
-		tex->data_ptr = (uintptr_t)thing;
+		tex->p_data = (uintptr_t)thing;
 
 		return tex;
 	};
 
 	void free_font(font_t *font) {
-		if(font->data_ptr != (uintptr_t)nullptr) {
-			Raylib::UnloadFont(*(Raylib::Font *)font->data_ptr);
-			font->data_ptr = (uintptr_t)nullptr;
+		if(font == nullptr)
+			return;
+
+		if(font->p_data != (uintptr_t)nullptr) {
+			Raylib::UnloadFont(*(Raylib::Font *)font->p_data);
+			font->p_data = (uintptr_t)nullptr;
 		}
 
 		delete font;
@@ -217,7 +202,7 @@ namespace OpenWars {
 		};
 
 		*r_font_ptr = Raylib::LoadFont(filepath);
-		font->data_ptr = (uintptr_t)r_font_ptr;
+		font->p_data = (uintptr_t)r_font_ptr;
 
 		return font;
 	};
@@ -225,10 +210,10 @@ namespace OpenWars {
 	ErrorOr<void> draw_font(font_t *font, const char *text, float x, float y, float size, float spacing, color_t color) {
 		if(font == nullptr)
 			return Error { "Font is NULL" };
-		if(font->data_ptr == (uintptr_t)nullptr)
+		if(font->p_data == (uintptr_t)nullptr)
 			return Error { "Font pointer is NULL" };
 
-		Raylib::DrawTextEx(	*(Raylib::Font *)font->data_ptr,
+		Raylib::DrawTextEx(	*(Raylib::Font *)font->p_data,
 							text,
 							{ x, y },
 							size, spacing,
