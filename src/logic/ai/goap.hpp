@@ -2,6 +2,7 @@
 #define __openwars__game__ai__goap__hpp__
 
 #include "../../defs.hpp"
+#include <vector>
 
 namespace OpenWars {
 	namespace GOAP {
@@ -24,9 +25,12 @@ namespace OpenWars {
 		} plan_t;
 
 		class Planner {
+			private:
+				std::vector<action_t> actions; 
+				plan_t *last_plan = nullptr;
+
 			public:
-				void init(void);
-				void deinit(void);
+				void clear(void);
 
 				void add_action(action_t action);
 				plan_t *get_plan(state_t initial, state_t desired);
