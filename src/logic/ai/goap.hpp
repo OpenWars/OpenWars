@@ -23,22 +23,23 @@ namespace OpenWars {
 			u32			length;
 		} goal_t;
 
+		typedef std::vector<action_t> actions_t;
+
 		typedef struct {
 			u32			cost;
-			u32			length;
-			action_t	*actions;
+			actions_t	actions;
 		} plan_t;
 
 		class Planner {
 			private:
-				std::vector<action_t> actions; 
+				actions_t actions;
 				plan_t *last_plan = nullptr;
 
 			public:
 				void clear(void);
 
 				void add_action(action_t action);
-				plan_t *get_plan(state_t initial, goal_t goal);
+				plan_t get_plan(state_t initial, goal_t goal);
 		};
 	};
 };
