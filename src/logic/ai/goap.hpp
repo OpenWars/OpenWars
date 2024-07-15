@@ -33,7 +33,7 @@ namespace OpenWars {
 				void clear(void);
 
 				void add_action(action_t action);
-				plan_t *get_plan(state_t initial, state_t desired);
+				plan_t *get_plan(state_t initial, condition_t desired);
 		};
 	};
 };
