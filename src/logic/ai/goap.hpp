@@ -19,6 +19,11 @@ namespace OpenWars {
 		} action_t;
 
 		typedef struct {
+			condition_t	*conditions;
+			u32			length;
+		} goal_t;
+
+		typedef struct {
 			u32			cost;
 			u32			length;
 			action_t	*actions;
@@ -33,7 +38,7 @@ namespace OpenWars {
 				void clear(void);
 
 				void add_action(action_t action);
-				plan_t *get_plan(state_t initial, condition_t desired);
+				plan_t *get_plan(state_t initial, goal_t goal);
 		};
 	};
 };
