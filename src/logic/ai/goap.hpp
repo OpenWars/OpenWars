@@ -3,10 +3,11 @@
 
 #include "../../defs.hpp"
 #include <vector>
+#include <unordered_map>
 
 namespace OpenWars {
 	namespace GOAP {
-		typedef uintptr_t state_t;
+		typedef std::unordered_map<const char *, u64> state_t;
 
 		typedef u32 (*cost_t)(state_t state);
 		typedef bool (*condition_t)(state_t state);
