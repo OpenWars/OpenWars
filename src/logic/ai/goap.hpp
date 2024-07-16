@@ -19,11 +19,7 @@ namespace OpenWars {
 			cost_t		cost;
 		} action_t;
 
-		typedef struct {
-			condition_t	*conditions;
-			u32			length;
-		} goal_t;
-
+		typedef struct std::vector<condition_t> goal_t;
 		typedef std::vector<action_t> actions_t;
 
 		typedef struct {
