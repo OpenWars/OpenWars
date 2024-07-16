@@ -24,6 +24,7 @@ namespace OpenWars {
 		typedef std::vector<action_t> actions_t;
 
 		typedef struct {
+			bool		found;
 			u32			cost;
 			actions_t	actions;
 		} plan_t;
