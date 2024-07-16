@@ -7,7 +7,7 @@
 
 namespace OpenWars {
 	namespace GOAP {
-		typedef std::unordered_map<const char *, u64> state_t;
+		typedef std::unordered_map<const char *, uintptr_t> state_t;
 
 		typedef u32 (*cost_t)(state_t state);
 		typedef bool (*condition_t)(state_t state);
