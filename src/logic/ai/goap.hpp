@@ -14,6 +14,7 @@ namespace OpenWars {
 		typedef state_t (*reaction_t)(state_t state);
 
 		typedef struct {
+			u64			id;
 			condition_t	condition;
 			reaction_t	react;
 			cost_t		cost;
