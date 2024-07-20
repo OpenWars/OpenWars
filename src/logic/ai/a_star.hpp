@@ -5,30 +5,47 @@
 #include <vector>
 
 namespace OpenWars {
-	class AStar {
-		public:
-			// Returns:
-			// -1 for error.
-			// +1 for wall.
-			// +2 for endng cell.
-			typedef i8 (* get_tile_t)(u32 x, u32 y);
+	namespace AStar {
+		typedef void *state_t;
 
-			typedef enum _step {
-				top, left, right, down,
-			} step;
+		typedef state_t (* copy_state_t)(state_t);
+		typedef void (* free_state_t)(state_t);
 
-			typedef struct {
-				i32	x;
-				i32 y;
-			} vec2_t;
-		
-		private:
-			u8	*cells = nullptr;
+		typedef u32 (*cost_t)(state_t state);
+		typedef bool (*condition_t)(state_t state);
+		typedef state_t (*reaction_t)(state_t state);
 
-		public:
-			//
+		typedef struct {
+			u64			id;
+			condition_t	condition;
+			reaction_t	react;
+			cost_t		cost;
+		} action_t;
 
-			static std::vector<step> travel(vec2_t size, vec2_t pos, vec2_t goal, get_tile_t cb);
+		typedef struct std::vector<condition_t> goal_t;
+		typedef std::vector<action_t> actions_t;
+
+		typedef struct {
+			bool		found;
+			u32			cost;
+			actions_t	actions;
+		} plan_t;
+
+		class Pathfinder {
+			private:
+				actions_t actions;
+				copy_state_t copy_state;
+				free_state_t free_state;
+			
+			public:
+				void clear(void);
+
+				void add_action(action_t action);
+				void set_copy(copy_state_t f);
+				void set_free(free_state_t f);
+
+				plan_t get_plan(state_t initial, goal_t goal);
+		};
 	};
 };
 
