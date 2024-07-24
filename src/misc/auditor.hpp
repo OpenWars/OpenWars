@@ -11,6 +11,7 @@ namespace OpenWars {
 		TEXTURE,
 		AUDIO_STREAM,
 		FONT,
+		MISC,
 	} AUDITOR_RESOURCES;
 
 	ErrorOr<void> init_auditor(void);
