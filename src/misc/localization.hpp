@@ -14,6 +14,7 @@ namespace OpenWars {
 
 		ErrorOr<void> load_language(const char *s);
 		char *get_text(u32 id, info_t &info);
+		void free_text(char *text);
 	};
 };
 
