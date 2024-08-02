@@ -139,7 +139,7 @@ namespace OpenWars {
 			return (number_of_pawns > 0);
 		};
 
-		int King::init_pawns(void) {
+		int King::init_pawns(unsigned int min_pawns) {
 			if(initialized()) {
 				err_str = "All pawns are alive";
 				return -1;
@@ -148,7 +148,7 @@ namespace OpenWars {
 			pawn_ctx.should_deinit = false;
 
 			unsigned int n = get_cpu_threads();
-			if(n < 1) n = 1;
+			if(n < min_pawns) n = min_pawns;
 			
 			try {
 				pawns = new Pawn[n];
@@ -169,6 +169,10 @@ namespace OpenWars {
 			};
 
 			return 0;
+		};
+
+		int King::init_pawns(void) {
+			return init_pawns(1);
 		};
 
 		void King::deinit_pawns(void) {

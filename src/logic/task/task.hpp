@@ -88,6 +88,7 @@ namespace OpenWars {
 				unsigned int get_cpu_threads(void);
 
 				bool initialized(void);
+				int init_pawns(unsigned int min_pawns);
 				int init_pawns(void);
 				void deinit_pawns(void);
 
