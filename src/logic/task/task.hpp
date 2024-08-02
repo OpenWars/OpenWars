@@ -35,9 +35,9 @@ namespace OpenWars {
 		typedef int (*task_callback_t)(void);
 
 		typedef struct {
-			const char *success;
-			const char *failure;
-			task_callback_t callback;
+			const char		*success;
+			const char		*failure;
+			task_callback_t	callback;
 		} task_t;
 
 		typedef std::queue<const char *> fin_queue_t;
