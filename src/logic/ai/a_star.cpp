@@ -28,6 +28,13 @@ Copyright (C) 2024 OpenWars Team
 #include "a_star.hpp"
 
 namespace OpenWars {
+	template<typename state_t>
+
+	void AStar<state_t>::clear(void) {
+		actions.clear();
+	};
+
+	
 };
 
 #endif
