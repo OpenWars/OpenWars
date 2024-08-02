@@ -31,27 +31,8 @@ Copyright (C) 2024 OpenWars Team
 
 namespace OpenWars {
 	namespace GOAP {
-		typedef std::unordered_map<const char *, uintptr_t> state_t;
+		//typedef std::unordered_map<const char *, uintptr_t> state_t;
 
-		typedef u32 (*cost_t)(state_t state);
-		typedef bool (*condition_t)(state_t state);
-		typedef state_t (*reaction_t)(state_t state);
-
-		typedef struct {
-			u64			id;
-			condition_t	condition;
-			reaction_t	react;
-			cost_t		cost;
-		} action_t;
-
-		typedef struct std::vector<condition_t> goal_t;
-		typedef std::vector<action_t> actions_t;
-
-		typedef struct {
-			bool		found;
-			u32			cost;
-			actions_t	actions;
-		} plan_t;
 
 		class Planner {
 			private:
