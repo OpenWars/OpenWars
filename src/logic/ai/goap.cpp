@@ -31,6 +31,7 @@ Copyright (C) 2024 OpenWars Team
 
 namespace OpenWars {
 	namespace GOAP {
+		/*
 		void Planner::clear(void) {
 			actions.clear();
 			
@@ -228,6 +229,7 @@ namespace OpenWars {
 				empty_actions,
 			};
 		};
+		*/
 	};
 };
 

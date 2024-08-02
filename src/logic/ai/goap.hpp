@@ -26,6 +26,7 @@ Copyright (C) 2024 OpenWars Team
 #define __openwars__game__ai__goap__hpp__
 
 #include "../../defs.hpp"
+#include "a_star.hpp"
 #include <vector>
 #include <unordered_map>
 
@@ -33,11 +34,11 @@ namespace OpenWars {
 	namespace GOAP {
 		//typedef std::unordered_map<const char *, uintptr_t> state_t;
 
-
-		class Planner {
+		/*
+    class Planner {
 			private:
-				actions_t actions;
-				plan_t *last_plan = nullptr;
+				AStar::actions_t actions;
+				AStar::plan_t *last_plan = nullptr;
 
 			public:
 				void clear(void);
@@ -45,6 +46,7 @@ namespace OpenWars {
 				void add_action(action_t action);
 				plan_t get_plan(state_t initial, goal_t goal);
 		};
+    */
 	};
 };
 
