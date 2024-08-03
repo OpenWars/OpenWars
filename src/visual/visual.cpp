@@ -50,11 +50,15 @@ namespace OpenWars {
 
 		Raylib::SetTargetFPS(60);
 
+		(void)audit(AUDITOR_RESOURCES::MISC, "init_video");
+
 		return Error { nullptr };
 	};
 
 	ErrorOr<void> deinit_video(void) {
 		Raylib::CloseWindow();
+
+		(void)deaudit(AUDITOR_RESOURCES::MISC, "init_video");
 
 		return Error { nullptr };
 	};
@@ -107,8 +111,15 @@ namespace OpenWars {
 		tex->width = width;
 		tex->height = height;
 		tex->p_data = (uintptr_t)thing;
+		tex->audit_id = 0;
 
-		(void)audit(AUDITOR_RESOURCES::TEXTURE, "Bitmap texture");
+		ErrorOr<u64> e = audit(AUDITOR_RESOURCES::TEXTURE);
+		if(e.error) {
+			free_texture(tex);
+			return Error { e.error };
+		}
+		
+		tex->audit_id = e.value();
 
 		return tex;
 	};
@@ -175,10 +186,12 @@ namespace OpenWars {
 		delete thing;
 		thing = nullptr;
 
+		u64 audit_id = texture->audit_id;
+
 		delete texture;
 		texture = nullptr;
 
-		(void)deaudit(AUDITOR_RESOURCES::TEXTURE, "Bitmap texture");
+		(void)deaudit(audit_id);
 	};
 
 	ErrorOr<texture_t *> load_texture_from_file(const char *filepath) {
@@ -201,8 +214,15 @@ namespace OpenWars {
 		tex->height = r_img.height;
 
 		tex->p_data = (uintptr_t)thing;
+		tex->audit_id = 0;
 
-		(void)audit(AUDITOR_RESOURCES::TEXTURE, "Bitmap texture");
+		ErrorOr<u64> e = audit(AUDITOR_RESOURCES::TEXTURE, filepath);
+		if(e.error) {
+			free_texture(tex);
+			return Error { e.error };
+		}
+		
+		tex->audit_id = e.value();
 
 		return tex;
 	};
@@ -217,9 +237,11 @@ namespace OpenWars {
 			font->p_data = (uintptr_t)nullptr;
 		}
 
+		u64 audit_id = font->audit_id;
+
 		delete font;
 
-		(void)deaudit(AUDITOR_RESOURCES::FONT, "Font");
+		(void)deaudit(audit_id);
 	};
 
 	ErrorOr<font_t *> load_font_from_file(const char *filepath) {
@@ -237,8 +259,15 @@ namespace OpenWars {
 
 		*r_font_ptr = Raylib::LoadFont(filepath);
 		font->p_data = (uintptr_t)r_font_ptr;
+		font->audit_id = 0;
 
-		(void)audit(AUDITOR_RESOURCES::FONT, "Font");
+		ErrorOr<u64> e = audit(AUDITOR_RESOURCES::FONT, filepath);
+		if(e.error) {
+			free_font(font);
+			return Error { e.error };
+		}
+		
+		font->audit_id = e.value();
 
 		return font;
 	};

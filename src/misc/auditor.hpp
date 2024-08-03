@@ -41,7 +41,9 @@ namespace OpenWars {
 	ErrorOr<void> init_auditor(void);
 	void deinit_auditor(void);
 
-	ErrorOr<void> audit(u32 res, const char *add);
+	ErrorOr<u64> audit(u32 res, const char *add);
+	ErrorOr<u64> audit(u32 res);
+	ErrorOr<void> deaudit(u64 id);
 	ErrorOr<void> deaudit(u32 res, const char *add);
 };
 

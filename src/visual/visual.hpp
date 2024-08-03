@@ -39,10 +39,12 @@ namespace OpenWars {
 		u32				width;
 		u32				height;
 		uintptr_t		p_data;
+		u64				audit_id;
 	} texture_t;
 
 	typedef struct {
 		uintptr_t		p_data;
+		u64				audit_id;
 	} font_t;
 
 	ErrorOr<void> init_video(int width, int height, const char *title);
