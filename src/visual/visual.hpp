@@ -25,53 +25,51 @@ Copyright (C) 2024 OpenWars Team
 #ifndef __openwars__game__visual__visual__hpp__
 #define __openwars__game__visual__visual__hpp__
 
-#include "../defs.hpp"
+#include "../nuclei.hpp"
 
 namespace OpenWars {
-	typedef struct _color_t {
+	struct color_t {
 		u8	r = 0xff;
 		u8	g = 0x00;
 		u8	b = 0xff;
 		u8	a = 0xff;
-	} color_t;
+	};
 
-	typedef struct {
-		u32				width;
-		u32				height;
-		uintptr_t		p_data;
-		u64				audit_id;
-	} texture_t;
+	struct texture_t {
+		u32		width;
+		u32		height;
+		void	*i_data;
+	};
 
-	typedef struct {
-		uintptr_t		p_data;
-		u64				audit_id;
-	} font_t;
+	struct font_t {
+		void	*i_data = nullptr;
+	};
 
-	ErrorOr<void> init_video(int width, int height, const char *title);
-	ErrorOr<void> deinit_video(void);
+	i8 init_video(int width, int height, const char *title, const char *err);
+	void deinit_video(void);
 
-	ErrorOr<void> init_frame(void);
-	ErrorOr<void> swap_buffers(void);
+	i8 init_frame(const char *err);
+	i8 swap_buffers(const char *err);
 
 	bool should_close_window(void);
 
 	// [Texture]
-	ErrorOr<texture_t *> create_bitmap_texture(u32 width, u32 height);
-	ErrorOr<texture_t *> load_texture_from_file(const char *filepath);
+	texture_t * create_bitmap_texture(u32 width, u32 height, const char *err);
+	texture_t * load_texture_from_file(const char *filepath, const char *err);
 
-	// "pixels" as Big-Endian RGBA8888, from top-left to bottom-right.
-	ErrorOr<void> update_bitmap_texture(texture_t *tex, u8 *pixels);
+	// "rgba" as Big-Endian RGBA8888, from left-to-right, top-to-bottom.
+	i8 update_bitmap_texture(texture_t *tex, u8 *rgba, const char *err);
 
-	void free_texture(texture_t *texture);
+	void free_texture(texture_t *tex);
 
-	ErrorOr<void> draw_texture(texture_t *texture, float x, float y, float w, float h, float a, float t);
+	i8 draw_texture(texture_t *tex, float x, float y, float w, float h, float a, float t, const char *err);
 
 	// [Font]
-	ErrorOr<font_t *> load_font_from_file(const char *filepath);
+	font_t * load_font_from_file(const char *filepath, const char *err);
 
 	void free_font(font_t *font);
 
-	ErrorOr<void> draw_font(font_t *font, const char *text, float x, float y, float size, float spacing, color_t color);
+	i8 draw_font(font_t *font, const char *text, float x, float y, float size, float spacing, color_t color, const char *err);
 };
 
 #endif

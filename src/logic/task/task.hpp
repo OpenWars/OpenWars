@@ -25,7 +25,7 @@ Copyright (C) 2024 OpenWars Team
 #ifndef __openwars__task__task__hpp__
 #define __openwars__task__task__hpp__
 
-#include "../../defs.hpp"
+#include "../../nuclei.hpp"
 #include <thread>
 #include <queue>
 #include <mutex>
@@ -58,7 +58,6 @@ namespace OpenWars {
 
 		class Pawn {
 			private:
-				const char *err_str = nullptr;
 				std::thread *thread_ptr = nullptr;
 
 			public:
@@ -66,7 +65,7 @@ namespace OpenWars {
 
 				const char *get_error(void);
 
-				int init(pawn_ctx_t *pawn_ctx);
+				i8 init(pawn_ctx_t *pawn_ctx, const char *err);
 				bool initialized(void);
 				void deinit(void);
 		};
@@ -88,12 +87,11 @@ namespace OpenWars {
 				unsigned int get_cpu_threads(void);
 
 				bool initialized(void);
-				int init_pawns(unsigned int min_pawns);
-				int init_pawns(void);
+				i8 init_pawns(unsigned int min_pawns, const char *err);
 				void deinit_pawns(void);
 
-				int push(const char *success, const char *failure, task_callback_t callback);
-				int push(task_callback_t callback);
+				i8 push(const char *success, const char *failure, task_callback_t callback, const char *err);
+				i8 push(task_callback_t callback, const char *err);
 
 				fin_queue_t * lock_fin(void);
 				void unlock_fin(void);

@@ -93,17 +93,19 @@ namespace OpenWars {
 			deinit();
 		};
 
-		const char *Pawn::get_error(void) {
-			return err_str;
-		};
+		i8 Pawn::init(pawn_ctx_t *pawn_ctx, const char *err) {
+			if(err != nullptr)
+				return -1;
 
-		int Pawn::init(pawn_ctx_t *pawn_ctx) {
-			if(initialized()) return -1;
+			if(initialized()) {
+				err = "Already initialized";
+				return -1;
+			}
 
 			try {
 				thread_ptr = new std::thread(pawn_loop, pawn_ctx);
 			} catch(std::bad_alloc& e) {
-				err_str = "Couldn't allocate a Thread";
+				err = "Couldn't allocate a Thread";
 				return -1;
 			};
 
@@ -118,16 +120,12 @@ namespace OpenWars {
 
 		void Pawn::deinit(void) {
 			if(thread_ptr != nullptr)
-				delete thread_ptr;
+				vfree(thread_ptr);
 		};
 
 		// Class `King`.
 		King::~King(void) {
 			deinit_pawns();
-		};
-
-		const char *King::get_error(void) {
-			return err_str;
 		};
 
 		// Is the processor lying? Idk, and I don't care.
@@ -139,9 +137,12 @@ namespace OpenWars {
 			return (number_of_pawns > 0);
 		};
 
-		int King::init_pawns(unsigned int min_pawns) {
+		i8 King::init_pawns(unsigned int min_pawns, const char *err) {
+			if(err != nullptr)
+				return -1;
+
 			if(initialized()) {
-				err_str = "All pawns are alive";
+				err = "All pawns are alive";
 				return -1;
 			}
 
@@ -150,20 +151,17 @@ namespace OpenWars {
 			unsigned int n = get_cpu_threads();
 			if(n < min_pawns) n = min_pawns;
 			
-			try {
-				pawns = new Pawn[n];
-			} catch(std::bad_alloc& e) {
-				err_str = "Couldn't allocate enough memory for the pawns";
+			pawns = valloc<Pawn>(n, err);
+			if(pawns == nullptr) {
+				err = "Couldn't allocate enough memory for the pawns";
 				return -1;
 			};
 
 			number_of_pawns = n;
 
 			for(unsigned int i = 0; i < n; i++) {
-				if(pawns[i].init(&pawn_ctx) < 0) {
-					err_str = pawns[i].get_error();
+				if(pawns[i].init(&pawn_ctx, err) < 0) {
 					deinit_pawns();
-
 					return -1;
 				}
 			};
@@ -171,12 +169,9 @@ namespace OpenWars {
 			return 0;
 		};
 
-		int King::init_pawns(void) {
-			return init_pawns(1);
-		};
-
 		void King::deinit_pawns(void) {
-			if(initialized() == false) return;
+			if(initialized() == false)
+				return;
 
 			pawn_ctx.should_deinit = true;
 
@@ -186,11 +181,13 @@ namespace OpenWars {
 				while(pawn_ctx.mtx_fin.try_lock() == false)
 					wait();
 
-				if(pawn_ctx.deinit_count == number_of_pawns) break;
+				if(pawn_ctx.deinit_count == number_of_pawns)
+					break;
+
 				pawn_ctx.mtx_fin.unlock();
 			};
 			
-			delete[] pawns;
+			vfree(pawns);
 
 			pawn_ctx.should_deinit = false;
 			pawn_ctx.deinit_count = 0;
@@ -203,8 +200,14 @@ namespace OpenWars {
 				pawn_ctx.fin.pop();
 		};
 
-		int King::push(const char *success, const char *failure, task_callback_t callback) {
-			if(initialized() == false) return -1;
+		i8 King::push(const char *success, const char *failure, task_callback_t callback, const char *err) {
+			if(err != nullptr)
+				return -1;
+
+			if(initialized() == false) {
+				err = "King isn't initialized";
+				return -1;
+			}
 
 			pawn_ctx.tasks.push(task_t {
 				success,
@@ -215,8 +218,8 @@ namespace OpenWars {
 			return 0;
 		};
 
-		int King::push(task_callback_t callback) {
-			return push(nullptr, nullptr, callback);
+		i8 King::push(task_callback_t callback, const char *err) {
+			return push(nullptr, nullptr, callback, err);
 		};
 
 		fin_queue_t * King::lock_fin(void) {

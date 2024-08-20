@@ -47,7 +47,7 @@ namespace OpenWars {
 			std::ios::seekdir __flags_to_std_seekdir(u16 mode);
 
 		public:
-			ErrorOr<void> open(const char *path, u16 mode);
+			i8 open(const char *path, u16 mode, const char *err);
 			bool is_open(void);
 			void close(void);
 
@@ -59,8 +59,8 @@ namespace OpenWars {
 			void seekp(u64 pos);
 			void seekp(i64 off, seekdir dir);
 			
-			ErrorOr<void> read(u8 *s, u64 n);
-			ErrorOr<void> write(u8 *s, u64 n);
+			i8 read(u8 *s, u64 n, const char *err);
+			i8 write(u8 *s, u64 n, const char *err);
 	};
 };
 

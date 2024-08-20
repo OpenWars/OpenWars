@@ -25,7 +25,7 @@ Copyright (C) 2024 OpenWars Team
 #ifndef __openwars__io__stream__hpp__
 #define __openwars__io__stream__hpp__
 
-#include "../defs.hpp"
+#include "../nuclei.hpp"
 
 namespace OpenWars {
 	typedef enum {
@@ -44,52 +44,49 @@ namespace OpenWars {
 			virtual void seekp(u64 pos) = 0;
 			virtual void seekp(i64 off, seekdir dir) = 0;
 			
-			virtual ErrorOr<void> read(u8 *s, u64 n) = 0;
-			virtual ErrorOr<void> write(u8 *s, u64 n) = 0;
+			virtual i8 read(u8 *s, u64 n, const char *err) = 0;
+			virtual i8 write(u8 *s, u64 n, const char *err) = 0;
 			
-			void skipg(i64 pos);
-			void skipp(i64 pos);
-			
-			ErrorOr<u8> readU8(void);
+			u8 readU8(const char *err);
 
-			ErrorOr<u16> readU16BE(void);
-			ErrorOr<u32> readU32BE(void);
-			ErrorOr<u64> readU64BE(void);
+			u16 readU16BE(const char *err);
+			u32 readU32BE(const char *err);
+			u64 readU64BE(const char *err);
 			
-			ErrorOr<u16> readU16LE(void);
-			ErrorOr<u32> readU32LE(void);
-			ErrorOr<u64> readU64LE(void);
+			u16 readU16LE(const char *err);
+			u32 readU32LE(const char *err);
+			u64 readU64LE(const char *err);
 
-			ErrorOr<i8> readI8(void);
+			i8 readI8(const char *err);
 
-			ErrorOr<i16> readI16BE(void);
-			ErrorOr<i32> readI32BE(void);
-			ErrorOr<i64> readI64BE(void);
+			i16 readI16BE(const char *err);
+			i32 readI32BE(const char *err);
+			i64 readI64BE(const char *err);
 			
-			ErrorOr<i16> readI16LE(void);
-			ErrorOr<i32> readI32LE(void);
-			ErrorOr<i64> readI64LE(void);
-			
-			ErrorOr<void> writeU8(u8 value);
+			i16 readI16LE(const char *err);
+			i32 readI32LE(const char *err);
+			i64 readI64LE(const char *err);
 
-			ErrorOr<void> writeU16BE(u16 value);
-			ErrorOr<void> writeU32BE(u32 value);
-			ErrorOr<void> writeU64BE(u64 value);
+			f32 readF32(const char *err);
+			f64 readF64(const char *err);
 			
-			ErrorOr<void> writeU16LE(u16 value);
-			ErrorOr<void> writeU32LE(u32 value);
-			ErrorOr<void> writeU64LE(u64 value);
+			i8 writeU8(u8 value, const char *err);
+
+			i8 writeU16BE(u16 value, const char *err);
+			i8 writeU32BE(u32 value, const char *err);
+			i8 writeU64BE(u64 value, const char *err);
 			
-			ErrorOr<void> writeI8(i8 value);
-			ErrorOr<void> writeI16LE(i16 value);
-			ErrorOr<void> writeI32LE(i32 value);
-			ErrorOr<void> writeI64LE(i64 value);
+			i8 writeU16LE(u16 value, const char *err);
+			i8 writeU32LE(u32 value, const char *err);
+			i8 writeU64LE(u64 value, const char *err);
 			
-			ErrorOr<float> readF32(void);
-			ErrorOr<double> readF64(void);
+			i8 writeI8(i8 value, const char *err);
+			i8 writeI16LE(i16 value, const char *err);
+			i8 writeI32LE(i32 value, const char *err);
+			i8 writeI64LE(i64 value, const char *err);
 			
-			ErrorOr<void> writeF32(float value);
-			ErrorOr<void> writeF64(double value);
+			i8 writeF32(float value, const char *err);
+			i8 writeF64(double value, const char *err);
 	};
 };
 

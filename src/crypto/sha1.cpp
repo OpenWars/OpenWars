@@ -104,7 +104,6 @@ namespace OpenWars {
 		};
 		
 		void SHA1::init(void) {
-			data = nullptr,
 			len = 0,
 			bit_len = 0,
 			// Little-Endian 0123456789...
@@ -151,7 +150,6 @@ namespace OpenWars {
 				for(i = 0; i < 56; i++)
 					data[i] = 0x00;
 			}
-
 			// Append to the padding the total message's length (in bits), and
 			// transform.
 			bit_len += (len << 3);

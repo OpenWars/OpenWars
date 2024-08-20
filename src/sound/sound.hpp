@@ -25,7 +25,7 @@ Copyright (C) 2024 OpenWars Team
 #ifndef __openwars__game__sound__sound__hpp__
 #define __openwars__game__sound__sound__hpp__
 
-#include "../defs.hpp"
+#include "../nuclei.hpp"
 
 namespace OpenWars {
 	typedef struct {

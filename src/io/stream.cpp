@@ -28,17 +28,26 @@ Copyright (C) 2024 OpenWars Team
 #include "stream.hpp"
 
 namespace OpenWars {
-	ErrorOr<u8> BaseStream::readU8(void) {
+	u8 BaseStream::readU8(const char *err) {
 		u8 buff[1];
-		ErrorOr<void> e = read(buff, 1);
-		if(e.error) return Error { e.error };
+
+		if(err != nullptr)
+			return (-1);
+
+		if(read(buff, 1, err) < 0)
+			return (-1);
+
 		return buff[0];
 	};
 	
-	ErrorOr<u16> BaseStream::readU16BE(void) {
+	u16 BaseStream::readU16BE(const char *err) {
 		u8 buff[2];
-		ErrorOr<void> e = read(buff, 2);
-		if(e.error) return Error { e.error };
+
+		if(err != nullptr)
+			return (-1);
+
+		if(read(buff, 2, err) < 0)
+			return (-1);
 		
 		return (
 			(((u16)buff[0]) << 8) |
@@ -46,10 +55,14 @@ namespace OpenWars {
 		);
 	};
 	
-	ErrorOr<u32> BaseStream::readU32BE(void) {
+	u32 BaseStream::readU32BE(const char *err) {
 		u8 buff[4];
-		ErrorOr<void> e = read(buff, 4);
-		if(e.error) return Error { e.error };
+
+		if(err != nullptr)
+			return (-1);
+
+		if(read(buff, 4, err) < 0)
+			return (-1);
 		
 		return (
 			(((u32)buff[0]) << 24) |
@@ -59,10 +72,14 @@ namespace OpenWars {
 		);
 	};
 	
-	ErrorOr<u64> BaseStream::readU64BE(void) {
+	u64 BaseStream::readU64BE(const char *err) {
 		u8 buff[8];
-		ErrorOr<void> e = read(buff, 8);
-		if(e.error) return Error { e.error };
+		
+		if(err != nullptr)
+			return (-1);
+
+		if(read(buff, 8, err) < 0)
+			return (-1);
 		
 		return (
 			(((u64)buff[0]) << 56) |
@@ -76,129 +93,217 @@ namespace OpenWars {
 		);
 	};
 	
-	ErrorOr<u16> BaseStream::readU16LE(void) {
-		ErrorOr<u16> e = readU16BE();
-		if(e.error) return e;
-		
-		u16 num = e.value();
-		num = (
-			(num << 8) |
-			(num >> 8)
-		);
-		
-		return num;
-	};
-	
-	ErrorOr<u32> BaseStream::readU32LE(void) {
-		ErrorOr<u32> e = readU32BE();
-		if(e.error) return Error { e.error };
-		
-		u32 num = e.value();
+	u16 BaseStream::readU16LE(const char *err) {
+		u8 buff[2];
+
+		if(err != nullptr)
+			return (-1);
+
+		if(read(buff, 2, err) < 0)
+			return (-1);
 		
 		return (
-			(num >> 24) |
-			((num << 8) & 0xff0000) |
-			((num >> 8) & 0xff00) |
-			((num << 24) & 0xff000000)
+			(((u16)buff[1]) << 8) |
+			((u16)buff[0])
 		);
 	};
 	
-	ErrorOr<u64> BaseStream::readU64LE(void) {
-		ErrorOr<u64> e = readU64BE();
-		if(e.error) return Error { e.error };
-		
-		u64 num = e.value();
+	u32 BaseStream::readU32LE(const char *err) {
+		u8 buff[4];
+
+		if(err != nullptr)
+			return (-1);
+
+		if(read(buff, 4, err) < 0)
+			return (-1);
 		
 		return (
-			((num >> 56)	& 0x00000000000000ff) |
-			((num >> 40)	& 0x000000000000ff00) |
-			((num >> 24)	& 0x0000000000ff0000) |
-			((num >> 8)		& 0x00000000ff000000) |
-			((num << 8)		& 0x000000ff00000000) |
-			((num << 24)	& 0x0000ff0000000000) |
-			((num << 40)	& 0x00ff000000000000) |
-			((num << 56)	& 0xff00000000000000)
+			(((u32)buff[3]) << 24) |
+			(((u32)buff[2]) << 16) |
+			(((u32)buff[1]) << 8) |
+			((u32)buff[0])
 		);
 	};
 	
-	ErrorOr<i8> BaseStream::readI8(void) {
-		ErrorOr<u8> e = readU8();
-		if(e.error) return Error { e.error };
+	u64 BaseStream::readU64LE(const char *err) {
+		u8 buff[8];
+		
+		if(err != nullptr)
+			return (-1);
 
-		u8 x[1] = { e.value() };
-		return (*(i8 *)&x);
+		if(read(buff, 8, err) < 0)
+			return (-1);
+		
+		return (
+			(((u64)buff[7]) << 56) |
+			(((u64)buff[6]) << 48) |
+			(((u64)buff[5]) << 40) |
+			(((u64)buff[4]) << 32) |
+			(((u64)buff[3]) << 24) |
+			(((u64)buff[2]) << 16) |
+			(((u64)buff[1]) << 8) |
+			((u64)buff[0])
+		);
 	};
 	
-	ErrorOr<i16> BaseStream::readI16BE(void) {
-		ErrorOr<u16> e = readU16BE();
-		if(e.error) return Error { e.error };
+	i8 BaseStream::readI8(const char *err) {
+		u8 buff[1];
 
-		u16 x[1] = { e.value() };
-		return (*(i16 *)&x);
+		if(err != nullptr)
+			return (-1);
+
+		if(read(buff, 1, err) < 0)
+			return (-1);
+
+		return buff[0];
+	};
+	
+	i16 BaseStream::readI16BE(const char *err) {
+		u8 buff[2];
+
+		if(err != nullptr)
+			return (-1);
+
+		if(read(buff, 2, err) < 0)
+			return (-1);
+		
+		return (
+			(((i16)buff[0]) << 8) |
+			((i16)buff[1])
+		);
 	};
 
-	ErrorOr<i32> BaseStream::readI32BE(void) {
-		ErrorOr<u32> e = readU32BE();
-		if(e.error) return Error { e.error };
+	i32 BaseStream::readI32BE(const char *err) {
+		u8 buff[4];
 
-		u32 x[1] = { e.value() };
-		return (*(i32 *)&x);
+		if(err != nullptr)
+			return (-1);
+
+		if(read(buff, 4, err) < 0)
+			return (-1);
+		
+		return (
+			(((i32)buff[0]) << 24) |
+			(((i32)buff[1]) << 16) |
+			(((i32)buff[2]) << 8) |
+			((i32)buff[3])
+		);
 	};
 
-	ErrorOr<i64> BaseStream::readI64BE(void) {
-		ErrorOr<u64> e = readU64BE();
-		if(e.error) return Error { e.error };
+	i64 BaseStream::readI64BE(const char *err) {
+		u8 buff[8];
+		
+		if(err != nullptr)
+			return (-1);
 
-		u64 x[1] = { e.value() };
-		return (*(i64 *)&x);
+		if(read(buff, 8, err) < 0)
+			return (-1);
+		
+		return (
+			(((i64)buff[0]) << 56) |
+			(((i64)buff[1]) << 48) |
+			(((i64)buff[2]) << 40) |
+			(((i64)buff[3]) << 32) |
+			(((i64)buff[4]) << 24) |
+			(((i64)buff[5]) << 16) |
+			(((i64)buff[6]) << 8) |
+			((i64)buff[7])
+		);
 	};
 
-	ErrorOr<i16> BaseStream::readI16LE(void) {
-		ErrorOr<u16> e = readU16LE();
-		if(e.error) return Error { e.error };
+	i16 BaseStream::readI16LE(const char *err) {
+		u8 buff[2];
 
-		u16 x[1] = { e.value() };
-		return (*(i16 *)&x);
+		if(err != nullptr)
+			return (-1);
+
+		if(read(buff, 2, err) < 0)
+			return (-1);
+		
+		return (
+			(((i16)buff[1]) << 8) |
+			((i16)buff[0])
+		);
 	};
 
-	ErrorOr<i32> BaseStream::readI32LE(void) {
-		ErrorOr<u32> e = readU32LE();
-		if(e.error) return Error { e.error };
+	i32 BaseStream::readI32LE(const char *err) {
+		u8 buff[4];
 
-		u32 x[1] = { e.value() };
-		return (*(i32 *)&x);
+		if(err != nullptr)
+			return (-1);
+
+		if(read(buff, 4, err) < 0)
+			return (-1);
+		
+		return (
+			(((i32)buff[3]) << 24) |
+			(((i32)buff[2]) << 16) |
+			(((i32)buff[1]) << 8) |
+			((i32)buff[0])
+		);
 	};
 
-	ErrorOr<i64> BaseStream::readI64LE(void) {
-		ErrorOr<u64> e = readU64LE();
-		if(e.error) return Error { e.error };
+	i64 BaseStream::readI64LE(const char *err) {
+		u8 buff[8];
+		
+		if(err != nullptr)
+			return (-1);
 
-		u64 x[1] = { e.value() };
-		return (*(i64 *)&x);
+		if(read(buff, 8, err) < 0)
+			return (-1);
+		
+		return (
+			(((i64)buff[7]) << 56) |
+			(((i64)buff[6]) << 48) |
+			(((i64)buff[5]) << 40) |
+			(((i64)buff[4]) << 32) |
+			(((i64)buff[3]) << 24) |
+			(((i64)buff[2]) << 16) |
+			(((i64)buff[1]) << 8) |
+			((i64)buff[0])
+		);
 	};
 
-	ErrorOr<void> BaseStream::writeU8(u8 value) {
+	f32 BaseStream::readF32(const char *err) {
+		if(err != nullptr)
+			return (-1);
+
+		u32 v = readU32BE(err);
+		f32 *p = (f32 *)(&v);
+		f32 f = (*p);
+		
+		return f;
+	};
+	
+	f64 BaseStream::readF64(const char *err) {
+		if(err != nullptr)
+			return (-1);
+
+		u64 v = readU64BE(err);
+		f64 *p = (f64 *)(&v);
+		f64 f = (*p);
+		
+		return f;
+	};
+
+	i8 BaseStream::writeU8(u8 value, const char *err) {
 		u8 buff[1] = {
 			(u8)value
 		};
-		
-		ErrorOr<void> e = write(buff, 1);
-		if(e.error) return Error { e.error };
-		return Error { nullptr };
+
+		return write(buff, 1, err);
 	};
 	
-	ErrorOr<void> BaseStream::writeU16BE(u16 value) {
+	i8 BaseStream::writeU16BE(u16 value, const char *err) {
 		u8 buff[2] = {
 			(u8)((value >> 8) & 0xff),
 			(u8)(value & 0xff)
 		};
 		
-		ErrorOr<void> e = write(buff, 2);
-		if(e.error) return Error { e.error };
-		return Error { nullptr };
+		return write(buff, 2, err);
 	};
 	
-	ErrorOr<void> BaseStream::writeU32BE(u32 value) {
+	i8 BaseStream::writeU32BE(u32 value, const char *err) {
 		u8 buff[4] = {
 			(u8)((value >> 24) & 0xff),
 			(u8)((value >> 16) & 0xff),
@@ -206,12 +311,10 @@ namespace OpenWars {
 			(u8)(value & 0xff)
 		};
 		
-		ErrorOr<void> e = write(buff, 4);
-		if(e.error) return Error { e.error };
-		return Error { nullptr };
+		return write(buff, 4, err);
 	};
 	
-	ErrorOr<void> BaseStream::writeU64BE(u64 value) {
+	i8 BaseStream::writeU64BE(u64 value, const char *err) {
 		u8 buff[8] = {
 			(u8)((value >> 56) & 0xff),
 			(u8)((value >> 48) & 0xff),
@@ -223,23 +326,19 @@ namespace OpenWars {
 			(u8)(value & 0xff)
 		};
 		
-		ErrorOr<void> e = write(buff, 8);
-		if(e.error) return Error { e.error };
-		return Error { nullptr };
+		return write(buff, 8, err);
 	};
 	
-	ErrorOr<void> BaseStream::writeU16LE(u16 value) {
+	i8 BaseStream::writeU16LE(u16 value, const char *err) {
 		u8 buff[2] = {
 			(u8)(value & 0xff),
 			(u8)((value >> 8) & 0xff)
 		};
 		
-		ErrorOr<void> e = write(buff, 2);
-		if(e.error) return Error { e.error };
-		return Error { nullptr };
+		return write(buff, 2, err);
 	};
 	
-	ErrorOr<void> BaseStream::writeU32LE(u32 value) {
+	i8 BaseStream::writeU32LE(u32 value, const char *err) {
 		u8 buff[4] = {
 			(u8)(value & 0xff),
 			(u8)((value >> 8) & 0xff),
@@ -247,12 +346,10 @@ namespace OpenWars {
 			(u8)((value >> 24) & 0xff)
 		};
 		
-		ErrorOr<void> e = write(buff, 4);
-		if(e.error) return Error { e.error };
-		return Error { nullptr };
+		return write(buff, 4, err);
 	};
 	
-	ErrorOr<void> BaseStream::writeU64LE(u64 value) {
+	i8 BaseStream::writeU64LE(u64 value, const char *err) {
 		u8 buff[8] = {
 			(u8)(value & 0xff),
 			(u8)((value >> 8) & 0xff),
@@ -264,58 +361,34 @@ namespace OpenWars {
 			(u8)((value >> 56) & 0xff)
 		};
 		
-		ErrorOr<void> e = write(buff, 8);
-		if(e.error) return Error { e.error };
-		return Error { nullptr };
+		return write(buff, 8, err);
 	};
 	
-	// [TODO] : Pasar i8->u8 sin pérdidas.
-	ErrorOr<void> BaseStream::writeI8(i8 value) {
-		return writeU8(value);
+	// [TODO] Loss-less I8->U8.
+	i8 BaseStream::writeI8(i8 value, const char *err) {
+		return writeU8(value, err);
 	};
 
-	ErrorOr<void> BaseStream::writeI16LE(i16 value) {
-		return writeU16LE(value);
+	i8 BaseStream::writeI16LE(i16 value, const char *err) {
+		return writeU16LE(value, err);
 	};
 
-	ErrorOr<void> BaseStream::writeI32LE(i32 value) {
-		return writeU32LE(value);
+	i8 BaseStream::writeI32LE(i32 value, const char *err) {
+		return writeU32LE(value, err);
 	};
 
-	ErrorOr<void> BaseStream::writeI64LE(i64 value) {
-		return writeU64LE(value);
+	i8 BaseStream::writeI64LE(i64 value, const char *err) {
+		return writeU64LE(value, err);
 	};
 	
-	ErrorOr<float> BaseStream::readF32(void) {
-		ErrorOr<u32> raw_value = readU32BE();
-		if(raw_value.error) return Error { raw_value.error };
-		
-		u32 v32 = raw_value.value();
-		u32 *v32p = (&v32);
-		float value = *(float *)v32p;
-		
-		return value;
-	};
-	
-	ErrorOr<double> BaseStream::readF64(void) {
-		ErrorOr<u64> raw_value = readU64BE();
-		if(raw_value.error) return Error { raw_value.error };
-		
-		u64 v64 = raw_value.value();
-		u64 *v64p = (&v64);
-		double value = *(double *)v64p;
-		
-		return value;
-	};
-	
-	ErrorOr<void> BaseStream::writeF32(float value) {
+	i8 BaseStream::writeF32(float value, const char *err) {
 		u32 *raw_value = (u32 *)(&value);
-		return writeU32BE(*raw_value);
+		return writeU32BE(*raw_value, err);
 	};
 	
-	ErrorOr<void> BaseStream::writeF64(double value) {
+	i8 BaseStream::writeF64(double value, const char *err) {
 		u64 *raw_value = (u64 *)(&value);
-		return writeU64BE(*raw_value);
+		return writeU64BE(*raw_value, err);
 	};
 };
 

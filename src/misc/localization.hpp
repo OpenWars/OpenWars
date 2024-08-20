@@ -25,7 +25,7 @@ Copyright (C) 2024 OpenWars Team
 #ifndef __openwars__misc__localization__hpp__
 #define __openwars__misc__localization__hpp__
 
-#include "../defs.hpp"
+#include "../nuclei.hpp"
 #include "../io/files.hpp"
 #include <unordered_map>
 
@@ -33,10 +33,10 @@ namespace OpenWars {
 	namespace L10N {
 		typedef std::unordered_map<const char *, const char *> info_t;
 
-		ErrorOr<void> init_localization(void);
+		i8 init_localization(const char *err);
 		void deinit_localization(void);
 
-		ErrorOr<void> load_language(const char *s);
+		i8 load_language(const char *s, const char *err);
 		char *get_text(u32 id, info_t &info);
 		void free_text(char *text);
 	};

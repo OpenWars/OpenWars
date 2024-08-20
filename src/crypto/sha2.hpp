@@ -25,7 +25,7 @@ Copyright (C) 2024 OpenWars Team
 #ifndef __openwars__crypto__sha2__hpp__
 #define __openwars__crypto__sha2__hpp__
 
-#include "../defs.hpp"
+#include "../nuclei.hpp"
 
 namespace OpenWars {
 	namespace Crypto {

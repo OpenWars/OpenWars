@@ -26,7 +26,7 @@ Copyright (C) 2024 OpenWars Team
 #ifndef __openwars__codec__media_player__hpp__
 #define __openwars__codec__media_player__hpp__
 
-#include "../defs.hpp"
+#include "../nuclei.hpp"
 
 namespace OpenWars {
 	class MediaPlayer {
@@ -51,7 +51,7 @@ namespace OpenWars {
 				float	*data;
 			} audio_samples_t;
 
-			ErrorOr<void> open(const char *filepath);
+			i8 open(const char *filepath, const char *err);
 			void close(void);
 
 			time_t time(void);
@@ -60,10 +60,10 @@ namespace OpenWars {
 			void pause(void);
 			void resume(void);
 
-			ErrorOr<void> process(void);
+			i8 process(const char *err);
 
-			ErrorOr<video_frame_t *> get_frame(void);
-			ErrorOr<audio_samples_t *> get_samples(void);
+			video_frame_t * get_frame(const char *err);
+			audio_samples_t * get_samples(const char *err);
 	};
 };
 

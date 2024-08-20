@@ -25,7 +25,7 @@ Copyright (C) 2024 OpenWars Team
 #ifndef __openwars__game__ai__a_star__hpp__
 #define __openwars__game__ai__a_star__hpp__
 
-#include "../../defs.hpp"
+#include "../../nuclei.hpp"
 #include <vector>
 
 namespace OpenWars {

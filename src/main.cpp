@@ -1,79 +1,47 @@
-/**
- *
-   ___                __        __
-  / _ \ _ __   ___ _ _\ \      / /_ _ _ __ ___
- | | | | '_ \ / _ \ '_ \ \ /\ / / _` | '__/ __|
- | |_| | |_) |  __/ | | \ V  V / (_| | |  \__ \
-  \___/| .__/ \___|_| |_|\_/\_/ \__,_|_|  |___/
-       |_|
-
-Copyright (C) 2024 OpenWars Team
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-#include "defs.hpp"
-#include "game/scene/scene.hpp"
-#include "logic/lua/lua.hpp"
-#include "config/config.hpp"
-#include "logic/task/task.hpp"
-#include "visual/visual.hpp"
-#include "misc/auditor.hpp"
 #include "io/log.hpp"
+#include "logic/task/task.hpp"
+#include "misc/auditor.hpp"
+#include "visual/visual.hpp"
+#include <cstdlib>
 
-#include <cstdio>
+const int screen_width = 1280;
+const int screen_height = 720;
 
-using namespace OpenWars;
+OpenWars::Tasks::King king;
+
+void ciao(int code) {
+	OpenWars::deinit_video();
+	king.deinit_pawns();
+	OpenWars::deinit_auditor();
+
+	std::exit(code);
+};
 
 int main(void) {
-	ErrorOr<void> ve = init_auditor();
-	if(ve.error) {
-		log_error("Couldn't initialize the auditor: %s\n", ve.error);
-		return 1;
+	const char *err = nullptr;
+
+	if(OpenWars::init_auditor(err) < 0) {
+		OpenWars::log_error("Couldn't initialize Auditor: %s\n", err);
+		ciao(1);
 	}
 
-	const int screenWidth = 800;
-	const int screenHeight = 450;
-
-	SceneController sceneController;
-	Config config;
-
-	if(config.load() < 0) {
-		log_error("{CONFIG_LOAD_ERROR} %s\n", config.get_error());
-		return 1;
+	if(king.init_pawns(2, err) < 0) {
+		OpenWars::log_error("Couldn't initialize King: %s\n", err);
+		ciao(1);
 	}
 
-	Tasks::King tasks_king;
-
-	if(tasks_king.init_pawns() < 0) {
-		log_error("{TASK_SCHEDULER_CREATE_ERROR} %s\n", tasks_king.get_error());
-		return 1;
+	if(OpenWars::init_video(screen_width, screen_height, "Darkness (olcJam2024)", err) < 0) {
+		OpenWars::log_error("Couldn't initialize the window: %s\n", err);
+		ciao(1);
 	}
 
-	init_video(screenWidth, screenHeight, "OpenWars");
-
-	while(should_close_window() == false) {
-		init_frame();
+	while(OpenWars::should_close_window() == false) {
+		OpenWars::init_frame(err);
 
 		// [TODO]
 
-		swap_buffers();
+		OpenWars::swap_buffers(err);
 	};
 
-	deinit_video();
-	tasks_king.deinit_pawns();
-
-	deinit_auditor();
-
-	return 0;
+	ciao(0);
 }

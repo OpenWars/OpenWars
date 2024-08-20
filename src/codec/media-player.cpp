@@ -53,16 +53,10 @@ namespace OpenWars {
 		MediaPlayer::video_frame_t frame;
 	} i_mp_ptr_t;
 
-	ErrorOr<void> MediaPlayer::open(const char *filepath) {
-		i_mp_ptr_t *mp;
-
-		try {
-			mp = new i_mp_ptr_t;
-		} catch(std::bad_alloc &e) {
-			return Error {
-				"Couldn't allocate enough memory for a video context"
-			};
-		};
+	i8 MediaPlayer::open(const char *filepath, const char *err) {
+		i_mp_ptr_t *mp = valloc<i_mp_ptr_t>(err);
+		if(mp == nullptr)
+			return -1;
 
 		i_ptr = (uintptr_t)mp;
 

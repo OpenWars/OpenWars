@@ -25,7 +25,7 @@ Copyright (C) 2024 OpenWars Team
 #ifndef __openwars__game__map__map__hpp__
 #define __openwars__game__map__map__hpp__
 
-#include "../../defs.hpp"
+#include "../../nuclei.hpp"
 #include "../../visual/visual.hpp"
 
 namespace OpenWars {
@@ -51,7 +51,7 @@ namespace OpenWars {
 		char		*mod;
 	} map_t;
 
-	extern ErrorOr<map_t *> load_map(const char *path);
+	extern map_t * load_map(const char *path, const char *err);
 };
 
 #endif

@@ -25,7 +25,7 @@ Copyright (C) 2024 OpenWars Team
 #ifndef __openwars__crypto__sha1__hpp__
 #define __openwars__crypto__sha1__hpp__
 
-#include "../defs.hpp"
+#include "../nuclei.hpp"
 
 namespace OpenWars {
 	namespace Crypto {
@@ -34,7 +34,8 @@ namespace OpenWars {
 
 		class SHA1 {
 			private:
-				u8 *data;
+				//u8 *data;
+				u8 data[64];
 				u64 len;
 				u64 bit_len;
 

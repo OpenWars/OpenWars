@@ -22,26 +22,29 @@ Copyright (C) 2024 OpenWars Team
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef __openwars__auditor__hpp__
-#define __openwars__auditor__hpp__
+#ifndef __openwars__nuclei__hpp__
+#define __openwars__nuclei__hpp__
 
-#include "../nuclei.hpp"
+#include "nuclei.hpp"
+#include "io/log.hpp"
 
 namespace OpenWars {
-	typedef enum {
-		EMPTY,
-		TEXTURE,
-		AUDIO_STREAM,
-		FONT,
-		MISC,
-	} AUDITOR_RESOURCES;
+	void __assert_me__(const char *file, int line, const char *comment) {
+		if(comment == nullptr) {
+			log_error("Assert at %s#%i has failed.\n", file, line);
+		} else {
+			log_error("Assert at %s#%i has failed: %s.\n", file, line, comment);
+		}
 
-	i8 init_auditor(const char *err);
-	void deinit_auditor(void);
+		std::exit(1);
+	};
 
-	u64 audit(u32 res, const char *add, const char *err);
-	u64 audit(const char *err);
-	i8 deaudit(u64 id, const char *err);
+	void vfree(void *p) {
+		if(p == nullptr)
+			return;
+
+		std::free(p);
+	};
 };
 
 #endif

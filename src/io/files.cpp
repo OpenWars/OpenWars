@@ -75,15 +75,22 @@ namespace OpenWars {
 		fs.seekp(off, __flags_to_std_seekdir(dir));
 	};
 
-	ErrorOr<void> FileStream::open(const char *path, u16 mode) {
-		if(fs.is_open())
-			return Error { "File stream is already open" };
+	i8 FileStream::open(const char *path, u16 mode, const char *err) {
+		if(err != nullptr)
+			return -1;
+
+		if(fs.is_open()) {
+			err = "File stream is already open";
+			return -1;
+		}
 		
 		fs.open(path, __flags_to_std_openmode(mode));
-		if(fs.fail())
-			return Error { std::strerror(errno) };
-			
-		return Error { nullptr };
+		if(fs.fail()) {
+			err = std::strerror(errno);
+			return -1;
+		}
+
+		return 0;
 	};
 
 	bool FileStream::is_open(void) {
@@ -95,22 +102,32 @@ namespace OpenWars {
 			fs.close();
 	};
 
-	ErrorOr<void> FileStream::read(u8 *s, u64 n) {
+	i8 FileStream::read(u8 *s, u64 n, const char *err) {
+		if(err != nullptr)
+			return -1;
+		
 		(void)fs.read((char *)s, n);
 
-		if(fs.fail())
-			return Error { std::strerror(errno) };
+		if(fs.fail()) {
+			err = std::strerror(errno);
+			return -1;
+		}
 			
-		return Error { nullptr };
+		return 0;
 	};
 
-	ErrorOr<void> FileStream::write(u8 *s, u64 n) {
+	i8 FileStream::write(u8 *s, u64 n, const char *err) {
+		if(err != nullptr)
+			return -1;
+		
 		(void)fs.write((char *)s, n);
 
-		if(fs.fail())
-			return Error { std::strerror(errno) };
-			
-		return Error { nullptr };
+		if(fs.fail()) {
+			err = std::strerror(errno);
+			return -1;
+		}
+		
+		return 0;
 	};
 };
 
