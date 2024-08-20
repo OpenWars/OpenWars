@@ -22,32 +22,38 @@ Copyright (C) 2024 OpenWars Team
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef __openwars__random__hpp__
-#define __openwars__random__hpp__
+#ifndef __openwars__crypto__random__hpp__
+#define __openwars__crypto__random__hpp__
 
-#include "../defs.hpp"
+#include "../nuclei.hpp"
 
 namespace OpenWars {
-	// Unsafe PRNG.
-	class Random {
+	// (probably) Unsafe PRNG.
+	class PRNG {
 		private:
-			u32 orig_seed;
-			u32 curr_seed;
-			u32 iteration;
+			u64	orig_seed,
+				curr_seed,
+				iteration;
 
 		public:
 			void init(void);
 
-			void seed(u32 seed);
+			void seed(u64 s);
 			void seed_from_date(void);
 
 			u32 random_u32(void);
+			u64 random_u64(void);
+
 			// A random float between from 0 to 1.
 			f32 random_f32(void);
+			f64 random_f64(void);
 
-			u32 random_u32(u32 seq);
+			u32 random_u32(u64 seq);
+			u64 random_u64(u64 seq);
+
 			// A random float between from 0 to 1.
-			f32 random_f32(u32 seq);
+			f32 random_f32(u64 seq);
+			f64 random_f64(u64 seq);
 	};
 };
 
