@@ -47,10 +47,10 @@ namespace OpenWars {
 		u64 c1 = (u64)std::chrono::duration_cast<std::chrono::milliseconds>(u).count();
 		u64 c2 = (u64)std::chrono::duration_cast<std::chrono::nanoseconds>(u).count();
 
-		// Random prime numbers.
-		c0 += 0x18d245eb0510cb11;
-		c1 += 0x0510cb114d8ada37;
-		c2 += 0x4d8ada3718d245eb;
+		// Random prime numbers (+ carry).
+		c0 = (c0 + 0x18d245eb0510cb11) + (c0 > (c0 + 0x18d245eb0510cb11));
+		c1 = (c1 + 0x0510cb114d8ada37) + (c1 > (c1 + 0x0510cb114d8ada37));
+		c2 = (c2 + 0x4d8ada3718d245eb) + (c2 > (c2 + 0x4d8ada3718d245eb));
 
 		c0 = (c0 ^ c1 ^ c2);
 
