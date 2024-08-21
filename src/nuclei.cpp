@@ -1,4 +1,4 @@
-/**
+/**	VSC sucks :P
  *
    ___                __        __
   / _ \ _ __   ___ _ _\ \      / /_ _ _ __ ___
@@ -27,6 +27,7 @@ Copyright (C) 2024 OpenWars Team
 
 #include "nuclei.hpp"
 #include "io/log.hpp"
+#include <cstdlib>
 
 namespace OpenWars {
 	void __assert_me__(const char *file, int line, const char *comment) {

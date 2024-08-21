@@ -30,7 +30,7 @@ int main(void) {
 		ciao(1);
 	}
 
-	if(OpenWars::init_video(screen_width, screen_height, "Darkness (olcJam2024)", err) < 0) {
+	if(OpenWars::init_video(screen_width, screen_height, "OpenWars", err) < 0) {
 		OpenWars::log_error("Couldn't initialize the window: %s\n", err);
 		ciao(1);
 	}
