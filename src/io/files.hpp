@@ -29,6 +29,8 @@ Copyright (C) 2024 OpenWars Team
 #include <fstream>
 
 namespace OpenWars {
+	i8 create_directories(const char *path);
+
 	class FileStream : public BaseStream {
 		public:
 			typedef enum _flags {

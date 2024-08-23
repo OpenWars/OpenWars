@@ -28,8 +28,23 @@ Copyright (C) 2024 OpenWars Team
 #include "files.hpp"
 #include <cerrno>
 #include <cstring>
+#include <filesystem>
 
 namespace OpenWars {
+	i8 create_directories(const char *path, const char *err) {
+		if(err != nullptr)
+			return -1;
+
+		try {
+			std::filesystem::create_directories(path);
+		} catch(...) {
+			err = "Couldn't create the directories";
+			return -1;
+		};
+
+		return 0;
+	};
+	
 	std::ios::openmode FileStream::__flags_to_std_openmode(u16 mode) {
 		std::ios::openmode std_mode = std::ios::binary;
 
