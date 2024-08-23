@@ -33,12 +33,13 @@ Copyright (C) 2024 OpenWars Team
 #include <stdexcept>
 
 namespace OpenWars {
-	typedef struct {
-		u32	res;
-		u32	id;
-	} i_audit_t;
+	struct i_audit_t {
+		u32			res = AUDITOR_RESOURCES::MISC;
+		void		*ptr = nullptr;
+		const char	*what = nullptr;
+	};
 
-	typedef std::map<u64, u8> i_audits_t;
+	typedef std::map<u64, i_audit_t> i_audits_t;
 
 	uintptr_t i_audits = (uintptr_t)nullptr;
 
@@ -73,7 +74,17 @@ namespace OpenWars {
 		if(p->empty()) {
 			log_debug("Auditor is happy :D\n");
 		} else {
-			log_debug("Auditor is not happy, because there are still %u elements that were not de-audited.\n", p->size());
+			log_debug("Auditor is not happy >:( because there are still %u elements that were not de-audited:\n", p->size());
+
+			u64 i = 0;
+			for(auto it = p->begin(); it != p->end(); it++, i++) {
+				// [TODO] Free?
+
+				log_debug("* Element %lu:\n", i + 1);
+				log_debug("  ID: %016lx\n", it->first);
+				log_debug("  Resource: %08x\n", it->second.res);
+				log_debug("  What: %s\n", it->second.what);
+			};
 		}
 
 		free(p);
@@ -96,12 +107,13 @@ namespace OpenWars {
 
 		u64 id = prng.random_u64();
 
-		p->insert_or_assign(id, 0x5f);
+		i_audit_t t;
+		p->insert_or_assign(id, t);
 
 		return id;
 	};
 
-	u64 audit(u32 res, const char *add, const char *err) {
+	u64 audit(u32 res, const char *add, void *addr, const char *err) {
 		if(err != nullptr)
 			return -1;
 
@@ -138,9 +150,18 @@ namespace OpenWars {
 					(((u64)(h[6])) << 8) |
 					((u64)(h[7])));
 
-		p->insert_or_assign(id, 0x5f);
+		i_audit_t t;
+		t.res = res;
+		t.ptr = addr;
+		t.what = add;
+
+		p->insert_or_assign(id, t);
 
 		return id;
+	};
+
+	u64 audit(u32 res, const char *add, const char *err) {
+		return audit(res, add, nullptr, err);
 	};
 
 	i8 deaudit(u64 id, const char *err) {
@@ -154,21 +175,13 @@ namespace OpenWars {
 
 		i_audits_t *p = (i_audits_t *)i_audits;
 
-		u8 r;
-
 		try {
-			r = p->at(id);
+			(void)(p->at(id));
 		} catch(std::out_of_range &e) {
 			err = "Auditor couldn't find that resource";
 			return -1;
 		};
 
-		if(r != 0x5f) {
-			err ="Auditor couldn't check(?) that resource";
-			return -1;
-		}
-
-		p->insert_or_assign(id, 0xab);
 		p->erase(id);
 
 		return 0;
