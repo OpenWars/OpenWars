@@ -1,4 +1,4 @@
-/**
+/**	
  *
    ___                __        __             
   / _ \ _ __   ___ _ _\ \      / /_ _ _ __ ___ 
@@ -26,24 +26,13 @@ Copyright (C) 2024 OpenWars Team
 #ifndef __openwars__config__config__h__
 #define __openwars__config__config__h__
 
+#include "../nuclei.hpp"
+
 namespace OpenWars {
-	class Config {
-		private:
-			const char *err_str = nullptr;
-			char *profile_path = nullptr;
+	i8 load_config(const char *err);
+	const char *get_config(const char *key, const char *err);
 
-			int create_dirs(const char *path);
-			int get_profile_path(void);
-			int create_blank_profile(void);
-
-		public:
-			Config(void);
-			~Config(void);
-
-			const char *get_error(void);
-
-			int load(void);
-	};
+	void free_config(void);
 };
 
 #endif

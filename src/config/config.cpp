@@ -1,4 +1,4 @@
-/**
+/**	
  *
    ___                __        __             
   / _ \ _ __   ___ _ _\ \      / /_ _ _ __ ___ 
@@ -27,99 +27,138 @@ Copyright (C) 2024 OpenWars Team
 #define __openwars__config__config__cxx__
 
 #include "config.hpp"
-
-#include <filesystem>
-#include <cstdlib>
+#include "../io/files.hpp"
+#include "../misc/auditor.hpp"
+#include <stdexcept>
+#include <unordered_map>
 #include <cstring>
-#include <new>
 
 namespace OpenWars {
-	Config::Config(void) {};
-
-	Config::~Config(void) {
-		delete[] profile_path;
-	}
-
-	const char *Config::get_error(void) {
-		return err_str;
+	struct i_config_t {
+		char *dir_path = nullptr;
+		std::unordered_map<const char *, const char *> keys;
+		u64	audit_id = (u64)(-1);
 	};
 
-	int Config::get_profile_path(void) {
-		char *tmp_buff = nullptr;
-		const char *ap_str = nullptr;
+	i_config_t i_conf;
 
-		if(tmp_buff == nullptr) {
-			tmp_buff = std::getenv("HOME");
-			ap_str = "/.config/openwars/";
-		}
-
-		if(tmp_buff == nullptr) {
-			tmp_buff = std::getenv("APPDATA");
-			ap_str = "/openwars/";
-		}
-
-		if((tmp_buff != nullptr) && (ap_str != nullptr)) {
-			try {
-				profile_path = new char[std::strlen(tmp_buff) + 256];
-			} catch(std::bad_alloc& e) {
-				err_str = "Couldn't allocate enough memory";
-				return -1;
-			};
-
-			std::strcat(profile_path, tmp_buff);
-			std::strcat(profile_path, ap_str);
-
-			return 0;
-		}
-
-		err_str = "Couldn't find a suitable profile path";
-
-		return 1;
-	};
-
-	int Config::create_dirs(const char *path) {
-		try {
-			std::filesystem::create_directories(path);
-		} catch(std::filesystem::filesystem_error& e) {
-			err_str = e.what();
-			return 1;
-		};
-
-		return 0;
-	};
-
-	int Config::create_blank_profile(void) {
-		char *tmp_buff = nullptr;
-
-		try {
-			tmp_buff = new char[std::strlen(profile_path) + 256];
-		} catch(std::bad_alloc& e) {
-			err_str = "Couldn't allocate enough memory";
+	i8 i_get_config_path(const char *err) {
+		if(err != nullptr)
 			return -1;
-		};
 
-		std::strcpy(tmp_buff, profile_path);
-		std::strcat(tmp_buff, "maps");
-		if(create_dirs(tmp_buff) < 0) return -1;
+		const char *env_str = nullptr;
+		const char *add_str = nullptr;
 
-		std::strcpy(tmp_buff, profile_path);
-		std::strcat(tmp_buff, "textures");
-		if(create_dirs(tmp_buff) < 0) return -1;
+		if(env_str == nullptr) {
+			env_str = std::getenv("HOME");
+			add_str = "/.config/openwars/";
+		}
 
-		std::strcpy(tmp_buff, profile_path);
-		std::strcat(tmp_buff, "logs");
-		if(create_dirs(tmp_buff) < 0) return -1;
+		if(env_str == nullptr) {
+			env_str = std::getenv("APPDATA");
+			add_str = "/openwars/";
+		}
 
-		delete[] tmp_buff;
+		if(env_str == nullptr) {
+			env_str = ".";
+			add_str = "/";
+		}
+
+		u64 len = 1;
+		len += std::strlen(env_str);
+		len += std::strlen(add_str);
+
+		char *path = valloc<char>(len, err);
+		if(path == nullptr)
+			return -1;
+
+		i_conf.dir_path = path;
 
 		return 0;
 	};
 
-	int Config::load(void) {
-		if(get_profile_path() < 0) return -1;
-		if(create_blank_profile() < 0) return -1;
+	i8 i_create_blank_config(const char *err) {
+		char *path = valloc<char>(std::strlen(i_conf.dir_path) + 256, err);
+		if(path == nullptr)
+			return -1;
+
+		std::strcpy(path, i_conf.dir_path);
+		std::strcat(path, "maps");
+		if(create_directories(path) < 0)
+			return -1;
+
+		std::strcpy(path, i_conf.dir_path);
+		std::strcat(path, "textures");
+		if(create_directories(path) < 0)
+			return -1;
+
+		std::strcpy(path, i_conf.dir_path);
+		std::strcat(path, "logs");
+		if(create_directories(path) < 0)
+			return -1;
+
+		vfree(path);
 
 		return 0;
+	};
+
+	i8 load_config(const char *err) {
+		if(err != nullptr)
+			return -1;
+
+		free_config();
+
+		i_conf.audit_id = audit(AUDITOR_RESOURCES::MISC, "load_config", err);
+		if(err != nullptr) {
+			free_config();
+			return -1;
+		}
+
+		if(i_get_config_path(err) < 0) {
+			free_config();
+			return -1;
+		}
+
+		if(i_create_blank_config(err) < 0) {
+			free_config();
+			return -1;
+		}
+
+		// [TODO] : Load keys->values.
+
+		return 0;
+	};
+
+	const char *get_config(const char *key, const char *err) {
+		if(err != nullptr)
+			return nullptr;
+
+		if(i_conf.dir_path == nullptr) {
+			err = "Configuration isn't loaded";
+			return nullptr;
+		}
+		
+		const char *v = nullptr;
+
+		try {
+			v = i_conf.keys.at(key);
+		} catch(std::out_of_range &e) {
+			err = "Key is not present";
+			return nullptr;
+		};
+
+		return v;
+	};
+
+	void free_config(void) {
+		if(i_conf.dir_path != nullptr) {
+			vfree(i_conf.dir_path);
+			i_conf.dir_path = nullptr;
+
+			(void)deaudit(i_conf.audit_id, nullptr);
+		}
+
+		i_conf.keys.clear();
 	};
 };
 
