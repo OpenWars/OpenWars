@@ -29,7 +29,7 @@ Copyright (C) 2024 OpenWars Team
 #include <fstream>
 
 namespace OpenWars {
-	i8 create_directories(const char *path);
+	i8 create_directories(const char *path, const char *err);
 
 	class FileStream : public BaseStream {
 		public:

@@ -84,17 +84,17 @@ namespace OpenWars {
 
 		std::strcpy(path, i_conf.dir_path);
 		std::strcat(path, "maps");
-		if(create_directories(path) < 0)
+		if(create_directories(path, err) < 0)
 			return -1;
 
 		std::strcpy(path, i_conf.dir_path);
 		std::strcat(path, "textures");
-		if(create_directories(path) < 0)
+		if(create_directories(path, err) < 0)
 			return -1;
 
 		std::strcpy(path, i_conf.dir_path);
 		std::strcat(path, "logs");
-		if(create_directories(path) < 0)
+		if(create_directories(path, err) < 0)
 			return -1;
 
 		vfree(path);
