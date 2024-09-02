@@ -51,6 +51,7 @@ namespace OpenWars {
 		if(err != nullptr)
 			return -1;
 
+		Raylib::SetExitKey(Raylib::KEY_NULL);
 		Raylib::InitWindow(width, height, title);
 
 		while(Raylib::IsWindowReady() == false);
