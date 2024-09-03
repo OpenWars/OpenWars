@@ -129,7 +129,18 @@ namespace OpenWars {
 		return 0;
 	};
 
-	const char *get_config(const char *key, const char *err) {
+	void free_config(void) {
+		if(i_conf.dir_path != nullptr) {
+			vfree(i_conf.dir_path);
+			i_conf.dir_path = nullptr;
+
+			(void)deaudit(i_conf.audit_id, nullptr);
+		}
+
+		i_conf.keys.clear();
+	};
+
+	const char *get_config_string(const char *key, const char *err) {
 		if(err != nullptr)
 			return nullptr;
 
@@ -148,17 +159,6 @@ namespace OpenWars {
 		};
 
 		return v;
-	};
-
-	void free_config(void) {
-		if(i_conf.dir_path != nullptr) {
-			vfree(i_conf.dir_path);
-			i_conf.dir_path = nullptr;
-
-			(void)deaudit(i_conf.audit_id, nullptr);
-		}
-
-		i_conf.keys.clear();
 	};
 };
 
