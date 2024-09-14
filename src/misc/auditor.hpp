@@ -34,7 +34,6 @@ namespace OpenWars {
 		AUDIO_STREAM,
 		FONT,
 		MISC,
-		ALLOC,
 	} AUDITOR_RESOURCES;
 
 	i8 init_auditor(const char *err);
