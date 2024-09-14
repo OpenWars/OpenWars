@@ -186,10 +186,6 @@ namespace OpenWars {
 
 		return 0;
 	};
-
-	bool _is_auditor_online(void) {
-		return (i_audits != (uintptr_t)nullptr);
-	};
 };
 
 #endif
