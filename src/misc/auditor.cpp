@@ -48,7 +48,7 @@ namespace OpenWars {
 			return -1;
 
 		if(i_audits != (uintptr_t)nullptr) {
-			err = "Auditor is not loaded";
+			err = "Auditor is already loaded";
 			return -1;
 		}
 
@@ -185,6 +185,10 @@ namespace OpenWars {
 		p->erase(id);
 
 		return 0;
+	};
+
+	bool _is_auditor_online(void) {
+		return (i_audits != (uintptr_t)nullptr);
 	};
 };
 

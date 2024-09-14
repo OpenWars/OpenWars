@@ -43,6 +43,8 @@ namespace OpenWars {
 	u64 audit(u32 res, const char *add, const char *err);
 	u64 audit(const char *err);
 	i8 deaudit(u64 id, const char *err);
+
+	bool _is_auditor_online(void);
 };
 
 #endif
