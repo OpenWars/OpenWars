@@ -35,11 +35,9 @@ namespace OpenWars {
 
 	LuaState::~LuaState(void) {};
 
-	const char *LuaState::get_error(void) {
-		return err_str;
-	};
+	int LuaState::run_script(const char *path, const char **err) {
+    (void)err;
 
-	int LuaState::run_script(const char *path) {
 		sol::protected_function_result res = sol_state.script_file(path, &sol::script_default_on_error);
 
 		if(res.valid())

@@ -93,19 +93,19 @@ namespace OpenWars {
 			deinit();
 		};
 
-		i8 Pawn::init(pawn_ctx_t *pawn_ctx, const char *err) {
-			if(err != nullptr)
+		i8 Pawn::init(pawn_ctx_t *pawn_ctx, const char **err) {
+			if(*err != nullptr)
 				return -1;
 
 			if(initialized()) {
-				err = "Already initialized";
+				*err = "Already initialized";
 				return -1;
 			}
 
 			try {
 				thread_ptr = new std::thread(pawn_loop, pawn_ctx);
 			} catch(std::bad_alloc& e) {
-				err = "Couldn't allocate a Thread";
+				*err = "Couldn't allocate a Thread";
 				return -1;
 			};
 
@@ -137,12 +137,12 @@ namespace OpenWars {
 			return (number_of_pawns > 0);
 		};
 
-		i8 King::init_pawns(unsigned int min_pawns, const char *err) {
-			if(err != nullptr)
+		i8 King::init_pawns(unsigned int min_pawns, const char **err) {
+			if(*err != nullptr)
 				return -1;
 
 			if(initialized()) {
-				err = "All pawns are alive";
+				*err = "All pawns are alive";
 				return -1;
 			}
 
@@ -153,7 +153,7 @@ namespace OpenWars {
 			
 			pawns = valloc<Pawn>(n, err);
 			if(pawns == nullptr) {
-				err = "Couldn't allocate enough memory for the pawns";
+				*err = "Couldn't allocate enough memory for the pawns";
 				return -1;
 			};
 
@@ -200,12 +200,12 @@ namespace OpenWars {
 				pawn_ctx.fin.pop();
 		};
 
-		i8 King::push(const char *success, const char *failure, task_callback_t callback, const char *err) {
-			if(err != nullptr)
+		i8 King::push(const char *success, const char *failure, task_callback_t callback, const char **err) {
+			if(*err != nullptr)
 				return -1;
 
 			if(initialized() == false) {
-				err = "King isn't initialized";
+				*err = "King isn't initialized";
 				return -1;
 			}
 
@@ -218,7 +218,7 @@ namespace OpenWars {
 			return 0;
 		};
 
-		i8 King::push(task_callback_t callback, const char *err) {
+		i8 King::push(task_callback_t callback, const char **err) {
 			return push(nullptr, nullptr, callback, err);
 		};
 

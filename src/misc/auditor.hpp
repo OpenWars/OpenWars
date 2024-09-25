@@ -36,13 +36,13 @@ namespace OpenWars {
 		MISC,
 	} AUDITOR_RESOURCES;
 
-	i8 init_auditor(const char *err);
+	i8 init_auditor(const char **err);
 	void deinit_auditor(void);
 
-	u64 audit(u32 res, const char *add, void *addr, const char *err);
-	u64 audit(u32 res, const char *add, const char *err);
-	u64 audit(const char *err);
-	i8 deaudit(u64 id, const char *err);
+	u64 audit(u32 res, const char *add, void *addr, const char **err);
+	u64 audit(u32 res, const char *add, const char **err);
+	u64 audit(const char **err);
+	i8 deaudit(u64 id, const char **err);
 };
 
 #endif

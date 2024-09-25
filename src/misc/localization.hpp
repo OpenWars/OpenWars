@@ -33,10 +33,10 @@ namespace OpenWars {
 	namespace L10N {
 		typedef std::unordered_map<const char *, const char *> info_t;
 
-		i8 init_localization(const char *err);
+		i8 init_localization(const char **err);
 		void deinit_localization(void);
 
-		i8 load_language(const char *s, const char *err);
+		i8 load_language(const char *s, const char **err);
 		char *get_text(u32 id, info_t &info);
 		void free_text(char *text);
 	};

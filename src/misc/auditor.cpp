@@ -43,19 +43,19 @@ namespace OpenWars {
 
 	uintptr_t i_audits = (uintptr_t)nullptr;
 
-	i8 init_auditor(const char *err) {
-		if(err != nullptr)
+	i8 init_auditor(const char **err) {
+		if(*err != nullptr)
 			return -1;
 
 		if(i_audits != (uintptr_t)nullptr) {
-			err = "Auditor is already loaded";
+			*err = "Auditor is already loaded";
 			return -1;
 		}
 
 		i_audits_t *p = valloc<i_audits_t>(err);
 
 		if(p == nullptr) {
-			err = "Couldn't allocate the auditor";
+			*err = "Couldn't allocate the auditor";
 			return -1;
 		}
 
@@ -91,12 +91,12 @@ namespace OpenWars {
 		i_audits = (uintptr_t)nullptr;
 	};
 
-	u64 audit(const char *err) {
-		if(err != nullptr)
+	u64 audit(const char **err) {
+		if(*err != nullptr)
 			return -1;
 
 		if(i_audits == (uintptr_t)nullptr) {
-			err = "Auditor is not loaded";
+			*err = "Auditor is not loaded";
 			return -1;
 		}
 
@@ -113,12 +113,12 @@ namespace OpenWars {
 		return id;
 	};
 
-	u64 audit(u32 res, const char *add, void *addr, const char *err) {
-		if(err != nullptr)
+	u64 audit(u32 res, const char *add, void *addr, const char **err) {
+		if(*err != nullptr)
 			return -1;
 
 		if(i_audits == (uintptr_t)nullptr) {
-			err = "Auditor is not loaded";
+			*err = "Auditor is not loaded";
 			return -1;
 		}
 
@@ -160,16 +160,16 @@ namespace OpenWars {
 		return id;
 	};
 
-	u64 audit(u32 res, const char *add, const char *err) {
+	u64 audit(u32 res, const char *add, const char **err) {
 		return audit(res, add, nullptr, err);
 	};
 
-	i8 deaudit(u64 id, const char *err) {
-		if(err != nullptr)
+	i8 deaudit(u64 id, const char **err) {
+		if(*err != nullptr)
 			return -1;
 
 		if(i_audits == (uintptr_t)nullptr) {
-			err = "Auditor is not loaded";
+			*err = "Auditor is not loaded";
 			return -1;
 		}
 
@@ -178,7 +178,7 @@ namespace OpenWars {
 		try {
 			(void)(p->at(id));
 		} catch(std::out_of_range &e) {
-			err = "Auditor couldn't find that resource";
+			*err = "Auditor couldn't find that resource";
 			return -1;
 		};
 

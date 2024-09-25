@@ -31,14 +31,14 @@ Copyright (C) 2024 OpenWars Team
 #include <filesystem>
 
 namespace OpenWars {
-	i8 create_directories(const char *path, const char *err) {
-		if(err != nullptr)
+	i8 create_directories(const char *path, const char **err) {
+		if(*err != nullptr)
 			return -1;
 
 		try {
 			std::filesystem::create_directories(path);
 		} catch(...) {
-			err = "Couldn't create the directories";
+			*err = "Couldn't create the directories";
 			return -1;
 		};
 
@@ -90,18 +90,18 @@ namespace OpenWars {
 		fs.seekp(off, __flags_to_std_seekdir(dir));
 	};
 
-	i8 FileStream::open(const char *path, u16 mode, const char *err) {
-		if(err != nullptr)
+	i8 FileStream::open(const char *path, u16 mode, const char **err) {
+		if(*err != nullptr)
 			return -1;
 
 		if(fs.is_open()) {
-			err = "File stream is already open";
+			*err = "File stream is already open";
 			return -1;
 		}
 		
 		fs.open(path, __flags_to_std_openmode(mode));
 		if(fs.fail()) {
-			err = std::strerror(errno);
+			*err = std::strerror(errno);
 			return -1;
 		}
 
@@ -117,28 +117,28 @@ namespace OpenWars {
 			fs.close();
 	};
 
-	i8 FileStream::read(u8 *s, u64 n, const char *err) {
-		if(err != nullptr)
+	i8 FileStream::read(u8 *s, u64 n, const char **err) {
+		if(*err != nullptr)
 			return -1;
 		
 		(void)fs.read((char *)s, n);
 
 		if(fs.fail()) {
-			err = std::strerror(errno);
+			*err = std::strerror(errno);
 			return -1;
 		}
 			
 		return 0;
 	};
 
-	i8 FileStream::write(u8 *s, u64 n, const char *err) {
-		if(err != nullptr)
+	i8 FileStream::write(u8 *s, u64 n, const char **err) {
+		if(*err != nullptr)
 			return -1;
 		
 		(void)fs.write((char *)s, n);
 
 		if(fs.fail()) {
-			err = std::strerror(errno);
+			*err = std::strerror(errno);
 			return -1;
 		}
 		

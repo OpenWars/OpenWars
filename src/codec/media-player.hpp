@@ -51,7 +51,7 @@ namespace OpenWars {
 				float	*data;
 			} audio_samples_t;
 
-			i8 open(const char *filepath, const char *err);
+			i8 open(const char *filepath, const char **err);
 			void close(void);
 
 			time_t time(void);
@@ -60,10 +60,10 @@ namespace OpenWars {
 			void pause(void);
 			void resume(void);
 
-			i8 process(const char *err);
+			i8 process(const char **err);
 
-			video_frame_t * get_frame(const char *err);
-			audio_samples_t * get_samples(const char *err);
+			video_frame_t * get_frame(const char **err);
+			audio_samples_t * get_samples(const char **err);
 	};
 };
 

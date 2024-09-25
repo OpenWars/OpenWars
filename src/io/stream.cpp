@@ -28,10 +28,10 @@ Copyright (C) 2024 OpenWars Team
 #include "stream.hpp"
 
 namespace OpenWars {
-	u8 BaseStream::readU8(const char *err) {
+	u8 BaseStream::readU8(const char **err) {
 		u8 buff[1];
 
-		if(err != nullptr)
+		if(*err != nullptr)
 			return (-1);
 
 		if(read(buff, 1, err) < 0)
@@ -40,10 +40,10 @@ namespace OpenWars {
 		return buff[0];
 	};
 	
-	u16 BaseStream::readU16BE(const char *err) {
+	u16 BaseStream::readU16BE(const char **err) {
 		u8 buff[2];
 
-		if(err != nullptr)
+		if(*err != nullptr)
 			return (-1);
 
 		if(read(buff, 2, err) < 0)
@@ -55,10 +55,10 @@ namespace OpenWars {
 		);
 	};
 	
-	u32 BaseStream::readU32BE(const char *err) {
+	u32 BaseStream::readU32BE(const char **err) {
 		u8 buff[4];
 
-		if(err != nullptr)
+		if(*err != nullptr)
 			return (-1);
 
 		if(read(buff, 4, err) < 0)
@@ -72,10 +72,10 @@ namespace OpenWars {
 		);
 	};
 	
-	u64 BaseStream::readU64BE(const char *err) {
+	u64 BaseStream::readU64BE(const char **err) {
 		u8 buff[8];
 		
-		if(err != nullptr)
+		if(*err != nullptr)
 			return (-1);
 
 		if(read(buff, 8, err) < 0)
@@ -93,10 +93,10 @@ namespace OpenWars {
 		);
 	};
 	
-	u16 BaseStream::readU16LE(const char *err) {
+	u16 BaseStream::readU16LE(const char **err) {
 		u8 buff[2];
 
-		if(err != nullptr)
+		if(*err != nullptr)
 			return (-1);
 
 		if(read(buff, 2, err) < 0)
@@ -108,10 +108,10 @@ namespace OpenWars {
 		);
 	};
 	
-	u32 BaseStream::readU32LE(const char *err) {
+	u32 BaseStream::readU32LE(const char **err) {
 		u8 buff[4];
 
-		if(err != nullptr)
+		if(*err != nullptr)
 			return (-1);
 
 		if(read(buff, 4, err) < 0)
@@ -125,10 +125,10 @@ namespace OpenWars {
 		);
 	};
 	
-	u64 BaseStream::readU64LE(const char *err) {
+	u64 BaseStream::readU64LE(const char **err) {
 		u8 buff[8];
 		
-		if(err != nullptr)
+		if(*err != nullptr)
 			return (-1);
 
 		if(read(buff, 8, err) < 0)
@@ -146,10 +146,10 @@ namespace OpenWars {
 		);
 	};
 	
-	i8 BaseStream::readI8(const char *err) {
+	i8 BaseStream::readI8(const char **err) {
 		u8 buff[1];
 
-		if(err != nullptr)
+		if(*err != nullptr)
 			return (-1);
 
 		if(read(buff, 1, err) < 0)
@@ -158,10 +158,10 @@ namespace OpenWars {
 		return buff[0];
 	};
 	
-	i16 BaseStream::readI16BE(const char *err) {
+	i16 BaseStream::readI16BE(const char **err) {
 		u8 buff[2];
 
-		if(err != nullptr)
+		if(*err != nullptr)
 			return (-1);
 
 		if(read(buff, 2, err) < 0)
@@ -173,10 +173,10 @@ namespace OpenWars {
 		);
 	};
 
-	i32 BaseStream::readI32BE(const char *err) {
+	i32 BaseStream::readI32BE(const char **err) {
 		u8 buff[4];
 
-		if(err != nullptr)
+		if(*err != nullptr)
 			return (-1);
 
 		if(read(buff, 4, err) < 0)
@@ -190,10 +190,10 @@ namespace OpenWars {
 		);
 	};
 
-	i64 BaseStream::readI64BE(const char *err) {
+	i64 BaseStream::readI64BE(const char **err) {
 		u8 buff[8];
 		
-		if(err != nullptr)
+		if(*err != nullptr)
 			return (-1);
 
 		if(read(buff, 8, err) < 0)
@@ -211,10 +211,10 @@ namespace OpenWars {
 		);
 	};
 
-	i16 BaseStream::readI16LE(const char *err) {
+	i16 BaseStream::readI16LE(const char **err) {
 		u8 buff[2];
 
-		if(err != nullptr)
+		if(*err != nullptr)
 			return (-1);
 
 		if(read(buff, 2, err) < 0)
@@ -226,10 +226,10 @@ namespace OpenWars {
 		);
 	};
 
-	i32 BaseStream::readI32LE(const char *err) {
+	i32 BaseStream::readI32LE(const char **err) {
 		u8 buff[4];
 
-		if(err != nullptr)
+		if(*err != nullptr)
 			return (-1);
 
 		if(read(buff, 4, err) < 0)
@@ -243,10 +243,10 @@ namespace OpenWars {
 		);
 	};
 
-	i64 BaseStream::readI64LE(const char *err) {
+	i64 BaseStream::readI64LE(const char **err) {
 		u8 buff[8];
 		
-		if(err != nullptr)
+		if(*err != nullptr)
 			return (-1);
 
 		if(read(buff, 8, err) < 0)
@@ -264,8 +264,8 @@ namespace OpenWars {
 		);
 	};
 
-	f32 BaseStream::readF32(const char *err) {
-		if(err != nullptr)
+	f32 BaseStream::readF32(const char **err) {
+		if(*err != nullptr)
 			return (-1);
 
 		u32 v = readU32BE(err);
@@ -275,8 +275,8 @@ namespace OpenWars {
 		return f;
 	};
 	
-	f64 BaseStream::readF64(const char *err) {
-		if(err != nullptr)
+	f64 BaseStream::readF64(const char **err) {
+		if(*err != nullptr)
 			return (-1);
 
 		u64 v = readU64BE(err);
@@ -286,7 +286,7 @@ namespace OpenWars {
 		return f;
 	};
 
-	i8 BaseStream::writeU8(u8 value, const char *err) {
+	i8 BaseStream::writeU8(u8 value, const char **err) {
 		u8 buff[1] = {
 			(u8)value
 		};
@@ -294,7 +294,7 @@ namespace OpenWars {
 		return write(buff, 1, err);
 	};
 	
-	i8 BaseStream::writeU16BE(u16 value, const char *err) {
+	i8 BaseStream::writeU16BE(u16 value, const char **err) {
 		u8 buff[2] = {
 			(u8)((value >> 8) & 0xff),
 			(u8)(value & 0xff)
@@ -303,7 +303,7 @@ namespace OpenWars {
 		return write(buff, 2, err);
 	};
 	
-	i8 BaseStream::writeU32BE(u32 value, const char *err) {
+	i8 BaseStream::writeU32BE(u32 value, const char **err) {
 		u8 buff[4] = {
 			(u8)((value >> 24) & 0xff),
 			(u8)((value >> 16) & 0xff),
@@ -314,7 +314,7 @@ namespace OpenWars {
 		return write(buff, 4, err);
 	};
 	
-	i8 BaseStream::writeU64BE(u64 value, const char *err) {
+	i8 BaseStream::writeU64BE(u64 value, const char **err) {
 		u8 buff[8] = {
 			(u8)((value >> 56) & 0xff),
 			(u8)((value >> 48) & 0xff),
@@ -329,7 +329,7 @@ namespace OpenWars {
 		return write(buff, 8, err);
 	};
 	
-	i8 BaseStream::writeU16LE(u16 value, const char *err) {
+	i8 BaseStream::writeU16LE(u16 value, const char **err) {
 		u8 buff[2] = {
 			(u8)(value & 0xff),
 			(u8)((value >> 8) & 0xff)
@@ -338,7 +338,7 @@ namespace OpenWars {
 		return write(buff, 2, err);
 	};
 	
-	i8 BaseStream::writeU32LE(u32 value, const char *err) {
+	i8 BaseStream::writeU32LE(u32 value, const char **err) {
 		u8 buff[4] = {
 			(u8)(value & 0xff),
 			(u8)((value >> 8) & 0xff),
@@ -349,7 +349,7 @@ namespace OpenWars {
 		return write(buff, 4, err);
 	};
 	
-	i8 BaseStream::writeU64LE(u64 value, const char *err) {
+	i8 BaseStream::writeU64LE(u64 value, const char **err) {
 		u8 buff[8] = {
 			(u8)(value & 0xff),
 			(u8)((value >> 8) & 0xff),
@@ -365,28 +365,28 @@ namespace OpenWars {
 	};
 	
 	// [TODO] Loss-less I8->U8.
-	i8 BaseStream::writeI8(i8 value, const char *err) {
+	i8 BaseStream::writeI8(i8 value, const char **err) {
 		return writeU8(value, err);
 	};
 
-	i8 BaseStream::writeI16LE(i16 value, const char *err) {
+	i8 BaseStream::writeI16LE(i16 value, const char **err) {
 		return writeU16LE(value, err);
 	};
 
-	i8 BaseStream::writeI32LE(i32 value, const char *err) {
+	i8 BaseStream::writeI32LE(i32 value, const char **err) {
 		return writeU32LE(value, err);
 	};
 
-	i8 BaseStream::writeI64LE(i64 value, const char *err) {
+	i8 BaseStream::writeI64LE(i64 value, const char **err) {
 		return writeU64LE(value, err);
 	};
 	
-	i8 BaseStream::writeF32(float value, const char *err) {
+	i8 BaseStream::writeF32(float value, const char **err) {
 		u32 *raw_value = (u32 *)(&value);
 		return writeU32BE(*raw_value, err);
 	};
 	
-	i8 BaseStream::writeF64(double value, const char *err) {
+	i8 BaseStream::writeF64(double value, const char **err) {
 		u64 *raw_value = (u64 *)(&value);
 		return writeU64BE(*raw_value, err);
 	};

@@ -44,49 +44,49 @@ namespace OpenWars {
 			virtual void seekp(u64 pos) = 0;
 			virtual void seekp(i64 off, seekdir dir) = 0;
 			
-			virtual i8 read(u8 *s, u64 n, const char *err) = 0;
-			virtual i8 write(u8 *s, u64 n, const char *err) = 0;
+			virtual i8 read(u8 *s, u64 n, const char **err) = 0;
+			virtual i8 write(u8 *s, u64 n, const char **err) = 0;
 			
-			u8 readU8(const char *err);
+			u8 readU8(const char **err);
 
-			u16 readU16BE(const char *err);
-			u32 readU32BE(const char *err);
-			u64 readU64BE(const char *err);
+			u16 readU16BE(const char **err);
+			u32 readU32BE(const char **err);
+			u64 readU64BE(const char **err);
 			
-			u16 readU16LE(const char *err);
-			u32 readU32LE(const char *err);
-			u64 readU64LE(const char *err);
+			u16 readU16LE(const char **err);
+			u32 readU32LE(const char **err);
+			u64 readU64LE(const char **err);
 
-			i8 readI8(const char *err);
+			i8 readI8(const char **err);
 
-			i16 readI16BE(const char *err);
-			i32 readI32BE(const char *err);
-			i64 readI64BE(const char *err);
+			i16 readI16BE(const char **err);
+			i32 readI32BE(const char **err);
+			i64 readI64BE(const char **err);
 			
-			i16 readI16LE(const char *err);
-			i32 readI32LE(const char *err);
-			i64 readI64LE(const char *err);
+			i16 readI16LE(const char **err);
+			i32 readI32LE(const char **err);
+			i64 readI64LE(const char **err);
 
-			f32 readF32(const char *err);
-			f64 readF64(const char *err);
+			f32 readF32(const char **err);
+			f64 readF64(const char **err);
 			
-			i8 writeU8(u8 value, const char *err);
+			i8 writeU8(u8 value, const char **err);
 
-			i8 writeU16BE(u16 value, const char *err);
-			i8 writeU32BE(u32 value, const char *err);
-			i8 writeU64BE(u64 value, const char *err);
+			i8 writeU16BE(u16 value, const char **err);
+			i8 writeU32BE(u32 value, const char **err);
+			i8 writeU64BE(u64 value, const char **err);
 			
-			i8 writeU16LE(u16 value, const char *err);
-			i8 writeU32LE(u32 value, const char *err);
-			i8 writeU64LE(u64 value, const char *err);
+			i8 writeU16LE(u16 value, const char **err);
+			i8 writeU32LE(u32 value, const char **err);
+			i8 writeU64LE(u64 value, const char **err);
 			
-			i8 writeI8(i8 value, const char *err);
-			i8 writeI16LE(i16 value, const char *err);
-			i8 writeI32LE(i32 value, const char *err);
-			i8 writeI64LE(i64 value, const char *err);
+			i8 writeI8(i8 value, const char **err);
+			i8 writeI16LE(i16 value, const char **err);
+			i8 writeI32LE(i32 value, const char **err);
+			i8 writeI64LE(i64 value, const char **err);
 			
-			i8 writeF32(float value, const char *err);
-			i8 writeF64(double value, const char *err);
+			i8 writeF32(float value, const char **err);
+			i8 writeF64(double value, const char **err);
 	};
 };
 

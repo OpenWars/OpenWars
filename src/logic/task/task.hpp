@@ -65,14 +65,14 @@ namespace OpenWars {
 
 				const char *get_error(void);
 
-				i8 init(pawn_ctx_t *pawn_ctx, const char *err);
+				i8 init(pawn_ctx_t *pawn_ctx, const char **err);
 				bool initialized(void);
 				void deinit(void);
 		};
 
 		class King {
 			private:
-				const char *err_str = nullptr;
+				const char **err_str = nullptr;
 
 				Pawn *pawns = nullptr;
 				unsigned int number_of_pawns = 0;
@@ -87,11 +87,11 @@ namespace OpenWars {
 				unsigned int get_cpu_threads(void);
 
 				bool initialized(void);
-				i8 init_pawns(unsigned int min_pawns, const char *err);
+				i8 init_pawns(unsigned int min_pawns, const char **err);
 				void deinit_pawns(void);
 
-				i8 push(const char *success, const char *failure, task_callback_t callback, const char *err);
-				i8 push(task_callback_t callback, const char *err);
+				i8 push(const char *success, const char *failure, task_callback_t callback, const char **err);
+				i8 push(task_callback_t callback, const char **err);
 
 				fin_queue_t * lock_fin(void);
 				void unlock_fin(void);

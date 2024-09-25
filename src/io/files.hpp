@@ -29,7 +29,7 @@ Copyright (C) 2024 OpenWars Team
 #include <fstream>
 
 namespace OpenWars {
-	i8 create_directories(const char *path, const char *err);
+	i8 create_directories(const char *path, const char **err);
 
 	class FileStream : public BaseStream {
 		public:
@@ -49,7 +49,7 @@ namespace OpenWars {
 			std::ios::seekdir __flags_to_std_seekdir(u16 mode);
 
 		public:
-			i8 open(const char *path, u16 mode, const char *err);
+			i8 open(const char *path, u16 mode, const char **err);
 			bool is_open(void);
 			void close(void);
 
@@ -61,8 +61,8 @@ namespace OpenWars {
 			void seekp(u64 pos);
 			void seekp(i64 off, seekdir dir);
 			
-			i8 read(u8 *s, u64 n, const char *err);
-			i8 write(u8 *s, u64 n, const char *err);
+			i8 read(u8 *s, u64 n, const char **err);
+			i8 write(u8 *s, u64 n, const char **err);
 	};
 };
 

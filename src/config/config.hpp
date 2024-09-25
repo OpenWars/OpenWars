@@ -29,10 +29,10 @@ Copyright (C) 2024 OpenWars Team
 #include "../nuclei.hpp"
 
 namespace OpenWars {
-	i8 load_config(const char *err);
+	i8 load_config(const char **err);
 	void free_config(void);
 
-	const char *get_config_string(const char *key, const char *err);
+	const char *get_config_string(const char *key, const char **err);
 };
 
 #endif

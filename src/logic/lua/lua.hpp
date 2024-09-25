@@ -31,15 +31,13 @@ Copyright (C) 2024 OpenWars Team
 namespace OpenWars {
 	class LuaState {
 		private:
-			const char *err_str = nullptr;
 			sol::state sol_state;
 
 		public:
 			LuaState(void);
 			~LuaState(void);
 
-			const char *get_error(void);
-			int run_script(const char *path);
+			int run_script(const char *path, const char **err);
 	};
 };
 

@@ -20,27 +20,27 @@ void ciao(int code) {
 int main(void) {
 	const char *err = nullptr;
 
-	if(OpenWars::init_auditor(err) < 0) {
+	if(OpenWars::init_auditor(&err) < 0) {
 		OpenWars::log_error("Couldn't initialize Auditor: %s\n", err);
 		ciao(1);
 	}
 
-	if(king.init_pawns(2, err) < 0) {
+	if(king.init_pawns(2, &err) < 0) {
 		OpenWars::log_error("Couldn't initialize King: %s\n", err);
 		ciao(1);
 	}
 
-	if(OpenWars::init_video(screen_width, screen_height, "OpenWars", err) < 0) {
+	if(OpenWars::init_video(screen_width, screen_height, "OpenWars", &err) < 0) {
 		OpenWars::log_error("Couldn't initialize the window: %s\n", err);
 		ciao(1);
 	}
 
 	while(OpenWars::should_close_window() == false) {
-		OpenWars::init_frame(err);
+		OpenWars::init_frame(&err);
 
 		// [TODO]
 
-		OpenWars::swap_buffers(err);
+		OpenWars::swap_buffers(&err);
 	};
 
 	ciao(0);

@@ -42,8 +42,8 @@ namespace OpenWars {
 
 	i_config_t i_conf;
 
-	i8 i_get_config_path(const char *err) {
-		if(err != nullptr)
+	i8 i_get_config_path(const char **err) {
+		if(*err != nullptr)
 			return -1;
 
 		const char *env_str = nullptr;
@@ -77,7 +77,7 @@ namespace OpenWars {
 		return 0;
 	};
 
-	i8 i_create_blank_config(const char *err) {
+	i8 i_create_blank_config(const char **err) {
 		char *path = valloc<char>(std::strlen(i_conf.dir_path) + 256, err);
 		if(path == nullptr)
 			return -1;
@@ -102,14 +102,14 @@ namespace OpenWars {
 		return 0;
 	};
 
-	i8 load_config(const char *err) {
-		if(err != nullptr)
+	i8 load_config(const char **err) {
+		if(*err != nullptr)
 			return -1;
 
 		free_config();
 
 		i_conf.audit_id = audit(AUDITOR_RESOURCES::MISC, "load_config", err);
-		if(err != nullptr) {
+		if(*err != nullptr) {
 			free_config();
 			return -1;
 		}
@@ -140,12 +140,12 @@ namespace OpenWars {
 		i_conf.keys.clear();
 	};
 
-	const char *get_config_string(const char *key, const char *err) {
-		if(err != nullptr)
+	const char *get_config_string(const char *key, const char **err) {
+		if(*err != nullptr)
 			return nullptr;
 
 		if(i_conf.dir_path == nullptr) {
-			err = "Configuration isn't loaded";
+			*err = "Configuration isn't loaded";
 			return nullptr;
 		}
 		
@@ -154,7 +154,7 @@ namespace OpenWars {
 		try {
 			v = i_conf.keys.at(key);
 		} catch(std::out_of_range &e) {
-			err = "Key is not present";
+			*err = "Key is not present";
 			return nullptr;
 		};
 

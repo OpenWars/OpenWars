@@ -59,13 +59,13 @@ namespace OpenWars {
 	#endif
 
 	template<typename T>
-	T *valloc(u64 count, const char *err) {
-		if(err != nullptr)
+	T *valloc(u64 count, const char **err) {
+		if(*err != nullptr)
 			return nullptr;
 
 		void *p = std::calloc(count, sizeof(T));
 		if(p == nullptr) {
-			err = "Couldn't allocate enough memory";
+			*err = "Couldn't allocate enough memory";
 			return nullptr;
 		}
 
@@ -73,7 +73,7 @@ namespace OpenWars {
 	};
 	
 	template<typename T>
-	T *valloc(const char *err) {
+	T *valloc(const char **err) {
 		return valloc<T>(1, err);
 	};
 

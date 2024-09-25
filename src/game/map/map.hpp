@@ -51,7 +51,7 @@ namespace OpenWars {
 		char		*mod;
 	} map_t;
 
-	extern map_t * load_map(const char *path, const char *err);
+	extern map_t * load_map(const char *path, const char **err);
 };
 
 #endif

@@ -47,8 +47,8 @@ namespace OpenWars {
 	Raylib::Camera3D i_rcamera;
 	u64 i_video_audit_id = (u64)(-1);
 
-	i8 init_video(int width, int height, const char *title, const char *err) {
-		if(err != nullptr)
+	i8 init_video(int width, int height, const char *title, const char **err) {
+		if(*err != nullptr)
 			return -1;
 
 		Raylib::SetExitKey(Raylib::KEY_NULL);
@@ -67,7 +67,7 @@ namespace OpenWars {
 		Raylib::SetTargetFPS(60);
 
 		i_video_audit_id = audit(AUDITOR_RESOURCES::MISC, "init_video", err);
-		if(err != nullptr)
+		if(*err != nullptr)
 			return -1;
 
 		return 0;
@@ -78,7 +78,7 @@ namespace OpenWars {
 		(void)deaudit(i_video_audit_id, nullptr);
 	};
 
-	i8 init_frame(const char *err) {
+	i8 init_frame(const char **err) {
 		Raylib::BeginDrawing();
 		Raylib::ClearBackground(Raylib::BLACK);
 
@@ -88,7 +88,7 @@ namespace OpenWars {
 		return 0;
 	};
 
-	i8 swap_buffers(const char *err) {
+	i8 swap_buffers(const char **err) {
 		Raylib::EndMode3D();
 		Raylib::EndDrawing();
 
@@ -101,8 +101,8 @@ namespace OpenWars {
 	};
 
 	// [Texture]
-	texture_t * create_bitmap_texture(u32 width, u32 height, const char *err) {
-		if(err != nullptr)
+	texture_t * create_bitmap_texture(u32 width, u32 height, const char **err) {
+		if(*err != nullptr)
 			return nullptr;
 
 		texture_t *tex = valloc<texture_t>(err);
@@ -116,7 +116,7 @@ namespace OpenWars {
 		}
 
 		itex->audit_id = audit(AUDITOR_RESOURCES::TEXTURE, "create_bitmap_texture", err);
-		if(err != nullptr) {
+		if(*err != nullptr) {
 			vfree(tex);
 			vfree(itex);
 
@@ -137,12 +137,12 @@ namespace OpenWars {
 		return tex;
 	};
 
-	texture_t * load_texture_from_file(const char *filepath, const char *err) {
-		if(err != nullptr)
+	texture_t * load_texture_from_file(const char *filepath, const char **err) {
+		if(*err != nullptr)
 			return nullptr;
 
 		if(filepath == nullptr)
-			{ err = "The 'filepath' parameter is NULL"; return nullptr; }
+			{ *err = "The 'filepath' parameter is NULL"; return nullptr; }
 
 		texture_t *tex = valloc<texture_t>(err);
 		if(tex == nullptr)
@@ -155,7 +155,7 @@ namespace OpenWars {
 		}
 
 		itex->audit_id = audit(AUDITOR_RESOURCES::TEXTURE, filepath, err);
-		if(err != nullptr) {
+		if(*err != nullptr) {
 			vfree(tex);
 			vfree(itex);
 
@@ -176,16 +176,16 @@ namespace OpenWars {
 	};
 
 	// "rgba" as Big-Endian RGBA8888, from top-left to bottom-right.
-	i8 update_bitmap_texture(texture_t *tex, u8 *rgba, const char *err) {
-		if(err != nullptr)
+	i8 update_bitmap_texture(texture_t *tex, u8 *rgba, const char **err) {
+		if(*err != nullptr)
 			return -1;
 		if(tex == nullptr)
-			{ err = "The 'tex' parameter is NULL"; return -1; }
+			{ *err = "The 'tex' parameter is NULL"; return -1; }
 		if(tex->i_data == nullptr)
-			{ err = "The 'i_data' field is NULL"; return -1; }
+			{ *err = "The 'i_data' field is NULL"; return -1; }
 		
 		if(rgba == nullptr)
-			{ err = "The 'pixels' parameter is NULL"; return -1; }
+			{ *err = "The 'pixels' parameter is NULL"; return -1; }
 
 		i_tex_t *itex = (i_tex_t *)(tex->i_data);
 
@@ -214,15 +214,15 @@ namespace OpenWars {
 		vfree(tex);
 	};
 
-	i8 draw_texture(texture_t *tex, float x, float y, float w, float h, float a, float t, const char *err) {
+	i8 draw_texture(texture_t *tex, float x, float y, float w, float h, float a, float t, const char **err) {
 		(void)t; // Unused for now.
 
-		if(err != nullptr)
+		if(*err != nullptr)
 			return -1;
 		if(tex == nullptr)
-			{ err = "The 'tex' parameter is NULL"; return -1; }
+			{ *err = "The 'tex' parameter is NULL"; return -1; }
 		if(tex->i_data == nullptr)
-			{ err = "The 'i_data' field is NULL"; return -1; }
+			{ *err = "The 'i_data' field is NULL"; return -1; }
 		
 		i_tex_t *itex = (i_tex_t *)(tex->i_data);
 		
@@ -246,12 +246,12 @@ namespace OpenWars {
 	};
 
 	// [Font]
-	font_t * load_font_from_file(const char *filepath, const char *err) {
-		if(err != nullptr)
+	font_t * load_font_from_file(const char *filepath, const char **err) {
+		if(*err != nullptr)
 			return nullptr;
 
 		if(filepath == nullptr)
-			{ err = "The 'filepath' parameter is NULL"; return nullptr; }
+			{ *err = "The 'filepath' parameter is NULL"; return nullptr; }
 
 		font_t *fnt = valloc<font_t>(err);
 		if(fnt == nullptr)
@@ -264,7 +264,7 @@ namespace OpenWars {
 		}
 
 		ifnt->audit_id = audit(AUDITOR_RESOURCES::FONT, filepath, err);
-		if(err != nullptr) {
+		if(*err != nullptr) {
 			vfree(fnt);
 			vfree(ifnt);
 
@@ -292,15 +292,15 @@ namespace OpenWars {
 		vfree(font);
 	};
 
-	i8 draw_font(font_t *font, const char *text, float x, float y, float size, float spacing, color_t color, const char *err) {
-		if(err != nullptr)
+	i8 draw_font(font_t *font, const char *text, float x, float y, float size, float spacing, color_t color, const char **err) {
+		if(*err != nullptr)
 			return -1;
 		if(text == nullptr)
-			{ err = "The 'text' parameter is NULL"; return -1; }
+			{ *err = "The 'text' parameter is NULL"; return -1; }
 		if(font == nullptr)
-			{ err = "The 'font' parameter is NULL"; return -1; }
+			{ *err = "The 'font' parameter is NULL"; return -1; }
 		if(font->i_data == nullptr)
-			{ err = "The 'i_data' field is NULL"; return -1; }
+			{ *err = "The 'i_data' field is NULL"; return -1; }
 		
 		i_fnt_t *ifnt = (i_fnt_t *)(font->i_data);
 		
