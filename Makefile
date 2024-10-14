@@ -9,19 +9,11 @@ CXX			= g++
 CXXFLAGS	= -std=c++17 -Wall -Wextra -Wpedantic
 CXXFLAGS	+= `pkg-config raylib --cflags`
 CXXFLAGS	+= `pkg-config lua --cflags`
-CXXFLAGS	+= `pkg-config libavcodec --cflags`
-CXXFLAGS	+= `pkg-config libavformat --cflags`
-CXXFLAGS	+= `pkg-config libavutil --cflags`
-CXXFLAGS	+= `pkg-config libswscale --cflags`
 
 LD			= $(CXX)
 LDFLAGS		= -Isol2/include
 LDFLAGS		+= `pkg-config raylib --libs`
 LDFLAGS		+= `pkg-config lua --libs`
-LDFLAGS		+= `pkg-config libavcodec --libs`
-LDFLAGS		+= `pkg-config libavformat --libs`
-LDFLAGS		+= `pkg-config libavutil --libs`
-LDFLAGS		+= `pkg-config libswscale --libs`
 
 CPPCHECK	= cppcheck
 CLANGXX		= clang++
