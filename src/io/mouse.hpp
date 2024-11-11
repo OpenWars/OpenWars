@@ -30,9 +30,13 @@ Copyright (C) 2024 OpenWars Team
 namespace OpenWars {
 	float get_mouse_position_x(void);
 	float get_mouse_position_y(void);
-	float get_mouse_wheel(void);
+	
 	bool is_mouse_down(void);
 	bool is_mouse_alt_down(void);
+
+	float get_mouse_wheel(void);
+	float get_mouse_wheel_x(void);
+	float get_mouse_wheel_y(void);
 };
 
 #endif

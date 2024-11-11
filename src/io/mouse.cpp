@@ -51,6 +51,14 @@ namespace OpenWars {
 	bool is_mouse_alt_down(void) {
 		return Raylib::IsMouseButtonDown(Raylib::MOUSE_BUTTON_RIGHT);
 	};
+
+	float get_mouse_wheel_x(void) {
+		return Raylib::GetMouseWheelMoveV().x;
+	};
+
+	float get_mouse_wheel_y(void) {
+		return Raylib::GetMouseWheelMoveV().x;
+	};
 };
 
 #endif
