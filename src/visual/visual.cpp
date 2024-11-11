@@ -317,6 +317,14 @@ namespace OpenWars {
 		
 		return 0;
 	};
+
+	int get_window_width(void) {
+		return Raylib::GetScreenWidth();
+	};
+
+	int get_window_height(void) {
+		return Raylib::GetScreenHeight();
+	};
 };
 
 #endif

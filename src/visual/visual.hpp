@@ -70,6 +70,9 @@ namespace OpenWars {
 	void free_font(font_t *font);
 
 	i8 draw_font(font_t *font, const char *text, float x, float y, float size, float spacing, color_t color, const char **err);
+
+	int get_window_width(void);
+	int get_window_height(void);
 };
 
 #endif
