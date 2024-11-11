@@ -325,6 +325,10 @@ namespace OpenWars {
 	int get_window_height(void) {
 		return Raylib::GetScreenHeight();
 	};
+
+	float get_delta_time(void) {
+		return Raylib::GetFrameTime();
+	};
 };
 
 #endif

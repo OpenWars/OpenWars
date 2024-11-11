@@ -73,6 +73,8 @@ namespace OpenWars {
 
 	int get_window_width(void);
 	int get_window_height(void);
+
+	float get_delta_time(void);
 };
 
 #endif
