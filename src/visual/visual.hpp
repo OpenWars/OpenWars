@@ -57,6 +57,9 @@ namespace OpenWars {
 	texture_t * create_bitmap_texture(u32 width, u32 height, const char **err);
 	texture_t * load_texture_from_file(const char *filepath, const char **err);
 
+	// Internal texture handle.
+	void *get_texture_handle(texture_t *tex, const char **err);
+
 	// "rgba" as Big-Endian RGBA8888, from left-to-right, top-to-bottom.
 	i8 update_bitmap_texture(texture_t *tex, u8 *rgba, const char **err);
 
@@ -66,6 +69,9 @@ namespace OpenWars {
 
 	// [Font]
 	font_t * load_font_from_file(const char *filepath, const char **err);
+
+	// Internal font handle.
+	void *get_font_handle(font_t *font, const char **err);
 
 	void free_font(font_t *font);
 

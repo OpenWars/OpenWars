@@ -25,8 +25,6 @@ Copyright (C) 2024 OpenWars Team
 #ifndef __openwars__io__mouse__hpp__
 #define __openwars__io__mouse__hpp__
 
-#include "../nuclei.hpp"
-
 namespace OpenWars {
 	float get_mouse_position_x(void);
 	float get_mouse_position_y(void);

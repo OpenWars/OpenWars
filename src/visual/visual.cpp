@@ -175,6 +175,26 @@ namespace OpenWars {
 		return tex;
 	};
 
+	// Internal texture handle.
+	void *get_texture_handle(texture_t *tex, const char **err) {
+		if(*err != nullptr)
+			return nullptr;
+
+		if(tex == nullptr) {
+			*err = "The 'tex' parameter is NULL";
+			return nullptr;
+		}
+
+		i_tex_t *i_tex = (i_tex_t *)tex->i_data;
+		if(i_tex == nullptr) {
+			*err = "The 'i_data' field is NULL";
+			return nullptr;
+		}
+
+		Raylib::Texture2D *tex_p = &i_tex->r_tex;
+		return (void *)tex_p;
+	};
+
 	// "rgba" as Big-Endian RGBA8888, from top-left to bottom-right.
 	i8 update_bitmap_texture(texture_t *tex, u8 *rgba, const char **err) {
 		if(*err != nullptr)
@@ -275,6 +295,25 @@ namespace OpenWars {
 		fnt->i_data = ifnt;
 
 		return fnt;
+	};
+
+	void *get_font_handle(font_t *font, const char **err) {
+		if(*err != nullptr)
+			return nullptr;
+
+		if(font == nullptr) {
+			*err = "The 'font' parameter is NULL";
+			return nullptr;
+		}
+
+		i_fnt_t *i_fnt = (i_fnt_t *)font->i_data;
+		if(i_fnt == nullptr) {
+			*err = "The 'i_data' field is NULL";
+			return nullptr;
+		}
+
+		Raylib::Font *font_p = &i_fnt->r_fnt;
+		return (void *)font_p;
 	};
 
 	void free_font(font_t *font) {
