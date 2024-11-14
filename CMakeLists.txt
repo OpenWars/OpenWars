@@ -8,7 +8,8 @@ find_package(Lua REQUIRED)
 add_subdirectory(sol2)
 
 file(GLOB_RECURSE sources CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
-list(REMOVE_ITEM sources "${CMAKE_CURRENT_SOURCE_DIR}/src/zyx64sum.cpp")
+
+set(REQUIRED_FILE "${CMAKE_CURRENT_SOURCE_DIR}/clay/chay.h")
 
 add_executable(${PROJECT_NAME} "${sources}")
 
