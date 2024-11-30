@@ -81,6 +81,11 @@ namespace OpenWars {
 			i8 writeU64LE(u64 value, const char **err);
 			
 			i8 writeI8(i8 value, const char **err);
+			
+			i8 writeI16BE(i16 value, const char **err);
+			i8 writeI32BE(i32 value, const char **err);
+			i8 writeI64BE(i64 value, const char **err);
+			
 			i8 writeI16LE(i16 value, const char **err);
 			i8 writeI32LE(i32 value, const char **err);
 			i8 writeI64LE(i64 value, const char **err);

@@ -369,6 +369,18 @@ namespace OpenWars {
 		return writeU8(value, err);
 	};
 
+	i8 BaseStream::writeI16BE(i16 value, const char **err) {
+		return writeU16BE(value, err);
+	};
+
+	i8 BaseStream::writeI32BE(i32 value, const char **err) {
+		return writeU32BE(value, err);
+	};
+
+	i8 BaseStream::writeI64BE(i64 value, const char **err) {
+		return writeU64BE(value, err);
+	};
+	
 	i8 BaseStream::writeI16LE(i16 value, const char **err) {
 		return writeU16LE(value, err);
 	};
