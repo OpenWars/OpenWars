@@ -26,12 +26,13 @@ Copyright (C) 2024 OpenWars Team
 #define __openwars__io__files__cpp__
 
 #include "files.hpp"
+#include <fstream>
 #include <cerrno>
 #include <cstring>
 #include <filesystem>
 
 namespace OpenWars {
-	i8 create_directories(const char *path, const char **err) {
+	int create_directories(const char *path, const char **err) {
 		if(*err != nullptr)
 			return -1;
 
@@ -44,86 +45,88 @@ namespace OpenWars {
 
 		return 0;
 	};
-	
-	std::ios::openmode FileStream::__flags_to_std_openmode(u16 mode) {
+
+	std::ios::openmode i_fs_openmode_to_std(unsigned int mode) {
 		std::ios::openmode std_mode = std::ios::binary;
 
-		if(mode & flags::in)
+		if(mode & OpenWars::in)
 			std_mode |= std::ios::in;
-			
-		if(mode & flags::out)
+		if(mode & OpenWars::out)
 			std_mode |= std::ios::out;
-			
+
 		return std_mode;
 	};
 
-	std::ios::seekdir FileStream::__flags_to_std_seekdir(u16 mode) {
-		if(mode == flags::beg)
+	std::ios::seekdir i_fs_seekdir_to_std(unsigned int mode) {
+		if((mode & 0xc0) == OpenWars::beg)
 			return std::ios::beg;
-		if(mode == flags::end)
+		if((mode & 0xc0) == OpenWars::end)
 			return std::ios::end;
-			
+
 		return std::ios::cur;
 	};
 
 	u64 FileStream::tellg(void) {
-		return (u64)fs.tellg();
+		return (u64)i_fs.tellg();
 	};
 
 	void FileStream::seekg(u64 pos) {
-		fs.seekg(pos);
+		i_fs.seekg(pos);
 	};
 
 	void FileStream::seekg(i64 off, seekdir dir) {
-		fs.seekg(off, __flags_to_std_seekdir(dir));
+		i_fs.seekg(off, i_fs_seekdir_to_std(dir));
 	};
 			
 	u64 FileStream::tellp(void) {
-		return (u64)fs.tellp();
+		return (u64)i_fs.tellp();
 	};
 
 	void FileStream::seekp(u64 pos) {
-		fs.seekp(pos);
+		i_fs.seekp(pos);
 	};
 
 	void FileStream::seekp(i64 off, seekdir dir) {
-		fs.seekp(off, __flags_to_std_seekdir(dir));
+		i_fs.seekp(off, i_fs_seekdir_to_std(dir));
 	};
 
-	i8 FileStream::open(const char *path, u16 mode, const char **err) {
+	int FileStream::open(const char *path, unsigned int mode, const char **err) {
 		if(*err != nullptr)
 			return -1;
 
-		if(fs.is_open()) {
+		if(i_fs.is_open()) {
 			*err = "File stream is already open";
 			return -1;
 		}
 		
-		fs.open(path, __flags_to_std_openmode(mode));
-		if(fs.fail()) {
+		i_fs.open(path, i_fs_openmode_to_std(mode));
+		if(i_fs.fail()) {
 			*err = std::strerror(errno);
 			return -1;
 		}
+
+		seekg(0, beg);
+		seekp(0, beg);
 
 		return 0;
 	};
 
 	bool FileStream::is_open(void) {
-		return fs.is_open();
+		return i_fs.is_open();
 	};
 	
 	void FileStream::close(void) {
 		if(is_open())
-			fs.close();
+			i_fs.close();
 	};
 
-	i8 FileStream::read(u8 *s, u64 n, const char **err) {
+	int FileStream::read(u8 *s, u64 n, const char **err) {
 		if(*err != nullptr)
 			return -1;
 		
-		(void)fs.read((char *)s, n);
+		(void)i_fs.read((char *)s, n);
 
-		if(fs.fail()) {
+		if(i_fs.fail()) {
 			*err = std::strerror(errno);
 			return -1;
 		}
@@ -131,13 +134,13 @@ namespace OpenWars {
 		return 0;
 	};
 
-	i8 FileStream::write(u8 *s, u64 n, const char **err) {
+	int FileStream::write(u8 *s, u64 n, const char **err) {
 		if(*err != nullptr)
 			return -1;
 		
-		(void)fs.write((char *)s, n);
+		(void)i_fs.write((char *)s, n);
 
-		if(fs.fail()) {
+		if(i_fs.fail()) {
 			*err = std::strerror(errno);
 			return -1;
 		}

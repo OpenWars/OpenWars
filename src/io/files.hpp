@@ -29,27 +29,14 @@ Copyright (C) 2024 OpenWars Team
 #include <fstream>
 
 namespace OpenWars {
-	i8 create_directories(const char *path, const char **err);
+	int create_directories(const char *path, const char **err);
 
 	class FileStream : public BaseStream {
-		public:
-			typedef enum _flags {
-				in = 1 << 0,
-				out = 1 << 1,
-
-				beg,
-				cur,
-				end,
-			} flags;
-
 		private:
-			std::fstream fs;
-
-			std::ios::openmode __flags_to_std_openmode(u16 mode);
-			std::ios::seekdir __flags_to_std_seekdir(u16 mode);
+			std::fstream i_fs;
 
 		public:
-			i8 open(const char *path, u16 mode, const char **err);
+			int open(const char *path, unsigned int mode, const char **err);
 			bool is_open(void);
 			void close(void);
 
@@ -61,8 +48,8 @@ namespace OpenWars {
 			void seekp(u64 pos);
 			void seekp(i64 off, seekdir dir);
 			
-			i8 read(u8 *s, u64 n, const char **err);
-			i8 write(u8 *s, u64 n, const char **err);
+			int read(u8 *s, u64 n, const char **err);
+			int write(u8 *s, u64 n, const char **err);
 	};
 };
 
