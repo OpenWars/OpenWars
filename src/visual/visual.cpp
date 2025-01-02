@@ -64,7 +64,9 @@ namespace OpenWars {
 			0
 		};
 
-		Raylib::SetTargetFPS(60);
+		int r_mon = Raylib::GetCurrentMonitor();
+
+		Raylib::SetTargetFPS(Raylib::GetMonitorRefreshRate(r_mon));
 
 		i_video_audit_id = audit(AUDITOR_RESOURCES::MISC, "init_video", err);
 		if(*err != nullptr)
@@ -75,7 +77,11 @@ namespace OpenWars {
 
 	void deinit_video(void) {
 		Raylib::CloseWindow();
-		(void)deaudit(i_video_audit_id, nullptr);
+		
+		const char *err = nullptr;
+
+		(void)deaudit(i_video_audit_id, &err);
+		(void)err;
 	};
 
 	i8 init_frame(const char **err) {
