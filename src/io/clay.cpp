@@ -281,6 +281,11 @@ namespace OpenWars {
 				vfree(i_min_data_ptr);
 				i_min_data_ptr = nullptr;
 			}
+
+			const char *err = nullptr;
+
+			(void)deaudit(i_audit_id, &err);
+			(void)err;
 		};
 
 		void update(void) {
