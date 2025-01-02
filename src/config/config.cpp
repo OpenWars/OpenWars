@@ -134,7 +134,9 @@ namespace OpenWars {
 			vfree(i_conf.dir_path);
 			i_conf.dir_path = nullptr;
 
-			(void)deaudit(i_conf.audit_id, nullptr);
+			const char *err = nullptr;
+			(void)deaudit(i_conf.audit_id, &err);
+			(void)err;
 		}
 
 		i_conf.keys.clear();

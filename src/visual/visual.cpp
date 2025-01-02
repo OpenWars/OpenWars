@@ -232,7 +232,9 @@ namespace OpenWars {
 			if(itex->rgba != nullptr)
 				vfree(itex->rgba);
 			
-			(void)deaudit(itex->audit_id, nullptr);
+			const char *err = nullptr;
+			(void)deaudit(itex->audit_id, &err);
+			(void)err;
 
 			vfree(itex);
 		}
@@ -330,7 +332,11 @@ namespace OpenWars {
 			i_fnt_t *ifnt = (i_fnt_t *)(font->i_data);
 
 			Raylib::UnloadFont(ifnt->r_fnt);
-			(void)deaudit(ifnt->audit_id, nullptr);
+
+			const char *err = nullptr;
+			(void)deaudit(ifnt->audit_id, &err);
+			(void)err;
+
 			vfree(ifnt);
 		}
 
