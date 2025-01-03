@@ -29,6 +29,9 @@ Copyright (C) 2024 OpenWars Team
 #include <cstdlib>
 
 namespace OpenWars {
+	typedef unsigned int uint;
+	typedef unsigned long ulong;
+
 	typedef uint8_t u8;
 	typedef uint16_t u16;
 	typedef uint32_t u32;
@@ -53,9 +56,9 @@ namespace OpenWars {
 	void __assert_me__(const char *file, int line, const char *comment);
 
 	#ifdef OPENWARS_DEBUG
-		#define assert_me(x,y) if((x) == false) __assert_me__(__FILE__, __LINE__, y);
+		#define assert_me(c,s) if((c) == false) __assert_me__(__FILE__, __LINE__, s);
 	#else
-		#define assert_me(x,y) (void)0;
+		#define assert_me(c,s) (void)0;
 	#endif
 
 	template<typename T>
@@ -78,6 +81,15 @@ namespace OpenWars {
 	};
 
 	void vfree(void *p);
+
+	enum {
+		in = 1 << 0,
+		out = 1 << 1,
+		
+		beg = 1 << 6,
+		cur = 0,
+		end = 1 << 7,
+	};
 };
 
 #endif

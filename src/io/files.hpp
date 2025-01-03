@@ -36,17 +36,17 @@ namespace OpenWars {
 			std::fstream i_fs;
 
 		public:
-			int open(const char *path, unsigned int mode, const char **err);
+			int open(const char *path, uint mode, const char **err);
 			bool is_open(void);
 			void close(void);
 
 			u64 tellg(void);
 			void seekg(u64 pos);
-			void seekg(i64 off, seekdir dir);
+			void seekg(i64 off, uint dir);
 			
 			u64 tellp(void);
 			void seekp(u64 pos);
-			void seekp(i64 off, seekdir dir);
+			void seekp(i64 off, uint dir);
 			
 			int read(u8 *s, u64 n, const char **err);
 			int write(u8 *s, u64 n, const char **err);

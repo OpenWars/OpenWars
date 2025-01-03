@@ -46,7 +46,7 @@ namespace OpenWars {
 		return 0;
 	};
 
-	std::ios::openmode i_fs_openmode_to_std(unsigned int mode) {
+	std::ios::openmode i_fs_openmode_to_std(uint mode) {
 		std::ios::openmode std_mode = std::ios::binary;
 
 		if(mode & OpenWars::in)
@@ -57,12 +57,17 @@ namespace OpenWars {
 		return std_mode;
 	};
 
-	std::ios::seekdir i_fs_seekdir_to_std(unsigned int mode) {
-		if((mode & 0xc0) == OpenWars::beg)
-			return std::ios::beg;
-		if((mode & 0xc0) == OpenWars::end)
-			return std::ios::end;
+	std::ios::seekdir i_fs_seekdir_to_std(uint mode) {
+		mode &= 0xc0;
 
+		if(mode == OpenWars::beg)
+			return std::ios::beg;
+		if(mode == OpenWars::end)
+			return std::ios::end;
+		if(mode == OpenWars::cur)
+			return std::ios::cur;
+
+		assert_me(false, "Invalid seekdir");
 		return std::ios::cur;
 	};
 
@@ -74,7 +79,7 @@ namespace OpenWars {
 		i_fs.seekg(pos);
 	};
 
-	void FileStream::seekg(i64 off, seekdir dir) {
+	void FileStream::seekg(i64 off, uint dir) {
 		i_fs.seekg(off, i_fs_seekdir_to_std(dir));
 	};
 			
@@ -86,11 +91,11 @@ namespace OpenWars {
 		i_fs.seekp(pos);
 	};
 
-	void FileStream::seekp(i64 off, seekdir dir) {
+	void FileStream::seekp(i64 off, uint dir) {
 		i_fs.seekp(off, i_fs_seekdir_to_std(dir));
 	};
 
-	int FileStream::open(const char *path, unsigned int mode, const char **err) {
+	int FileStream::open(const char *path, uint mode, const char **err) {
 		if(*err != nullptr)
 			return -1;
 

@@ -28,24 +28,15 @@ Copyright (C) 2024 OpenWars Team
 #include "../nuclei.hpp"
 
 namespace OpenWars {
-	typedef enum {
-		in = 1 << 0,
-		out = 1 << 1,
-		
-		beg = 0,
-		cur = 1 << 6,
-		end = 1 << 7,
-	} seekdir;
-
 	class BaseStream {
 		public:
 			virtual u64 tellg(void) = 0;
 			virtual void seekg(u64 pos) = 0;
-			virtual void seekg(i64 off, seekdir dir) = 0;
+			virtual void seekg(i64 off, uint dir) = 0;
 			
 			virtual u64 tellp(void) = 0;
 			virtual void seekp(u64 pos) = 0;
-			virtual void seekp(i64 off, seekdir dir) = 0;
+			virtual void seekp(i64 off, uint dir) = 0;
 			
 			virtual int read(u8 *s, u64 n, const char **err) = 0;
 			virtual int write(u8 *s, u64 n, const char **err) = 0;
