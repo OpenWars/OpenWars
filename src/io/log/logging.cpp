@@ -6,10 +6,6 @@ namespace raylib {
     #include "raylib.h"
 }
 
-const static char	*_TEXT_DEBUG_LOG = "\x1b[96m[\x1b[95mDEBUG\x1b[96m]\x1b[0m ",
-			                    *_TEXT_INFO_LOG = "\x1b[93m[\x1b[33mINFO\x1b[93m]\x1b[0m ",
-			                    *_TEXT_ERROR_LOG = "\x1b[97m[\x1b[31mERROR\x1b[97m]\x1b[0m ";
-
 void OpenWars::IO::Logging::init(){
     raylib::SetTraceLogCallback(OpenWars::IO::Logging::out);
 }
