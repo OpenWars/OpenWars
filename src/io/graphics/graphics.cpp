@@ -1,9 +1,5 @@
 #include "graphics.hpp"
 
-namespace raylib {
-    #include "raylib.h"
-}
-
 raylib::Camera3D camera;
 void OpenWars::IO::Graphics::init(int width, int height){
     raylib::SetExitKey(raylib::KEY_NULL);
@@ -41,6 +37,10 @@ void OpenWars::IO::Graphics::beginAttached(){
 
 void OpenWars::IO::Graphics::endAttached(){
     raylib::EndMode3D();
+}
+
+raylib::Camera3D OpenWars::IO::Graphics::getCamera(){
+    return camera;
 }
 
 void OpenWars::IO::Graphics::swapBuffers(){
