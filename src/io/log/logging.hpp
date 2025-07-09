@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdarg>
-
 namespace OpenWars {
     namespace IO {
         namespace Logging {
@@ -10,7 +8,7 @@ namespace OpenWars {
 			                    *_TEXT_ERROR_LOG = "\x1b[97m[\x1b[31mERROR\x1b[97m]\x1b[0m ";
 
             void init();
-            void out(int type, const char *message, va_list args);
+            //void out(int type, const char *message, va_list args);
         }
     }
 }

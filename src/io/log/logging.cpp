@@ -1,15 +1,9 @@
 #include "logging.hpp"
-#include <cstdio>
-#include <ctime>
-
-namespace raylib {
-    #include "raylib.h"
-}
 
 void OpenWars::IO::Logging::init(){
-    raylib::SetTraceLogCallback(OpenWars::IO::Logging::out);
+    //raylib::SetTraceLogCallback(OpenWars::IO::Logging::out);
 }
-
+/*
 void OpenWars::IO::Logging::out(int type, const char *message, va_list args){
     char timeStr[64] = { 0 };
     time_t now = time(NULL);
@@ -29,4 +23,4 @@ void OpenWars::IO::Logging::out(int type, const char *message, va_list args){
 
     vprintf(message, args);
     printf("\n");
-}
+}*/
