@@ -1,4 +1,5 @@
 #include "scene.hpp"
 
-void OpenWars::Game::Scenes::MenuScene::render(){
+void OpenWars::Game::MenuScene::render(){
+    
 }

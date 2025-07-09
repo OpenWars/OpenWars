@@ -2,19 +2,18 @@
 
 namespace OpenWars {
     namespace Game {
-        namespace Scenes {
-            class Scene{
-                virtual void render();
-            };
-            class MenuScene : Scene {
-                void render();
-            };
-        }
+        class Scene {
+            virtual void render();
+        };
+        class MenuScene : Scene {
+            void render();
+        };
+
         class SceneManager {
-            Scenes::Scene scenario;
+            Scene scenario;
             public:
-            Scenes::Scene getCurrent();
-            void changeTo(Scenes::Scene *target);
+            Scene getCurrent();
+            void changeTo(Scene *target);
             void transition();
         };
     }
