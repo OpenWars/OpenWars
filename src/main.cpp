@@ -10,7 +10,7 @@ int main(){
 
     Game::SceneManager sceneManager;
     Game::MenuScene scene;
-    sceneManager.changeTo(&scene);
+    sceneManager.changeTo(scene);
 
     while (!IO::Graphics::shouldClose()){
         IO::Graphics::beginFrame();

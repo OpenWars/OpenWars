@@ -1,12 +1,12 @@
 #include "scene.hpp"
 
-OpenWars::Game::Scene OpenWars::Game::SceneManager::getCurrent(){
-    return scenario;
+OpenWars::Game::Scene &OpenWars::Game::SceneManager::getCurrent(){
+    return *scenario;
 }
 
-void OpenWars::Game::SceneManager::changeTo(OpenWars::Game::Scene *target){
+void OpenWars::Game::SceneManager::changeTo(OpenWars::Game::Scene &target){
     this->transition();
-    scenario = *target;
+    scenario = &target;
 }
 
 void OpenWars::Game::SceneManager::transition(){

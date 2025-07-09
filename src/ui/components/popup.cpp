@@ -1,7 +1,11 @@
 #include "components.hpp"
 
-void OpenWars::UI::PopupComponent::setVisible(bool v) { visible = v; }
-bool OpenWars::UI::PopupComponent::isVisible() { return visible; }
+void OpenWars::UI::PopupComponent::setVisible(bool v) {
+    visible = v;
+}
+bool OpenWars::UI::PopupComponent::isVisible() {
+    return visible;
+}
 
 void OpenWars::UI::PopupComponent::render() {
     if (!visible) return;

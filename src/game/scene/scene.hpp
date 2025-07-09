@@ -23,10 +23,10 @@ namespace OpenWars {
         };
 
         class SceneManager {
-            Scene scenario;
+            Scene *scenario;
             public:
-            Scene getCurrent();
-            void changeTo(Scene *target);
+            Scene &getCurrent();
+            void changeTo(Scene &target);
             void transition();
         };
     }
