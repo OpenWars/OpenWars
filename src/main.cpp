@@ -6,7 +6,7 @@ using namespace OpenWars;
 
 int main(){
     IO::Logging::init();
-    IO::Graphics::init(512, 512);
+    IO::Graphics::init(1024, 512);
 
     Game::SceneManager sceneManager;
     Game::MenuScene scene;

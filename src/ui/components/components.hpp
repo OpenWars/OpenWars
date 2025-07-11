@@ -13,11 +13,18 @@ namespace OpenWars {
             std::string title;
             std::string message;
             bool visible;
-            raylib::Rectangle bounds;
+            raylib::Vector2 center = {256, 256};
+            float width = 256;
+            float height = 256;
+            float slant = 10;  // how much the sides incline
+            raylib::Vector2 ctl;
+            raylib::Vector2 ctr;
+            raylib::Vector2 cbr;
+            raylib::Vector2 cbl;
 
             public:
-            PopupComponent(const std::string& title, const std::string& msg, raylib::Rectangle rect)
-                : title(title), message(msg), visible(true), bounds(rect) {}
+            PopupComponent(const std::string& title, const std::string& msg)
+                : title(title), message(msg), visible(true) {}
 
             void setVisible(bool v);
             bool isVisible();
