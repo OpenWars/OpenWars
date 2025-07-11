@@ -10,7 +10,7 @@ namespace OpenWars {
             virtual ~Component() = default;
 
             virtual void render() = 0;
-            virtual void handleInput() {}
+            virtual bool handleInput() {}
         };
 
         class Handler{
@@ -20,8 +20,7 @@ namespace OpenWars {
             virtual ~Handler() = default;
 
             void renderOverlay();
-            // TODO
-            void handleInput();
+            bool handleInput();
             void addComponent(std::unique_ptr<Component> c);
         };
     }

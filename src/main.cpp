@@ -13,6 +13,7 @@ int main(){
     sceneManager.changeTo(scene);
 
     while (!IO::Graphics::shouldClose()){
+        sceneManager.getCurrent().getUIHandler()->handleInput();
         IO::Graphics::beginFrame();
         sceneManager.getCurrent().render();
         IO::Graphics::swapBuffers();

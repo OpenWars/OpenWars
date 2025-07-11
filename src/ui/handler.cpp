@@ -4,10 +4,11 @@ void OpenWars::UI::Handler::addComponent(std::unique_ptr<Component> c) {
     components.push_back(std::move(c));
 }
 
-void OpenWars::UI::Handler::handleInput() {
-    for (const auto& c : components) {
-        c->handleInput();
+bool OpenWars::UI::Handler::handleInput() {
+    if (*components.rbegin()){
+        return components.rbegin()->get()->handleInput();
     }
+    return false;
 }
 
 void OpenWars::UI::Handler::renderOverlay(){

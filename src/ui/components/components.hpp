@@ -22,7 +22,7 @@ namespace OpenWars {
             void setVisible(bool v);
             bool isVisible();
             void render() override;
-            void handleInput() override;
+            bool handleInput() override;
         };
     }
 }

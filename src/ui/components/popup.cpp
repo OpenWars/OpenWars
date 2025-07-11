@@ -1,4 +1,6 @@
 #include "components.hpp"
+#include <iostream>
+#include <raylib.h>
 
 void OpenWars::UI::PopupComponent::setVisible(bool v) {
     visible = v;
@@ -21,6 +23,11 @@ void OpenWars::UI::PopupComponent::render() {
     raylib::DrawText("[Press ENTER]", bounds.x + 10, bounds.y + bounds.height - 30, 18, raylib::YELLOW);
 }
 
-void OpenWars::UI::PopupComponent::handleInput()  {
-    // if (event == noc) visible = false;
+bool OpenWars::UI::PopupComponent::handleInput() {
+    if(raylib::IsKeyPressed(raylib::KEY_ENTER)){
+        std::cout << "im' here";
+        visible = false;
+        return true;
+    }
+    return false;
 }
