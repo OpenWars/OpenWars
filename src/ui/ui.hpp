@@ -10,7 +10,7 @@ namespace OpenWars {
             virtual ~Component() = default;
 
             virtual void render() = 0;
-            virtual bool handleInput() {}
+            virtual bool handleInput() = 0;
         };
 
         class Handler{
