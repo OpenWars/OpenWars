@@ -3,6 +3,8 @@
 raylib::Camera3D camera;
 void OpenWars::IO::Graphics::init(int width, int height){
     raylib::SetExitKey(raylib::KEY_NULL);
+
+    raylib::SetConfigFlags(raylib::FLAG_MSAA_4X_HINT);
     raylib::InitWindow(width, height, "OpenWars Engine");
 
     while (!raylib::IsWindowReady()){};

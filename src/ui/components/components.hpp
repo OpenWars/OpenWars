@@ -13,7 +13,7 @@ namespace OpenWars {
             std::string title;
             std::string message;
             bool visible;
-            float width = (raylib::GetScreenWidth() / 3.f) * 2;
+            float width = raylib::GetScreenWidth() * 0.666;
             float height = raylib::GetScreenHeight() / 2.f;
 
             public:
