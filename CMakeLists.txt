@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(raylib 4.5 REQUIRED)
 find_package(Lua REQUIRED)
-add_subdirectory(sol2)
 
 file(GLOB_RECURSE sources CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
@@ -13,5 +12,5 @@ set(REQUIRED_FILE "${CMAKE_CURRENT_SOURCE_DIR}/clay/chay.h")
 
 add_executable(${PROJECT_NAME} "${sources}")
 
-target_link_libraries(${PROJECT_NAME} raylib sol2 ${LUA_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} raylib ${LUA_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR})
