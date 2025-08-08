@@ -13,7 +13,7 @@ OpenWars::UI::Handler* OpenWars::Game::Scene::getUIHandler() {
 OpenWars::Game::MenuScene::MenuScene() {
     OpenWars::UI::Handler *handler = new OpenWars::UI::Handler();
     handler->addComponent(std::make_unique<UI::PopupComponent>(
-        "Hi", "Test"
+        "Download content", "It's free! I think... I hope."
     ));
     
     setUIHandler(handler);

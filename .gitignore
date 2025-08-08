@@ -1,6 +1,5 @@
 out/
 .clangd
-.clang-format
 **/*.swp
 .vscode/
 *.o
