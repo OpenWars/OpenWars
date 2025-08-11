@@ -18,7 +18,7 @@ void OpenWars::UI::ButtonComponent::render() {
     raylib::DrawText(label.c_str(), labelPos.x, labelPos.y, 12, foreground);
 }
 
-bool OpenWars::UI::ButtonComponent::handleInput() {
+bool OpenWars::UI::ButtonComponent::handleInput(const IO::Input::InputState &state) {
     // parent->handleButtonInput(this->id);
     return false;
 }

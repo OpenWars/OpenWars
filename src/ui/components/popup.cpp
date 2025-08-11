@@ -56,10 +56,6 @@ void OpenWars::UI::PopupComponent::handleButtonInput(int id) {
 
 };
 
-bool OpenWars::UI::PopupComponent::handleInput() {
-    /*if (raylib::IsMouseButtonPressed(raylib::MOUSE_LEFT_BUTTON) &&
-        Utils::Drawing::pointInQuad(raylib::GetMousePosition(), ctl, ctr, cbr,
-    cbl)) { visible = false; return true;
-    }*/
+bool OpenWars::UI::PopupComponent::handleInput(const IO::Input::InputState &state) {
     return false;
 }

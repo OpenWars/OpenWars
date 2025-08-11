@@ -42,7 +42,7 @@ namespace OpenWars {
                   foreground(foreground.value()), position(position) {};
 
             void render() override;
-            bool handleInput() override;
+            bool handleInput(const IO::Input::InputState &state) override;
         };
 
         class PopupComponent : public Component, public ButtonParent {
@@ -62,7 +62,7 @@ namespace OpenWars {
             bool isVisible();
             void render() override;
             void handleButtonInput(int id) override;
-            bool handleInput() override;
+            bool handleInput(const IO::Input::InputState &state) override;
         };
     } // namespace UI
 } // namespace OpenWars
