@@ -1,5 +1,6 @@
 #include "drawing.hpp"
 #include <cstddef>
+
 void OpenWars::Utils::Drawing::drawParallelogram(raylib::Vector2 position,
                                                  float width, float height,
                                                  float skew,
@@ -11,6 +12,20 @@ void OpenWars::Utils::Drawing::drawParallelogram(raylib::Vector2 position,
 
     raylib::DrawTriangle(v1, v2, v3, color);
     raylib::DrawTriangle(v1, v3, v4, color);
+}
+
+void OpenWars::Utils::Drawing::drawParallelogramOutline(
+    raylib::Vector2 position, float width, float height, float skew,
+    raylib::Color color, float thickness) {
+    raylib::Vector2 v1 = position;                                    
+    raylib::Vector2 v2 = {position.x + width, position.y};          
+    raylib::Vector2 v3 = {position.x + width + skew, position.y - height}; 
+    raylib::Vector2 v4 = {position.x + skew, position.y - height};  
+    
+    DrawLineEx(v1, v2, thickness, color);
+    DrawLineEx(v2, v3, thickness, color);  
+    DrawLineEx(v3, v4, thickness, color);
+    DrawLineEx(v4, v1, thickness, color);
 }
 
 bool OpenWars::Utils::Drawing::pointInQuad(raylib::Vector2 p, raylib::Vector2 a,

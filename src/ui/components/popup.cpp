@@ -14,33 +14,50 @@ void OpenWars::UI::PopupComponent::render() {
     if (!visible)
         return;
 
-    // Draw background
+    // Layout
     raylib::Vector2 centerPos = {(raylib::GetScreenWidth() - width - SKEW) /
                                      2.0f,
                                  (raylib::GetScreenHeight() + height) / 2.0f};
 
-    Utils::Drawing::drawParallelogram(centerPos, width, height, SKEW,
-                                      Colors::ZINC_100);
+    // Layout - Shadow
+    raylib::Vector2 shadowOffset = {centerPos.x + 3, centerPos.y + 3};
+    Utils::Drawing::drawParallelogram(shadowOffset, width, height, SKEW,
+                                      Colors::ZINC_600);
 
-    // Draw title
-    int titleSize = 24;
+    // Layout - Background
+    Utils::Drawing::drawParallelogram(centerPos, width, height, SKEW,
+                                      Colors::ZINC_800);
+
+    // Layout - Outline
+    Utils::Drawing::drawParallelogramOutline(centerPos, width, height, SKEW,
+                                             Colors::ZINC_600, 2);
+
+    // Title
+    int titleSize = 22;
     float textAreaWidth = width - (MARGIN * 2);
     int textWidth = raylib::MeasureText(title.c_str(), titleSize);
 
     float centerX = centerPos.x + (width + SKEW) / 2.0f;
-    float topY = centerPos.y - height + MARGIN;
+    float topY = centerPos.y - height + MARGIN + 32;
 
-    raylib::Vector2 titlePos = {
-        centerX - textWidth / 2.0f,
-        centerPos.y - height - titleSize - MARGIN // 12px margin
-    };
+    raylib::Vector2 titlePos = {centerX - textWidth / 2.0f,
+                                centerPos.y - height + MARGIN - 6};
 
-    raylib::DrawText(title.c_str(), (int)titlePos.x, (int)titlePos.y, titleSize,
-                     Colors::ZINC_300);
+    // Title - Background
+    float titleBarY = centerPos.y - height + 32;
+    float heightFromTop = 32;
+    float skewOffsetAtTitleBar = (heightFromTop / height) * SKEW;
+    raylib::Vector2 titleBarPos = {centerPos.x + SKEW - skewOffsetAtTitleBar,
+                                   titleBarY};
+    Utils::Drawing::drawParallelogram(titleBarPos, width, 32,
+                                      skewOffsetAtTitleBar, Colors::ZINC_600);
+    
+    raylib::DrawText(title.c_str(), (int)titlePos.x, (int)titlePos.y,
+       titleSize, Colors::ZINC_200);
 
     Utils::Drawing::drawTextWrapped(
-        message.c_str(), (int)(centerX - textAreaWidth / 2) + SKEW, (int)topY,
-        (int)textAreaWidth, 16, Colors::ZINC_950);
+            message.c_str(), (int)(centerX - textAreaWidth / 2) + SKEW,
+       (int)topY, (int)textAreaWidth, 16, Colors::ZINC_100);
 
     // Buttons
     if (buttons.empty()) {
@@ -56,6 +73,7 @@ void OpenWars::UI::PopupComponent::handleButtonInput(int id) {
 
 };
 
-bool OpenWars::UI::PopupComponent::handleInput(const IO::Input::InputState &state) {
+bool OpenWars::UI::PopupComponent::handleInput(
+    const IO::Input::InputState &state) {
     return false;
 }

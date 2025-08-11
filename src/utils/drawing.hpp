@@ -12,6 +12,9 @@ namespace OpenWars {
             void drawParallelogram(raylib::Vector2 position, float width,
                                    float height, float skew,
                                    raylib::Color color);
+            void drawParallelogramOutline(raylib::Vector2 position, float width,
+                                          float height, float skew,
+                                          raylib::Color color, float thickness);
             bool pointInQuad(raylib::Vector2 p, raylib::Vector2 a,
                              raylib::Vector2 b, raylib::Vector2 c,
                              raylib::Vector2 d);
