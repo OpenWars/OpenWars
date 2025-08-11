@@ -1,7 +1,7 @@
 #pragma once
 
 namespace raylib {
-    #include "raylib.h"
+#include "raylib.h"
 }
 
 namespace OpenWars {
@@ -22,6 +22,6 @@ namespace OpenWars {
             raylib::Camera3D getCamera();
 
             void swapBuffers();
-        }
-    }
-}
+        } // namespace Graphics
+    } // namespace IO
+} // namespace OpenWars

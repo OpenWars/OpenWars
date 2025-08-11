@@ -4,7 +4,7 @@
 
 using namespace OpenWars;
 
-int main(){
+int main() {
     IO::Logging::init();
     IO::Graphics::init(1024, 512);
 
@@ -12,7 +12,7 @@ int main(){
     Game::MenuScene scene;
     sceneManager.changeTo(scene);
 
-    while (!IO::Graphics::shouldClose()){
+    while (!IO::Graphics::shouldClose()) {
         sceneManager.getCurrent().getUIHandler()->handleInput();
         IO::Graphics::beginFrame();
         sceneManager.getCurrent().render();

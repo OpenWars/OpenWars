@@ -15,7 +15,7 @@ namespace OpenWars {
         const float MARGIN = 12.f;
 
         class ButtonParent {
-            public:
+          public:
             virtual void handleButtonInput(int id) = 0;
         };
 
