@@ -19,6 +19,7 @@ int main() {
 
     while (!IO::Graphics::shouldClose()) {
         input.poll();
+        input.handle();
         IO::Graphics::beginFrame();
         sceneManager.getCurrent().render();
         IO::Graphics::swapBuffers();
