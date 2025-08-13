@@ -6,7 +6,6 @@ float OpenWars::Utils::Math::calculateButtonAreaHeight(
         return 0.0f;
     }
 
-    const float BUTTON_SPACING = 8.0f;
     const float BOTTOM_MARGIN = 10.0f;
     const float TOP_MARGIN = 10.0f;
 

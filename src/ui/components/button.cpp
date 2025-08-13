@@ -7,7 +7,7 @@ void OpenWars::UI::ButtonComponent::render() {
 
     raylib::Vector2 shadowPos = {position.x + 2, position.y + 2};
     Utils::Drawing::drawParallelogram(shadowPos, width, height, skew,
-                                      Colors::ZINC_400);
+                                      Colors::ZINC_600);
 
     Utils::Drawing::drawParallelogram(position, width, height, skew,
                                       background);
