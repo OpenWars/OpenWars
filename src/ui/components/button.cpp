@@ -3,7 +3,6 @@
 #include <raylib.h>
 
 void OpenWars::UI::ButtonComponent::render() {
-
     int skew = Theme::SKEW / 3.f;
 
     raylib::Vector2 shadowPos = {position.x + 2, position.y + 2};
@@ -30,6 +29,21 @@ void OpenWars::UI::ButtonComponent::render() {
 
 bool OpenWars::UI::ButtonComponent::handleInput(
     const IO::Input::InputState &state) {
-    // parent->handleButtonInput(this->id);
+    float skew = Theme::SKEW / 3.f;
+    
+    raylib::Rectangle bounds = {
+        position.x,
+        position.y - height,
+        width + skew,
+        height
+    };
+    
+    isHovered = raylib::CheckCollisionPointRec(state.mousePos, bounds);
+
+    if (isHovered && state.pressingLeft){
+        this->parent->handleButtonInput(this->id);
+        return true;
+    }
+
     return false;
 }

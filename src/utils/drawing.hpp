@@ -22,7 +22,7 @@ namespace OpenWars {
                                  int fontSize, raylib::Color color);
             void
             renderButtons(raylib::Vector2 parallelogramPos,
-                          std::vector<OpenWars::UI::ButtonComponent> buttons,
+                          std::vector<OpenWars::UI::ButtonComponent*> buttons,
                           float width, float buttonAreaHeight);
         } // namespace Drawing
     } // namespace Utils

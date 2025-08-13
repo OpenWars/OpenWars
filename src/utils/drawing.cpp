@@ -17,13 +17,13 @@ void OpenWars::Utils::Drawing::drawParallelogram(raylib::Vector2 position,
 void OpenWars::Utils::Drawing::drawParallelogramOutline(
     raylib::Vector2 position, float width, float height, float skew,
     raylib::Color color, float thickness) {
-    raylib::Vector2 v1 = position;                                    
-    raylib::Vector2 v2 = {position.x + width, position.y};          
-    raylib::Vector2 v3 = {position.x + width + skew, position.y - height}; 
-    raylib::Vector2 v4 = {position.x + skew, position.y - height};  
-    
+    raylib::Vector2 v1 = position;
+    raylib::Vector2 v2 = {position.x + width, position.y};
+    raylib::Vector2 v3 = {position.x + width + skew, position.y - height};
+    raylib::Vector2 v4 = {position.x + skew, position.y - height};
+
     DrawLineEx(v1, v2, thickness, color);
-    DrawLineEx(v2, v3, thickness, color);  
+    DrawLineEx(v2, v3, thickness, color);
     DrawLineEx(v3, v4, thickness, color);
     DrawLineEx(v4, v1, thickness, color);
 }
@@ -92,7 +92,7 @@ void OpenWars::Utils::Drawing::drawTextWrapped(const char *text, int x, int y,
 
 void OpenWars::Utils::Drawing::renderButtons(
     raylib::Vector2 parallelogramPos,
-    std::vector<OpenWars::UI::ButtonComponent> buttons, float width,
+    std::vector<OpenWars::UI::ButtonComponent *> buttons, float width,
     float buttonAreaHeight) {
 
     const float BUTTON_SPACING = 8.0f;
@@ -104,15 +104,16 @@ void OpenWars::Utils::Drawing::renderButtons(
     float currentY = parallelogramPos.y - buttonAreaHeight + 10.0f;
 
     for (auto &button : buttons) {
-        if (currentX + button.width >
-            parallelogramPos.x + SIDE_MARGIN + availableWidth) {
-            currentX = parallelogramPos.x + SIDE_MARGIN;
-            currentY += button.height + ROW_SPACING;
+        if (buttons[0]->position.x == 0) {
+            if (currentX + button->width >
+                parallelogramPos.x + SIDE_MARGIN + availableWidth) {
+                currentX = parallelogramPos.x + SIDE_MARGIN;
+                currentY += button->height + ROW_SPACING;
+            }
+
+            button->position = raylib::Vector2{currentX, currentY};
+            currentX += button->width + BUTTON_SPACING;
         }
-
-        button.position = raylib::Vector2{currentX, currentY};
-        button.render();
-
-        currentX += button.width + BUTTON_SPACING;
+        button->render();
     }
 }

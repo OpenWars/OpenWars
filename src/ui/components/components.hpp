@@ -22,6 +22,7 @@ namespace OpenWars {
             ButtonParent *parent;
             raylib::Color background;
             raylib::Color foreground;
+            bool isHovered = false;
 
           public:
             raylib::Vector2 position;
@@ -46,7 +47,7 @@ namespace OpenWars {
         class PopupComponent : public Component, public ButtonParent {
             std::string title;
             std::string message;
-            std::vector<ButtonComponent> buttons;
+            std::vector<ButtonComponent*> buttons;
             bool visible;
             float width = raylib::GetScreenWidth() * 0.666;
             float height = raylib::GetScreenHeight() / 2.f;
@@ -55,7 +56,7 @@ namespace OpenWars {
             PopupComponent(const std::string &title, const std::string &msg)
                 : title(title), message(msg), visible(true) {};
 
-            void addButton(ButtonComponent btn);
+            void addButton(ButtonComponent *btn);
             void setVisible(bool v);
             bool isVisible();
             void render() override;

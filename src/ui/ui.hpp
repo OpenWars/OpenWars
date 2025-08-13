@@ -26,12 +26,12 @@ namespace OpenWars {
         };
 
         class InputHandler : public IO::Input::BaseHandler {
-            UI::Handler &ui;
+            UI::Handler *ui;
 
           public:
-            InputHandler(UI::Handler &ui) : ui(ui) {}
+            InputHandler(UI::Handler *ui) : ui(ui) {}
             void handle(const IO::Input::InputState &state) override {
-                ui.handleInput(state);
+                ui->handleInput(state);
             }
         };
     } // namespace UI

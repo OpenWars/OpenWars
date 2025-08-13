@@ -2,8 +2,7 @@
 #include "../../utils/math.hpp"
 #include "../colors.hpp"
 #include "components.hpp"
-
-void OpenWars::UI::PopupComponent::addButton(ButtonComponent btn) {
+void OpenWars::UI::PopupComponent::addButton(ButtonComponent* btn) {
     buttons.push_back(btn);
 };
 
@@ -61,7 +60,7 @@ void OpenWars::UI::PopupComponent::render() {
 
     // Buttons
     if (buttons.empty()) {
-        buttons.push_back(ButtonComponent("I am too cool!", {0, 0}, this, 0));
+        buttons.push_back(new ButtonComponent("I am too cool!", {0, 0}, this, 0));
     }
 
     Utils::Drawing::renderButtons(
@@ -70,10 +69,16 @@ void OpenWars::UI::PopupComponent::render() {
 }
 
 void OpenWars::UI::PopupComponent::handleButtonInput(int id) {
-
 };
 
 bool OpenWars::UI::PopupComponent::handleInput(
     const IO::Input::InputState &state) {
-    return false;
+
+    bool consumed = false;
+    for (auto button : buttons){
+        if (button->handleInput(state)){
+            consumed = true;
+        }
+    }
+    return consumed;
 }
