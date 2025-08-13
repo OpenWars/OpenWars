@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../ui.hpp"
-#include "../colors.hpp"
+#include "../theme.hpp"
 #include <optional>
 #include <string>
 
@@ -11,9 +11,6 @@ namespace raylib {
 
 namespace OpenWars {
     namespace UI {
-        const int SKEW = 48;
-        const float MARGIN = 12.f;
-
         class ButtonParent {
           public:
             virtual void handleButtonInput(int id) = 0;
@@ -28,15 +25,16 @@ namespace OpenWars {
 
           public:
             raylib::Vector2 position;
-            int width = raylib::MeasureText(label.c_str(), 12) + MARGIN * 2;
+            int width =
+                raylib::MeasureText(label.c_str(), 12) + Theme::MARGIN * 2;
             float height = 28;
 
             ButtonComponent(
                 std::string label, raylib::Vector2 position,
                 ButtonParent *parent, int id,
-                std::optional<raylib::Color> background = Colors::PRIMARY,
+                std::optional<raylib::Color> background = Theme::PRIMARY,
                 std::optional<raylib::Color> foreground =
-                    Colors::PRIMARY_FOREGROUND)
+                    Theme::PRIMARY_FOREGROUND)
                 : id(id), label(label), parent(parent),
                   background(background.value()),
                   foreground(foreground.value()), position(position) {};

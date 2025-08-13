@@ -53,9 +53,6 @@ namespace OpenWars {
                                              255}; // oklch(0.393 0.095 152.535)
             const raylib::Color GREEN_950 = {5, 46, 22,
                                              255}; // oklch(0.266 0.065 152.934)
-
-            const raylib::Color PRIMARY = GREEN_950;
-            const raylib::Color PRIMARY_FOREGROUND = GREEN_100;
         } // namespace Colors
     } // namespace UI
 } // namespace OpenWars
