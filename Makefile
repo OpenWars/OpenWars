@@ -8,12 +8,9 @@ TARGET		= ./out/openwars
 CXX			= g++
 CXXFLAGS	= -std=c++17 -Wall -Wextra -Wpedantic
 CXXFLAGS	+= `pkg-config raylib --cflags`
-CXXFLAGS	+= `pkg-config lua --cflags`
 
 LD			= $(CXX)
-LDFLAGS		= -Isol2/include
 LDFLAGS		+= `pkg-config raylib --libs`
-LDFLAGS		+= `pkg-config lua --libs`
 
 CPPCHECK	= cppcheck
 CLANGXX		= clang++
