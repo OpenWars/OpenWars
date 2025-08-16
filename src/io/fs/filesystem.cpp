@@ -1,4 +1,5 @@
 #include "./filesystem.hpp"
+#include <cstdlib>
 
 namespace raylib {
 #include "raylib.h"
@@ -55,6 +56,9 @@ std::string OpenWars::IO::FileSystem::workingDir() {
 }
 
 std::string OpenWars::IO::FileSystem::appDir() {
+    const char* home = getenv("HOME");
+    if(home)
+        return std::string(home) + "/.local/share/";
     return raylib::GetApplicationDirectory();
 }
 

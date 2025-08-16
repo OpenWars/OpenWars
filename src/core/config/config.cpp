@@ -10,7 +10,6 @@ OpenWars::Config::Manager::Manager(const std::string& appName)
 }
 
 bool OpenWars::Config::Manager::load() {
-
     if(!IO::FileSystem::exists(configFile)) {
         return save();
     }
