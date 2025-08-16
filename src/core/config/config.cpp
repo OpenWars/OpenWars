@@ -4,20 +4,20 @@
 #include <tuple>
 
 OpenWars::Config::Manager::Manager(const std::string& appName)
-    : m_appName(appName) {
-    std::string cfgDir = IO::FileSystem::getAppConfigDir(m_appName);
-    m_configFile = cfgDir + "/config.cfg";
+    : appName(appName) {
+    std::string cfgDir = IO::FileSystem::getAppConfigDir(appName);
+    configFile = cfgDir + "/config.cfg";
 }
 
 bool OpenWars::Config::Manager::load() {
 
-    if(!IO::FileSystem::exists(m_configFile)) {
+    if(!IO::FileSystem::exists(configFile)) {
         return save();
     }
 
-    std::lock_guard<std::mutex> lk(m_mutex);
+    std::lock_guard<std::mutex> lk(mutex);
 
-    std::string text = IO::FileSystem::readText(m_configFile);
+    std::string text = IO::FileSystem::readText(configFile);
     if(text.empty())
         return true;
 
@@ -54,7 +54,7 @@ bool OpenWars::Config::Manager::load() {
 }
 
 bool OpenWars::Config::Manager::save() {
-    std::lock_guard<std::mutex> lk(m_mutex);
+    std::lock_guard<std::mutex> lk(mutex);
     std::ostringstream oss;
 
     std::apply(
@@ -70,7 +70,7 @@ bool OpenWars::Config::Manager::save() {
         Player::fields
     );
 
-    return IO::FileSystem::writeText(m_configFile, oss.str());
+    return IO::FileSystem::writeText(configFile, oss.str());
 }
 
 std::string OpenWars::Config::Manager::trim(const std::string& s) {

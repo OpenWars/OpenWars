@@ -50,9 +50,9 @@ namespace OpenWars {
             Player player;
 
           private:
-            std::string m_configFile;
-            std::string m_appName;
-            std::mutex m_mutex;
+            std::string configFile;
+            std::string appName;
+            std::mutex mutex;
 
             std::string trim(const std::string& s);
 
