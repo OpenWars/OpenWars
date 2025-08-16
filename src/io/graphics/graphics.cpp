@@ -33,6 +33,16 @@ void OpenWars::IO::Graphics::init(int vsync, bool multisampling) {
     }
 }
 
+void OpenWars::IO::Graphics::displayDebug(bool debug, bool fps) {
+    if(fps) {
+        raylib::DrawFPS(5, 5);
+    }
+
+    if(debug) {
+        // TODO
+    }
+}
+
 void OpenWars::IO::Graphics::exit() {
     raylib::CloseWindow();
 }

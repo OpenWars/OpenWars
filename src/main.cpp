@@ -37,6 +37,10 @@ int main() {
         input.handle();
         IO::Graphics::beginFrame();
         sceneManager.getCurrent().render();
+        IO::Graphics::displayDebug(
+            cfg.graphics.displayDebugInfo,
+            cfg.graphics.showFps
+        );
         IO::Graphics::swapBuffers();
     }
     IO::Graphics::exit();

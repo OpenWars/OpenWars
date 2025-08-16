@@ -8,6 +8,7 @@ namespace OpenWars {
     namespace IO {
         namespace Graphics {
             void init(int vsync, bool multisampling);
+            void displayDebug(bool debug, bool fps);
             void exit();
             bool shouldClose();
             void beginFrame();
