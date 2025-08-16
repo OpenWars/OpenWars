@@ -48,62 +48,62 @@ bool OpenWars::Utils::Drawing::pointInQuad(
 }
 
 void OpenWars::Utils::Drawing::drawTextWrapped(
-    const char* text,
+    const std::string& text,
     int x,
     int y,
     int maxWidth,
     int fontSize,
     raylib::Color color
 ) {
-    if(text == NULL)
+    if(text.empty())
         return;
 
-    const char* ptr = text;
+    size_t pos = 0;
     int currentY = y;
-    char line[256];
-    int lineIndex = 0;
+    std::string line;
 
-    while(*ptr != '\0') {
-        if(*ptr == '\n') {
-            line[lineIndex] = '\0';
-            raylib::DrawText(line, x, currentY, fontSize, color);
+    while(pos < text.length()) {
+        if(text[pos] == '\n') {
+            raylib::DrawText(line.c_str(), x, currentY, fontSize, color);
             currentY += fontSize + 2;
-            lineIndex = 0;
-            ptr++;
+            line.clear();
+            pos++;
             continue;
         }
 
-        line[lineIndex] = *ptr;
-        line[lineIndex + 1] = '\0';
+        line += text[pos];
 
-        if(raylib::MeasureText(line, fontSize) > maxWidth && lineIndex > 0) {
-            int lastSpace = lineIndex - 1;
-            while(lastSpace > 0 && line[lastSpace] != ' ') {
-                lastSpace--;
-            }
+        if(raylib::MeasureText(line.c_str(), fontSize) > maxWidth &&
+           line.length() > 1) {
+            size_t lastSpace = line.find_last_of(' ');
 
-            if(lastSpace > 0) {
-                line[lastSpace] = '\0';
-                raylib::DrawText(line, x, currentY, fontSize, color);
+            if(lastSpace != std::string::npos && lastSpace > 0) {
+                std::string drawLine = line.substr(0, lastSpace);
+                raylib::DrawText(
+                    drawLine.c_str(),
+                    x,
+                    currentY,
+                    fontSize,
+                    color
+                );
                 currentY += fontSize + 2;
 
-                ptr -= (lineIndex - lastSpace - 1);
-                lineIndex = 0;
+                pos -= (line.length() - lastSpace - 1);
+                line.clear();
             } else {
-                line[lineIndex] = '\0';
-                raylib::DrawText(line, x, currentY, fontSize, color);
+                line.pop_back();
+                raylib::DrawText(line.c_str(), x, currentY, fontSize, color);
                 currentY += fontSize + 2;
-                lineIndex = 0;
+                pos--;
+                line.clear();
             }
         } else {
-            lineIndex++;
-            ptr++;
+            pos++;
         }
     }
 
-    if(lineIndex > 0) {
-        line[lineIndex] = '\0';
-        raylib::DrawText(line, x, currentY, fontSize, color);
+    if(!line.empty()) {
+        raylib::DrawText(line.c_str(), x, currentY, fontSize, color);
     }
 }
 

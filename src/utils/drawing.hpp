@@ -32,7 +32,7 @@ namespace OpenWars {
                 raylib::Vector2 d
             );
             void drawTextWrapped(
-                const char* text,
+                const std::string& text,
                 int x,
                 int y,
                 int maxWidth,

@@ -89,8 +89,9 @@ void OpenWars::UI::PopupComponent::render() {
         Colors::ZINC_200
     );
 
+    // Content
     Utils::Drawing::drawTextWrapped(
-        message.c_str(),
+        message,
         (int)(centerX - textAreaWidth / 2) + Theme::SKEW,
         (int)topY,
         (int)textAreaWidth,
