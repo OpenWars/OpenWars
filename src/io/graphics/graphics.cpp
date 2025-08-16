@@ -5,7 +5,7 @@ raylib::Camera3D camera;
 void OpenWars::IO::Graphics::init(int vsync, bool multisampling) {
     raylib::SetExitKey(raylib::KEY_NULL);
 
-    int flags = 0;
+    unsigned int flags = 0;
     if(multisampling) {
         flags = raylib::FLAG_MSAA_4X_HINT;
     }
@@ -14,6 +14,7 @@ void OpenWars::IO::Graphics::init(int vsync, bool multisampling) {
         flags |= raylib::FLAG_VSYNC_HINT;
     }
 
+    raylib::SetConfigFlags(flags);
     raylib::InitWindow(1024, 512, "OpenWars Engine");
 
     while(!raylib::IsWindowReady()) {};
