@@ -7,7 +7,7 @@ namespace raylib {
 namespace OpenWars {
     namespace IO {
         namespace Graphics {
-            void init(int width, int height);
+            void init(int vsync, bool multisampling);
             void exit();
             bool shouldClose();
             void beginFrame();

@@ -1,11 +1,20 @@
 #include "graphics.hpp"
+#include <raylib.h>
 
 raylib::Camera3D camera;
-void OpenWars::IO::Graphics::init(int width, int height) {
+void OpenWars::IO::Graphics::init(int vsync, bool multisampling) {
     raylib::SetExitKey(raylib::KEY_NULL);
 
-    raylib::SetConfigFlags(raylib::FLAG_MSAA_4X_HINT);
-    raylib::InitWindow(width, height, "OpenWars Engine");
+    int flags = 0;
+    if(multisampling) {
+        flags = raylib::FLAG_MSAA_4X_HINT;
+    }
+
+    if(vsync == 2) {
+        flags |= raylib::FLAG_VSYNC_HINT;
+    }
+
+    raylib::InitWindow(1024, 512, "OpenWars Engine");
 
     while(!raylib::IsWindowReady()) {};
 
@@ -17,8 +26,10 @@ void OpenWars::IO::Graphics::init(int width, int height) {
         0
     };
 
-    int r_rate = raylib::GetMonitorRefreshRate(raylib::GetCurrentMonitor());
-    raylib::SetTargetFPS(r_rate);
+    if(vsync == 1) {
+        int rRate = raylib::GetMonitorRefreshRate(raylib::GetCurrentMonitor());
+        raylib::SetTargetFPS(rRate);
+    }
 }
 
 void OpenWars::IO::Graphics::exit() {

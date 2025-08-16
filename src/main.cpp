@@ -1,3 +1,4 @@
+#include "core/config/config.hpp"
 #include "game/scene/scene.hpp"
 #include "io/graphics/graphics.hpp"
 #include "io/input/input.hpp"
@@ -8,7 +9,19 @@ using namespace OpenWars;
 
 int main() {
     IO::Logging::init();
-    IO::Graphics::init(1024, 512);
+    Config::Manager cfg;
+    cfg.load();
+
+    if(!cfg.load()) {
+        cfg.graphics.multisampling = false;
+        cfg.graphics.vsync = 2;
+        cfg.graphics.showFps = true;
+        cfg.graphics.displayDebugInfo = true;
+
+        cfg.save();
+    }
+
+    IO::Graphics::init(cfg.graphics.vsync, cfg.graphics.multisampling);
 
     Game::SceneManager sceneManager;
     Game::MenuScene scene;
