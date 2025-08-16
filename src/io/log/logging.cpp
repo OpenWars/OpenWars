@@ -13,16 +13,19 @@ void OpenWars::IO::Logging::init() {
     raylib::SetTraceLogCallback(OpenWars::IO::Logging::out);
 }
 
-void OpenWars::IO::Logging::out(int type, const char *message,
-                                std::va_list args) {
+void OpenWars::IO::Logging::out(
+    int type,
+    const char* message,
+    std::va_list args
+) {
     char timeStr[64] = {0};
     time_t now = time(NULL);
-    struct tm *tm_info = localtime(&now);
+    struct tm* tm_info = localtime(&now);
 
     strftime(timeStr, sizeof(timeStr), "%Y-%m-%d %H:%M:%S", tm_info);
     printf("[%s] ", timeStr);
 
-    switch (type) {
+    switch(type) {
     case raylib::LOG_INFO:
         printf("%s", OpenWars::IO::Logging::_TEXT_INFO_LOG);
         break;

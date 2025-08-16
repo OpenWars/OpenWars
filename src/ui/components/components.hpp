@@ -19,7 +19,7 @@ namespace OpenWars {
         class ButtonComponent : public Component {
             int id;
             std::string label;
-            ButtonParent *parent;
+            ButtonParent* parent;
             raylib::Color background;
             raylib::Color foreground;
             bool isHovered = false;
@@ -31,17 +31,23 @@ namespace OpenWars {
             float height = 28;
 
             ButtonComponent(
-                std::string label, raylib::Vector2 position,
-                ButtonParent *parent, int id,
+                std::string label,
+                raylib::Vector2 position,
+                ButtonParent* parent,
+                int id,
                 std::optional<raylib::Color> background = Theme::PRIMARY,
                 std::optional<raylib::Color> foreground =
-                    Theme::PRIMARY_FOREGROUND)
-                : id(id), label(label), parent(parent),
-                  background(background.value()),
-                  foreground(foreground.value()), position(position) {};
+                    Theme::PRIMARY_FOREGROUND
+            )
+                : id(id)
+                , label(label)
+                , parent(parent)
+                , background(background.value())
+                , foreground(foreground.value())
+                , position(position) {};
 
             void render() override;
-            bool handleInput(const IO::Input::InputState &state) override;
+            bool handleInput(const IO::Input::InputState& state) override;
         };
 
         class PopupComponent : public Component, public ButtonParent {
@@ -53,15 +59,17 @@ namespace OpenWars {
             float height = raylib::GetScreenHeight() / 2.f;
 
           public:
-            PopupComponent(const std::string &title, const std::string &msg)
-                : title(title), message(msg), visible(true) {};
+            PopupComponent(const std::string& title, const std::string& msg)
+                : title(title)
+                , message(msg)
+                , visible(true) {};
 
-            void addButton(ButtonComponent *btn);
+            void addButton(ButtonComponent* btn);
             void setVisible(bool v);
             bool isVisible();
             void render() override;
             void handleButtonInput(int id) override;
-            bool handleInput(const IO::Input::InputState &state) override;
+            bool handleInput(const IO::Input::InputState& state) override;
         };
     } // namespace UI
 } // namespace OpenWars

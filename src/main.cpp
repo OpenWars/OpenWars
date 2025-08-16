@@ -15,9 +15,11 @@ int main() {
     IO::Input::PollHandler input;
     sceneManager.changeTo(scene);
 
-    input.addHandler<UI::InputHandler>(sceneManager.getCurrent().getUIHandler());
+    input.addHandler<UI::InputHandler>(
+        sceneManager.getCurrent().getUIHandler()
+    );
 
-    while (!IO::Graphics::shouldClose()) {
+    while(!IO::Graphics::shouldClose()) {
         input.poll();
         input.handle();
         IO::Graphics::beginFrame();

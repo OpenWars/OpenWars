@@ -1,8 +1,9 @@
 #include "math.hpp"
 
 float OpenWars::Utils::Math::calculateButtonAreaHeight(
-    std::vector<OpenWars::UI::ButtonComponent*> buttons) {
-    if (buttons.empty()) {
+    std::vector<OpenWars::UI::ButtonComponent*> buttons
+) {
+    if(buttons.empty()) {
         return 0.0f;
     }
 

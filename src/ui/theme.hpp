@@ -3,7 +3,7 @@
 #include "colors.hpp"
 
 namespace raylib {
-    #include "raylib.h"
+#include "raylib.h"
 }
 
 namespace OpenWars {
@@ -16,6 +16,6 @@ namespace OpenWars {
             // Colors
             const raylib::Color PRIMARY = Colors::GREEN_950;
             const raylib::Color PRIMARY_FOREGROUND = Colors::GREEN_100;
-        }
-    }
-}
+        } // namespace Theme
+    } // namespace UI
+} // namespace OpenWars

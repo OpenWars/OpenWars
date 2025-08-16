@@ -11,7 +11,7 @@ namespace OpenWars {
             virtual ~Component() = default;
 
             virtual void render() = 0;
-            virtual bool handleInput(const IO::Input::InputState &state) = 0;
+            virtual bool handleInput(const IO::Input::InputState& state) = 0;
         };
 
         class Handler {
@@ -21,16 +21,18 @@ namespace OpenWars {
             virtual ~Handler() = default;
 
             void renderOverlay();
-            bool handleInput(const IO::Input::InputState &state);
+            bool handleInput(const IO::Input::InputState& state);
             void addComponent(std::unique_ptr<Component> c);
         };
 
         class InputHandler : public IO::Input::BaseHandler {
-            UI::Handler *ui;
+            UI::Handler* ui;
 
           public:
-            InputHandler(UI::Handler *ui) : ui(ui) {}
-            void handle(const IO::Input::InputState &state) override {
+            InputHandler(UI::Handler* ui)
+                : ui(ui) {
+            }
+            void handle(const IO::Input::InputState& state) override {
                 ui->handleInput(state);
             }
         };

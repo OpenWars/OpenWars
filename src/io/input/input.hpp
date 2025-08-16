@@ -1,10 +1,10 @@
 #pragma once
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 namespace raylib {
-    #include "raylib.h"
+#include "raylib.h"
 }
 
 namespace OpenWars {
@@ -22,7 +22,7 @@ namespace OpenWars {
             };
 
             class BaseHandler {
-            public:
+              public:
                 virtual ~BaseHandler() = default;
 
                 virtual void handle(const InputState& state) = 0;
@@ -32,10 +32,11 @@ namespace OpenWars {
                 std::vector<std::unique_ptr<BaseHandler>> boundHandlers;
                 InputState state;
 
-            public:
-                PollHandler() {}
+              public:
+                PollHandler() {
+                }
 
-                template<typename T, typename... Args>
+                template <typename T, typename... Args>
                 void addHandler(Args&&... args) {
                     boundHandlers.push_back(
                         std::make_unique<T>(std::forward<Args>(args)...)
@@ -46,6 +47,6 @@ namespace OpenWars {
                 void handle();
             };
 
-        }
-    }
-}
+        } // namespace Input
+    } // namespace IO
+} // namespace OpenWars

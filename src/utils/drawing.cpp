@@ -1,10 +1,13 @@
 #include "drawing.hpp"
 #include <cstddef>
 
-void OpenWars::Utils::Drawing::drawParallelogram(raylib::Vector2 position,
-                                                 float width, float height,
-                                                 float skew,
-                                                 raylib::Color color) {
+void OpenWars::Utils::Drawing::drawParallelogram(
+    raylib::Vector2 position,
+    float width,
+    float height,
+    float skew,
+    raylib::Color color
+) {
     raylib::Vector2 v1 = position;
     raylib::Vector2 v2 = {position.x + width, position.y};
     raylib::Vector2 v3 = {position.x + width + skew, position.y - height};
@@ -15,8 +18,13 @@ void OpenWars::Utils::Drawing::drawParallelogram(raylib::Vector2 position,
 }
 
 void OpenWars::Utils::Drawing::drawParallelogramOutline(
-    raylib::Vector2 position, float width, float height, float skew,
-    raylib::Color color, float thickness) {
+    raylib::Vector2 position,
+    float width,
+    float height,
+    float skew,
+    raylib::Color color,
+    float thickness
+) {
     raylib::Vector2 v1 = position;
     raylib::Vector2 v2 = {position.x + width, position.y};
     raylib::Vector2 v3 = {position.x + width + skew, position.y - height};
@@ -28,26 +36,35 @@ void OpenWars::Utils::Drawing::drawParallelogramOutline(
     DrawLineEx(v4, v1, thickness, color);
 }
 
-bool OpenWars::Utils::Drawing::pointInQuad(raylib::Vector2 p, raylib::Vector2 a,
-                                           raylib::Vector2 b, raylib::Vector2 c,
-                                           raylib::Vector2 d) {
+bool OpenWars::Utils::Drawing::pointInQuad(
+    raylib::Vector2 p,
+    raylib::Vector2 a,
+    raylib::Vector2 b,
+    raylib::Vector2 c,
+    raylib::Vector2 d
+) {
     return raylib::CheckCollisionPointTriangle(p, a, b, c) ||
            raylib::CheckCollisionPointTriangle(p, c, d, a);
 }
 
-void OpenWars::Utils::Drawing::drawTextWrapped(const char *text, int x, int y,
-                                               int maxWidth, int fontSize,
-                                               raylib::Color color) {
-    if (text == NULL)
+void OpenWars::Utils::Drawing::drawTextWrapped(
+    const char* text,
+    int x,
+    int y,
+    int maxWidth,
+    int fontSize,
+    raylib::Color color
+) {
+    if(text == NULL)
         return;
 
-    const char *ptr = text;
+    const char* ptr = text;
     int currentY = y;
     char line[256];
     int lineIndex = 0;
 
-    while (*ptr != '\0') {
-        if (*ptr == '\n') {
+    while(*ptr != '\0') {
+        if(*ptr == '\n') {
             line[lineIndex] = '\0';
             raylib::DrawText(line, x, currentY, fontSize, color);
             currentY += fontSize + 2;
@@ -59,13 +76,13 @@ void OpenWars::Utils::Drawing::drawTextWrapped(const char *text, int x, int y,
         line[lineIndex] = *ptr;
         line[lineIndex + 1] = '\0';
 
-        if (raylib::MeasureText(line, fontSize) > maxWidth && lineIndex > 0) {
+        if(raylib::MeasureText(line, fontSize) > maxWidth && lineIndex > 0) {
             int lastSpace = lineIndex - 1;
-            while (lastSpace > 0 && line[lastSpace] != ' ') {
+            while(lastSpace > 0 && line[lastSpace] != ' ') {
                 lastSpace--;
             }
 
-            if (lastSpace > 0) {
+            if(lastSpace > 0) {
                 line[lastSpace] = '\0';
                 raylib::DrawText(line, x, currentY, fontSize, color);
                 currentY += fontSize + 2;
@@ -84,7 +101,7 @@ void OpenWars::Utils::Drawing::drawTextWrapped(const char *text, int x, int y,
         }
     }
 
-    if (lineIndex > 0) {
+    if(lineIndex > 0) {
         line[lineIndex] = '\0';
         raylib::DrawText(line, x, currentY, fontSize, color);
     }
@@ -92,8 +109,10 @@ void OpenWars::Utils::Drawing::drawTextWrapped(const char *text, int x, int y,
 
 void OpenWars::Utils::Drawing::renderButtons(
     raylib::Vector2 parallelogramPos,
-    std::vector<OpenWars::UI::ButtonComponent *> buttons, float width,
-    float buttonAreaHeight) {
+    std::vector<OpenWars::UI::ButtonComponent*> buttons,
+    float width,
+    float buttonAreaHeight
+) {
 
     const float BUTTON_SPACING = 8.0f;
     const float ROW_SPACING = 4.0f;
@@ -103,10 +122,10 @@ void OpenWars::Utils::Drawing::renderButtons(
     float currentX = parallelogramPos.x + SIDE_MARGIN;
     float currentY = parallelogramPos.y - buttonAreaHeight + 10.0f;
 
-    for (auto &button : buttons) {
-        if (buttons[0]->position.x == 0) {
-            if (currentX + button->width >
-                parallelogramPos.x + SIDE_MARGIN + availableWidth) {
+    for(auto& button : buttons) {
+        if(buttons[0]->position.x == 0) {
+            if(currentX + button->width >
+               parallelogramPos.x + SIDE_MARGIN + availableWidth) {
                 currentX = parallelogramPos.x + SIDE_MARGIN;
                 currentY += button->height + ROW_SPACING;
             }

@@ -6,14 +6,14 @@ namespace OpenWars {
     namespace Game {
         class Scene {
           protected:
-            OpenWars::UI::Handler *uiHandler = nullptr;
+            OpenWars::UI::Handler* uiHandler = nullptr;
 
           public:
             virtual ~Scene() {};
 
             virtual void render() {};
-            void setUIHandler(OpenWars::UI::Handler *handler);
-            OpenWars::UI::Handler *getUIHandler();
+            void setUIHandler(OpenWars::UI::Handler* handler);
+            OpenWars::UI::Handler* getUIHandler();
         };
         class MenuScene : public Scene {
           public:
@@ -24,11 +24,11 @@ namespace OpenWars {
         };
 
         class SceneManager {
-            Scene *scenario;
+            Scene* scenario;
 
           public:
-            Scene &getCurrent();
-            void changeTo(Scene &target);
+            Scene& getCurrent();
+            void changeTo(Scene& target);
             void transition();
         };
     } // namespace Game
