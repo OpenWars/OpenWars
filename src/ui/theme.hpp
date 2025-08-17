@@ -6,19 +6,15 @@ namespace raylib {
 #include "raylib.h"
 }
 
-namespace OpenWars {
-    namespace UI {
-        namespace Theme {
-            // Spacing
-            const int SKEW = 48;
-            const float MARGIN = 12.f;
+namespace OpenWars::UI::Theme {
+    // Spacing
+    const int SKEW = 48;
+    const float MARGIN = 12.f;
 
-            // Colors
-            const raylib::Color PRIMARY = Colors::GREEN_950;
-            const raylib::Color PRIMARY_FOREGROUND = Colors::GREEN_100;
+    // Colors
+    const raylib::Color PRIMARY = Colors::GREEN_950;
+    const raylib::Color PRIMARY_FOREGROUND = Colors::GREEN_100;
 
-            const raylib::Color SECONDARY = Colors::ZINC_700;
-            const raylib::Color SECONDARY_FOREGROUND = Colors::ZINC_300;
-        } // namespace Theme
-    } // namespace UI
-} // namespace OpenWars
+    const raylib::Color SECONDARY = Colors::ZINC_700;
+    const raylib::Color SECONDARY_FOREGROUND = Colors::ZINC_300;
+} // namespace OpenWars::UI::Theme
