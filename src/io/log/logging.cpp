@@ -1,7 +1,10 @@
 #include "logging.hpp"
-#include "../graphics/graphics.hpp"
 #include <cstdio>
 #include <ctime>
+
+namespace raylib {
+#include "raylib.h"
+}
 
 namespace OpenWars::IO::Logging {
     const char *_TEXT_DEBUG_LOG = "\x1b[96m[\x1b[95mDEBUG\x1b[96m]\x1b[0m ",
