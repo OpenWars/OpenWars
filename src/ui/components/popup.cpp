@@ -2,9 +2,6 @@
 #include "../../utils/math.hpp"
 #include "../colors.hpp"
 #include "components.hpp"
-void OpenWars::UI::PopupComponent::addButton(ButtonComponent* btn) {
-    buttons.push_back(btn);
-};
 
 void OpenWars::UI::PopupComponent::setVisible(bool v) {
     visible = v;
@@ -100,11 +97,19 @@ void OpenWars::UI::PopupComponent::render() {
     );
 
     // Buttons
-    if(buttons.empty()) {
-        buttons.push_back(
-            new ButtonComponent("I am too cool!", {0, 0}, this, 0)
-        );
+
+    if(cb) {
+        buttons.push_back(new ButtonComponent("Ok", {0, 0}, this, 0));
     }
+
+    buttons.push_back(new ButtonComponent(
+        "Cancel",
+        {0, 0},
+        this,
+        1,
+        Theme::SECONDARY,
+        Theme::SECONDARY_FOREGROUND
+    ));
 
     Utils::Drawing::renderButtons(
         centerPos,
@@ -114,7 +119,27 @@ void OpenWars::UI::PopupComponent::render() {
     );
 }
 
-void OpenWars::UI::PopupComponent::handleButtonInput(int id) {};
+void OpenWars::UI::PopupComponent::handleButtonInput(int id) {
+    if(id == 0) {
+        if(cancelCb) {
+            cancelCb(this);
+        } else {
+            visible = false;
+        }
+    }
+
+    if(id == 1 && cb) {
+        cb(this);
+    }
+};
+
+void OpenWars::UI::PopupComponent::addCallback(callback_t callback) {
+    cb = callback;
+}
+
+void OpenWars::UI::PopupComponent::addCancelCallback(callback_t callback) {
+    cancelCb = callback;
+}
 
 bool OpenWars::UI::PopupComponent::handleInput(
     const IO::Input::InputState& state

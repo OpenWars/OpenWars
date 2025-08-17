@@ -16,6 +16,9 @@ namespace OpenWars {
             // Colors
             const raylib::Color PRIMARY = Colors::GREEN_950;
             const raylib::Color PRIMARY_FOREGROUND = Colors::GREEN_100;
+
+            const raylib::Color SECONDARY = Colors::ZINC_700;
+            const raylib::Color SECONDARY_FOREGROUND = Colors::ZINC_300;
         } // namespace Theme
     } // namespace UI
 } // namespace OpenWars

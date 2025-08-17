@@ -12,12 +12,19 @@ OpenWars::UI::Handler* OpenWars::Game::Scene::getUIHandler() {
 
 OpenWars::Game::MenuScene::MenuScene() {
     OpenWars::UI::Handler* handler = new OpenWars::UI::Handler();
-    handler->addComponent(
-        std::make_unique<UI::PopupComponent>(
-            "Download content",
-            "It's free! I think... I hope."
-        )
+
+    auto popup = std::make_unique<UI::PopupComponent>(
+        "Download content",
+        "It's free! I think... I hope."
     );
+
+    UI::callback_t callback = [](UI::Component* component) {
+        static_cast<UI::PopupComponent*>(component)->setVisible(false);
+        return;
+    };
+
+    popup->addCallback(callback);
+    handler->addComponent(std::move(popup));
 
     setUIHandler(handler);
 }

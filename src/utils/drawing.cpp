@@ -113,7 +113,6 @@ void OpenWars::Utils::Drawing::renderButtons(
     float width,
     float buttonAreaHeight
 ) {
-
     const float BUTTON_SPACING = 8.0f;
     const float ROW_SPACING = 4.0f;
     const float SIDE_MARGIN = 10.0f;
@@ -123,7 +122,7 @@ void OpenWars::Utils::Drawing::renderButtons(
     float currentY = parallelogramPos.y - buttonAreaHeight + 10.0f;
 
     for(auto& button : buttons) {
-        if(buttons[0]->position.x == 0) {
+        if(button->position.x == 0.f && button->position.y == 0.f) {
             if(currentX + button->width >
                parallelogramPos.x + SIDE_MARGIN + availableWidth) {
                 currentX = parallelogramPos.x + SIDE_MARGIN;

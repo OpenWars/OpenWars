@@ -11,6 +11,8 @@ namespace raylib {
 
 namespace OpenWars {
     namespace UI {
+        typedef void (*callback_t)(Component*);
+
         class ButtonParent {
           public:
             virtual void handleButtonInput(int id) = 0;
@@ -57,6 +59,8 @@ namespace OpenWars {
             bool visible;
             float width = raylib::GetScreenWidth() * 0.666;
             float height = raylib::GetScreenHeight() / 2.f;
+            callback_t cb;
+            callback_t cancelCb;
 
           public:
             PopupComponent(const std::string& title, const std::string& msg)
@@ -64,7 +68,8 @@ namespace OpenWars {
                 , message(msg)
                 , visible(true) {};
 
-            void addButton(ButtonComponent* btn);
+            void addCallback(callback_t callback);
+            void addCancelCallback(callback_t callback);
             void setVisible(bool v);
             bool isVisible();
             void render() override;
