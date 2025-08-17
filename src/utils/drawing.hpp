@@ -40,8 +40,8 @@ namespace OpenWars {
                 raylib::Color color
             );
             void renderButtons(
-                raylib::Vector2 parallelogramPos,
-                std::vector<OpenWars::UI::ButtonComponent*> buttons,
+                const raylib::Vector2& parallelogramPos,
+                const std::vector<OpenWars::UI::ButtonComponent*>& buttons,
                 float width,
                 float buttonAreaHeight
             );
