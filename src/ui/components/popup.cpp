@@ -144,6 +144,8 @@ void OpenWars::UI::PopupComponent::addCancelCallback(callback_t callback) {
 bool OpenWars::UI::PopupComponent::handleInput(
     const IO::Input::InputState& state
 ) {
+    if(!visible)
+        return false;
 
     bool consumed = false;
     for(auto button : buttons) {
