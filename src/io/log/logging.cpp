@@ -3,10 +3,6 @@
 #include <cstdio>
 #include <ctime>
 
-namespace raylib {
-#include "raylib.h"
-}
-
 namespace OpenWars::IO::Logging {
     const char *_TEXT_DEBUG_LOG = "\x1b[96m[\x1b[95mDEBUG\x1b[96m]\x1b[0m ",
                *_TEXT_INFO_LOG = "\x1b[93m[\x1b[33mINFO\x1b[93m]\x1b[0m ",
@@ -15,30 +11,6 @@ namespace OpenWars::IO::Logging {
 
 void OpenWars::IO::Logging::init() {
     raylib::SetTraceLogCallback(OpenWars::IO::Logging::out);
-}
-
-void OpenWars::IO::Logging::log(std::string message, std::va_list args) {
-    raylib::TraceLog(raylib::LOG_INFO, message.c_str(), args);
-}
-
-void OpenWars::IO::Logging::warn(std::string message, std::va_list args) {
-    raylib::TraceLog(raylib::LOG_WARNING, message.c_str(), args);
-}
-
-void OpenWars::IO::Logging::debug(std::string message, std::va_list args) {
-    raylib::TraceLog(raylib::LOG_DEBUG, message.c_str(), args);
-}
-
-void OpenWars::IO::Logging::error(
-    std::string message,
-    std::va_list args,
-    bool fatal = false
-) {
-    raylib::TraceLog(
-        fatal ? raylib::LOG_FATAL : raylib::LOG_ERROR,
-        message.c_str(),
-        args
-    );
 }
 
 void OpenWars::IO::Logging::out(
