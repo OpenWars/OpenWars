@@ -3,6 +3,7 @@
 #include <string>
 #include <mutex>
 #include <tuple>
+#include "../../io/log/logging.hpp"
 
 namespace OpenWars::Config {
     template <typename Owner, typename T> struct Field {
@@ -41,6 +42,7 @@ namespace OpenWars::Config {
 
         bool load();
         bool save();
+        void dump();
 
         Graphics graphics;
         Player player;
@@ -71,6 +73,30 @@ namespace OpenWars::Config {
                 return std::to_string(s.*(f.member));
             else if constexpr(std::is_same_v<T, std::string>)
                 return s.*(f.member);
+        }
+
+        template <typename Struct, typename FieldsTuple>
+        void dumpStruct(const Struct& s, const FieldsTuple& fields) {
+            dumpFields(
+                s,
+                fields,
+                std::make_index_sequence<std::tuple_size_v<FieldsTuple>>{}
+            );
+        }
+
+        template <typename Struct, typename FieldsTuple, std::size_t... Indices>
+        void dumpFields(
+            const Struct& s,
+            const FieldsTuple& fields,
+            std::index_sequence<Indices...>
+        ) {
+            ((dumpField(s, std::get<Indices>(fields))), ...);
+        }
+
+        template <typename Struct, typename T>
+        void dumpField(const Struct& s, const Field<Struct, T>& field) {
+            std::string value = getFieldValue(s, field);
+            IO::Logging::log("  %s = %s", field.name, value.c_str());
         }
     };
 } // namespace OpenWars::Config

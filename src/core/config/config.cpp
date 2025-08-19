@@ -80,3 +80,15 @@ std::string OpenWars::Config::Manager::trim(const std::string& s) {
         --b;
     return s.substr(a, b - a);
 }
+
+void OpenWars::Config::Manager::dump() {
+    IO::Logging::log("=== Configuration Dump ===");
+
+    IO::Logging::log("%s", "[Graphics]");
+    dumpStruct(graphics, Graphics::fields);
+
+    IO::Logging::log("%s", "[Player]");
+    dumpStruct(player, Player::fields);
+
+    IO::Logging::log("=== End Configuration Dump ===");
+}

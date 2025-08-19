@@ -11,6 +11,7 @@ int main() {
     IO::Logging::init();
     Config::Manager cfg;
     cfg.load();
+    cfg.dump();
 
     if(!cfg.load()) {
         cfg.graphics.multisampling = false;
