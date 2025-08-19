@@ -1,4 +1,5 @@
 #include "logging.hpp"
+#include <cstdarg>
 #include <cstdio>
 #include <ctime>
 
@@ -16,6 +17,30 @@ void OpenWars::IO::Logging::init() {
     raylib::SetTraceLogCallback(OpenWars::IO::Logging::out);
 }
 
+void OpenWars::IO::Logging::log(std::string message, std::va_list args) {
+    raylib::TraceLog(raylib::LOG_INFO, message.c_str(), args);
+}
+
+void OpenWars::IO::Logging::warn(std::string message, std::va_list args) {
+    raylib::TraceLog(raylib::LOG_WARNING, message.c_str(), args);
+}
+
+void OpenWars::IO::Logging::debug(std::string message, std::va_list args) {
+    raylib::TraceLog(raylib::LOG_DEBUG, message.c_str(), args);
+}
+
+void OpenWars::IO::Logging::error(
+    std::string message,
+    std::va_list args,
+    bool fatal = false
+) {
+    raylib::TraceLog(
+        fatal ? raylib::LOG_FATAL : raylib::LOG_ERROR,
+        message.c_str(),
+        args
+    );
+}
+
 void OpenWars::IO::Logging::out(
     int type,
     const char* message,
@@ -25,7 +50,7 @@ void OpenWars::IO::Logging::out(
     time_t now = time(NULL);
     struct tm* tm_info = localtime(&now);
 
-    strftime(timeStr, sizeof(timeStr), "%Y-%m-%d %H:%M:%S", tm_info);
+    strftime(timeStr, sizeof(timeStr), "%d-%m-%Y %H:%M:%S", tm_info);
     printf("[%s] ", timeStr);
 
     switch(type) {
