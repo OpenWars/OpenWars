@@ -1,4 +1,5 @@
 #include "drawing.hpp"
+
 #include <cstddef>
 
 void OpenWars::Utils::Drawing::drawParallelogram(

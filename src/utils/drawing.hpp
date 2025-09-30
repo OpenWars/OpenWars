@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ui/components/components.hpp"
+#include <string>
 
 namespace raylib {
 #include "raylib.h"
