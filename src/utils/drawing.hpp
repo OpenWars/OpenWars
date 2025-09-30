@@ -37,10 +37,4 @@ namespace OpenWars::Utils::Drawing {
         int fontSize,
         raylib::Color color
     );
-    void renderButtons(
-        const raylib::Vector2& parallelogramPos,
-        const std::vector<OpenWars::UI::ButtonComponent*>& buttons,
-        float width,
-        float buttonAreaHeight
-    );
 } // namespace OpenWars::Utils::Drawing

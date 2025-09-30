@@ -2,37 +2,97 @@
 #include "scene.hpp"
 #include <memory>
 
-void OpenWars::Game::Scene::setUIHandler(OpenWars::UI::Handler* handler) {
-    uiHandler = handler;
+OpenWars::Game::MenuScene::MenuScene()
+    : Scene("MainMenu") {
+    createUI();
 }
 
-OpenWars::UI::Handler* OpenWars::Game::Scene::getUIHandler() {
-    return uiHandler;
-}
-
-OpenWars::Game::MenuScene::MenuScene() {
-    OpenWars::UI::Handler* handler = new OpenWars::UI::Handler();
-
-    auto popup = std::make_unique<UI::PopupComponent>(
-        "Download content",
-        "It's free! I think... I hope."
+void OpenWars::Game::MenuScene::createUI() {
+    // TODO
+    auto startBtn = std::make_unique<UI::ButtonComponent>(
+        "Start Game",
+        raylib::Vector2{100, 200},
+        "start_button"
     );
 
-    UI::callback_t callback = [](UI::Component* component) {
-        static_cast<UI::PopupComponent*>(component)->setVisible(false);
-        return;
-    };
+    startBtn->onClick([this]() {
+        if(!menuState.contentDownloaded) {
+            showDownloadPrompt();
+        } else {
+        }
+    });
 
-    popup->addCallback(callback);
-    handler->addComponent(std::move(popup));
+    auto optionsBtn = std::make_unique<UI::ButtonComponent>(
+        "Options",
+        raylib::Vector2{100, 250},
+        "options_button"
+    );
 
-    setUIHandler(handler);
+    optionsBtn->onClick([]() {});
+
+    auto exitBtn = std::make_unique<UI::ButtonComponent>(
+        "Exit",
+        raylib::Vector2{100, 300},
+        "exit_button",
+        UI::Theme::SECONDARY,
+        UI::Theme::SECONDARY_FOREGROUND
+    );
+
+    exitBtn->onClick([]() {});
+
+    uiHandler->addComponent(std::move(startBtn));
+    uiHandler->addComponent(std::move(optionsBtn));
+    uiHandler->addComponent(std::move(exitBtn));
 }
 
-OpenWars::Game::MenuScene::~MenuScene() {
-    delete getUIHandler();
+void OpenWars::Game::MenuScene::showDownloadPrompt() {
+    auto popup = std::make_unique<UI::PopupComponent>(
+        "Download Content",
+        "Game content needs to be downloaded before playing.\nThis includes "
+        "textures, music and game data.\n\nWould you like to download now?",
+        "download_popup"
+    );
+
+    popup->addButton("Download", [this]() {
+        menuState.contentDownloaded = true;
+    });
+
+    popup->addButton(
+        "Cancel",
+        []() {},
+        UI::Theme::SECONDARY,
+        UI::Theme::SECONDARY_FOREGROUND
+    );
+
+    popup->show();
+    uiHandler->addComponent(std::move(popup));
+}
+
+void OpenWars::Game::MenuScene::onEnter() {
+    Scene::onEnter();
+    initialized = true;
+}
+
+void OpenWars::Game::MenuScene::update(float deltaTime) {
+    Scene::update(deltaTime);
+
+    // maybe animations here?
 }
 
 void OpenWars::Game::MenuScene::render() {
-    uiHandler->renderOverlay();
+    raylib::ClearBackground(UI::Colors::ZINC_900);
+
+    const char* title = "OpenWars";
+    int titleSize = 48;
+    int titleWidth = raylib::MeasureText(title, titleSize);
+
+    raylib::DrawText(
+        title,
+        raylib::GetScreenWidth() / 2 - titleWidth / 2,
+        50,
+        titleSize,
+        UI::Colors::GREEN_400
+    );
+
+    Scene::render();
 }

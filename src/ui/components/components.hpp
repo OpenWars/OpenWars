@@ -2,75 +2,118 @@
 
 #include "../ui.hpp"
 #include "../theme.hpp"
-#include <optional>
 #include <string>
+#include <functional>
 
 namespace raylib {
 #include "raylib.h"
 }
 
 namespace OpenWars::UI {
-    typedef void (*callback_t)(Component*);
-
-    class ButtonParent {
-      public:
-        virtual void handleButtonInput(int id) = 0;
-    };
-
     class ButtonComponent : public Component {
-        int id;
         std::string label;
-        ButtonParent* parent;
         raylib::Color background;
         raylib::Color foreground;
-        bool isHovered = false;
+        bool isHovered;
+        bool wasHovered;
+
+        struct AnimationState {
+            float hoverProgress;
+            float clickProgress;
+        } animation;
 
       public:
-        raylib::Vector2 position;
-        int width = raylib::MeasureText(label.c_str(), 12) + Theme::MARGIN * 2;
-        float height = 28;
-
         ButtonComponent(
-            std::string label,
+            const std::string& label,
             raylib::Vector2 position,
-            ButtonParent* parent,
-            int id,
-            std::optional<raylib::Color> background = Theme::PRIMARY,
-            std::optional<raylib::Color> foreground = Theme::PRIMARY_FOREGROUND
-        )
-            : id(id)
-            , label(label)
-            , parent(parent)
-            , background(background.value())
-            , foreground(foreground.value())
-            , position(position) {};
+            const std::string& id = "",
+            raylib::Color background = Theme::PRIMARY,
+            raylib::Color foreground = Theme::PRIMARY_FOREGROUND
+        );
 
         void render() override;
         bool handleInput(const IO::Input::InputState& state) override;
+        void update(float deltaTime) override;
+        void updateLayout() override;
+
+        void setLabel(const std::string& newLabel);
+        const std::string& getLabel() const {
+            return label;
+        }
+
+        void onClick(std::function<void()> callback);
     };
 
-    class PopupComponent : public Component, public ButtonParent {
+    class PopupComponent : public Component {
         std::string title;
         std::string message;
-        std::vector<ButtonComponent*> buttons;
-        bool visible;
-        float width = raylib::GetScreenWidth() * 0.666;
-        float height = raylib::GetScreenHeight() / 2.f;
-        callback_t cb;
-        callback_t cancelCb;
+        std::vector<std::unique_ptr<ButtonComponent>> buttons;
+
+        struct {
+            float width;
+            float height;
+            raylib::Vector2 position;
+            bool valid = false;
+        } layoutCache;
+
+        struct {
+            float showProgress = 0.0f;
+            bool closing = false;
+        } animation;
 
       public:
-        PopupComponent(const std::string& title, const std::string& msg)
-            : title(title)
-            , message(msg)
-            , visible(true) {};
+        PopupComponent(
+            const std::string& title,
+            const std::string& msg,
+            const std::string& id = ""
+        );
 
-        void addCallback(callback_t callback);
-        void addCancelCallback(callback_t callback);
-        void setVisible(bool v);
-        bool isVisible();
         void render() override;
-        void handleButtonInput(int id) override;
         bool handleInput(const IO::Input::InputState& state) override;
+        void update(float deltaTime) override;
+        void updateLayout() override;
+
+        void addButton(
+            const std::string& label,
+            std::function<void()> callback,
+            raylib::Color bg = Theme::PRIMARY,
+            raylib::Color fg = Theme::PRIMARY_FOREGROUND
+        );
+
+        void show();
+        void close();
+
+        void setTitle(const std::string& newTitle);
+        void setMessage(const std::string& newMessage);
+    };
+
+    enum class Alignment { Left, Center, Right, Top, Middle, Bottom };
+    struct LayoutOptions {
+        float spacing = Theme::MARGIN;
+        Alignment horizontalAlign = Alignment::Center;
+        Alignment verticalAlign = Alignment::Middle;
+        float padding = Theme::MARGIN;
+    };
+
+    class LayoutManager {
+      public:
+        static void layoutHorizontal(
+            std::vector<Component*>& components,
+            const raylib::Rectangle& bounds,
+            const LayoutOptions& options = LayoutOptions{}
+        );
+
+        static void layoutVertical(
+            std::vector<Component*>& components,
+            const raylib::Rectangle& bounds,
+            const LayoutOptions& options = LayoutOptions{}
+        );
+
+        static void layoutGrid(
+            std::vector<Component*>& components,
+            const raylib::Rectangle& bounds,
+            int columns,
+            const LayoutOptions& options = LayoutOptions{}
+        );
     };
 } // namespace OpenWars::UI

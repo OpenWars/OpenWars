@@ -1,8 +1,5 @@
 #pragma once
 
-#include <memory>
-#include <vector>
-
 namespace raylib {
 #include "raylib.h"
 }
@@ -19,30 +16,13 @@ namespace OpenWars::IO::Input {
         bool pressingRight = false;
     };
 
-    class BaseHandler {
-      public:
-        virtual ~BaseHandler() = default;
-
-        virtual void handle(const InputState& state) = 0;
-    };
-
-    class PollHandler {
-        std::vector<std::unique_ptr<BaseHandler>> boundHandlers;
+    class Handler {
         InputState state;
 
       public:
-        PollHandler() {
-        }
-
-        template <typename T, typename... Args>
-        void addHandler(Args&&... args) {
-            boundHandlers.push_back(
-                std::make_unique<T>(std::forward<Args>(args)...)
-            );
+        Handler() {
         }
 
         void poll();
-        void handle();
     };
-
 } // namespace OpenWars::IO::Input

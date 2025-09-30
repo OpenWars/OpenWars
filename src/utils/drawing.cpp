@@ -106,32 +106,3 @@ void OpenWars::Utils::Drawing::drawTextWrapped(
         raylib::DrawText(line.c_str(), x, currentY, fontSize, color);
     }
 }
-
-void OpenWars::Utils::Drawing::renderButtons(
-    const raylib::Vector2& parallelogramPos,
-    const std::vector<OpenWars::UI::ButtonComponent*>& buttons,
-    float width,
-    float buttonAreaHeight
-) {
-    const float BUTTON_SPACING = 8.0f;
-    const float ROW_SPACING = 4.0f;
-    const float SIDE_MARGIN = 10.0f;
-
-    float availableWidth = width - (SIDE_MARGIN * 2);
-    float currentX = parallelogramPos.x + SIDE_MARGIN;
-    float currentY = parallelogramPos.y - buttonAreaHeight + 10.0f;
-
-    for(auto& button : buttons) {
-        if(button->position.x == 0.f && button->position.y == 0.f) {
-            if(currentX + button->width >
-               parallelogramPos.x + SIDE_MARGIN + availableWidth) {
-                currentX = parallelogramPos.x + SIDE_MARGIN;
-                currentY += button->height + ROW_SPACING;
-            }
-
-            button->position = raylib::Vector2{currentX, currentY};
-            currentX += button->width + BUTTON_SPACING;
-        }
-        button->render();
-    }
-}

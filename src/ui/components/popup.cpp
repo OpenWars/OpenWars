@@ -1,47 +1,137 @@
 #include "../../utils/drawing.hpp"
-#include "../../utils/math.hpp"
 #include "../colors.hpp"
 #include "components.hpp"
+#include <algorithm>
 
-void OpenWars::UI::PopupComponent::setVisible(bool v) {
-    visible = v;
+OpenWars::UI::PopupComponent::PopupComponent(
+    const std::string& title,
+    const std::string& msg,
+    const std::string& id
+)
+    : Component(id)
+    , title(title)
+    , message(msg) {
+    // begin hidden
+    state.visible = false;
+
+    layoutCache.width = raylib::GetScreenWidth() * 0.666f;
+    layoutCache.height = raylib::GetScreenHeight() / 2.0f;
 }
-bool OpenWars::UI::PopupComponent::isVisible() {
-    return visible;
+
+void OpenWars::UI::PopupComponent::updateLayout() {
+    layoutCache.position = {
+        (raylib::GetScreenWidth() - layoutCache.width - Theme::SKEW) / 2.0f,
+        (raylib::GetScreenHeight() + layoutCache.height) / 2.0f
+    };
+
+    state.bounds = {
+        layoutCache.position.x,
+        layoutCache.position.y - layoutCache.height,
+        layoutCache.width + Theme::SKEW,
+        layoutCache.height
+    };
+
+    // buttons
+    if(!buttons.empty()) {
+        float buttonAreaHeight = 60.0f;
+        float buttonY =
+            layoutCache.position.y - buttonAreaHeight + Theme::MARGIN;
+        float totalButtonWidth = 0;
+
+        for(const auto& btn : buttons) {
+            totalButtonWidth += btn->getBounds().width + Theme::MARGIN;
+        }
+        totalButtonWidth -= Theme::MARGIN;
+
+        float buttonX =
+            layoutCache.position.x +
+            (layoutCache.width + Theme::SKEW - totalButtonWidth) / 2.0f;
+
+        for(auto& btn : buttons) {
+            btn->setBounds(
+                buttonX,
+                buttonY,
+                btn->getBounds().width,
+                btn->getBounds().height
+            );
+            buttonX += btn->getBounds().width + Theme::MARGIN;
+        }
+    }
+
+    layoutCache.valid = true;
+}
+
+void OpenWars::UI::PopupComponent::update(float deltaTime) {
+    if(!layoutCache.valid) {
+        updateLayout();
+    }
+
+    float targetProgress = (state.visible && !animation.closing) ? 1.0f : 0.0f;
+    float animSpeed = 8.0f;
+
+    animation.showProgress +=
+        (targetProgress - animation.showProgress) * deltaTime * animSpeed;
+
+    state.animating = std::abs(animation.showProgress - targetProgress) > 0.01f;
+
+    if(animation.closing && animation.showProgress < 0.01f) {
+        state.visible = false;
+        animation.closing = false;
+    }
+
+    for(auto& btn : buttons) {
+        btn->update(deltaTime);
+    }
 }
 
 void OpenWars::UI::PopupComponent::render() {
-    if(!visible)
+    if(!state.visible || animation.showProgress < 0.01f)
         return;
 
-    // Layout
-    raylib::Vector2 centerPos = {
-        (raylib::GetScreenWidth() - width - Theme::SKEW) / 2.0f,
-        (raylib::GetScreenHeight() + height) / 2.0f
+    raylib::DrawRectangle(
+        0,
+        0,
+        raylib::GetScreenWidth(),
+        raylib::GetScreenHeight(),
+        raylib::ColorAlpha(Colors::ZINC_950, 0.5f * animation.showProgress)
+    );
+
+    float scale = 0.9f + 0.1f * animation.showProgress;
+    float yOffset = (1.0f - animation.showProgress) * 50.0f;
+
+    raylib::Vector2 pos = {
+        layoutCache.position.x,
+        layoutCache.position.y + yOffset
     };
 
-    // Layout - Shadow
-    raylib::Vector2 shadowOffset = {centerPos.x + 3, centerPos.y + 3};
+    float width = layoutCache.width * scale;
+    float height = layoutCache.height * scale;
+
+    pos.x += (layoutCache.width - width) / 2.0f;
+    pos.y += (layoutCache.height - height) / 2.0f;
+
+    float shadowAlpha = animation.showProgress;
+    raylib::Vector2 shadowOffset = {pos.x + 3, pos.y + 3};
     Utils::Drawing::drawParallelogram(
         shadowOffset,
         width,
         height,
         Theme::SKEW,
-        Colors::ZINC_600
+        raylib::ColorAlpha(Colors::ZINC_600, shadowAlpha)
     );
 
-    // Layout - Background
+    // Background
     Utils::Drawing::drawParallelogram(
-        centerPos,
+        pos,
         width,
         height,
         Theme::SKEW,
         Colors::ZINC_800
     );
 
-    // Layout - Outline
+    // Outline
     Utils::Drawing::drawParallelogramOutline(
-        centerPos,
+        pos,
         width,
         height,
         Theme::SKEW,
@@ -49,27 +139,15 @@ void OpenWars::UI::PopupComponent::render() {
         2
     );
 
-    // Title
-    int titleSize = 22;
-    float textAreaWidth = width - (Theme::MARGIN * 2);
-    int textWidth = raylib::MeasureText(title.c_str(), titleSize);
-
-    float centerX = centerPos.x + (width + Theme::SKEW) / 2.0f;
-    float topY = centerPos.y - height + Theme::MARGIN + 32;
-
-    raylib::Vector2 titlePos = {
-        centerX - textWidth / 2.0f,
-        centerPos.y - height + Theme::MARGIN - 6
-    };
-
-    // Title - Background
-    float titleBarY = centerPos.y - height + 32;
+    // Title bar
+    float titleBarY = pos.y - height + 32;
     float heightFromTop = 32;
     float skewOffsetAtTitleBar = (heightFromTop / height) * Theme::SKEW;
     raylib::Vector2 titleBarPos = {
-        centerPos.x + Theme::SKEW - skewOffsetAtTitleBar,
+        pos.x + Theme::SKEW - skewOffsetAtTitleBar,
         titleBarY
     };
+
     Utils::Drawing::drawParallelogram(
         titleBarPos,
         width,
@@ -77,6 +155,16 @@ void OpenWars::UI::PopupComponent::render() {
         skewOffsetAtTitleBar,
         Colors::ZINC_600
     );
+
+    // Title text
+    int titleSize = 22;
+    int textWidth = raylib::MeasureText(title.c_str(), titleSize);
+    float centerX = pos.x + (width + Theme::SKEW) / 2.0f;
+
+    raylib::Vector2 titlePos = {
+        centerX - textWidth / 2.0f,
+        pos.y - height + Theme::MARGIN - 6
+    };
 
     raylib::DrawText(
         title.c_str(),
@@ -86,72 +174,126 @@ void OpenWars::UI::PopupComponent::render() {
         Colors::ZINC_200
     );
 
-    // Content
+    // Content with fade
+    float contentAlpha = std::max(0.0f, (animation.showProgress - 0.3f) / 0.7f);
+    float topY = pos.y - height + Theme::MARGIN + 32;
+    float textAreaWidth = width - (Theme::MARGIN * 2);
+
+    // Temporarily set alpha for text drawing
+    raylib::Color textColor = Colors::ZINC_100;
+    textColor.a = (unsigned char)(255 * contentAlpha);
+
     Utils::Drawing::drawTextWrapped(
         message,
         (int)(centerX - textAreaWidth / 2) + Theme::SKEW,
         (int)topY,
         (int)textAreaWidth,
         16,
-        Colors::ZINC_100
+        textColor
     );
 
-    // Buttons
+    // Render buttons with stagger animation
+    float buttonAlpha = std::max(0.0f, (animation.showProgress - 0.5f) / 0.5f);
+    for(size_t i = 0; i < buttons.size(); ++i) {
+        float staggerDelay = i * 0.1f;
+        float btnAlpha = std::max(
+            0.0f,
+            (buttonAlpha - staggerDelay) / (1.0f - staggerDelay)
+        );
 
-    if(cb) {
-        buttons.push_back(new ButtonComponent("Ok", {0, 0}, this, 0));
-    }
-
-    buttons.push_back(new ButtonComponent(
-        "Cancel",
-        {0, 0},
-        this,
-        1,
-        Theme::SECONDARY,
-        Theme::SECONDARY_FOREGROUND
-    ));
-
-    Utils::Drawing::renderButtons(
-        centerPos,
-        buttons,
-        width,
-        Utils::Math::calculateButtonAreaHeight(buttons)
-    );
-}
-
-void OpenWars::UI::PopupComponent::handleButtonInput(int id) {
-    if(id == 0) {
-        if(cancelCb) {
-            cancelCb(this);
-        } else {
-            visible = false;
+        if(btnAlpha > 0.01f) {
+            // TODO (????)
+            buttons[i]->render();
         }
     }
-
-    if(id == 1 && cb) {
-        cb(this);
-    }
-};
-
-void OpenWars::UI::PopupComponent::addCallback(callback_t callback) {
-    cb = callback;
-}
-
-void OpenWars::UI::PopupComponent::addCancelCallback(callback_t callback) {
-    cancelCb = callback;
 }
 
 bool OpenWars::UI::PopupComponent::handleInput(
     const IO::Input::InputState& state
 ) {
-    if(!visible)
+    if(animation.showProgress < 0.5f)
         return false;
 
+    // Check if click is outside popup (for closing)
+    bool clickedOutside = false;
+    if(state.pressingLeft) {
+        clickedOutside =
+            !raylib::CheckCollisionPointRec(state.mousePos, getBounds());
+    }
+
+    // Handle button input
     bool consumed = false;
-    for(auto button : buttons) {
-        if(button->handleInput(state)) {
+    for(auto& btn : buttons) {
+        if(btn->handleInput(state)) {
             consumed = true;
+            break;
         }
     }
+
+    // Close on outside click if no button handled it
+    if(!consumed && clickedOutside) {
+        close();
+        return true;
+    }
+
     return consumed;
+}
+
+void OpenWars::UI::PopupComponent::show() {
+    state.visible = true;
+    animation.closing = false;
+    animation.showProgress = 0.0f;
+    layoutCache.valid = false;
+    invalidate();
+
+    // Bring to front if we have a parent handler
+    if(parentHandler) {
+        parentHandler->bringToFront(this);
+    }
+}
+
+void OpenWars::UI::PopupComponent::close() {
+    animation.closing = true;
+    invalidate();
+
+    // Dispatch close event
+    dispatchEvent(EventType::Change);
+}
+
+void OpenWars::UI::PopupComponent::addButton(
+    const std::string& label,
+    std::function<void()> callback,
+    raylib::Color bg,
+    raylib::Color fg
+) {
+    auto btn = std::make_unique<ButtonComponent>(
+        label,
+        raylib::Vector2{0, 0}, // position set by layout
+        id + "_btn_" + std::to_string(buttons.size()),
+        bg,
+        fg
+    );
+
+    btn->onClick([this, callback]() {
+        callback();
+        close();
+    });
+
+    buttons.push_back(std::move(btn));
+    layoutCache.valid = false;
+    invalidate();
+}
+
+void OpenWars::UI::PopupComponent::setTitle(const std::string& newTitle) {
+    if(title != newTitle) {
+        title = newTitle;
+        invalidate();
+    }
+}
+
+void OpenWars::UI::PopupComponent::setMessage(const std::string& newMessage) {
+    if(message != newMessage) {
+        message = newMessage;
+        invalidate();
+    }
 }

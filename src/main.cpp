@@ -3,7 +3,7 @@
 #include "io/graphics/graphics.hpp"
 #include "io/input/input.hpp"
 #include "io/log/logging.hpp"
-#include "ui/ui.hpp"
+#include <raylib.h>
 
 using namespace OpenWars;
 
@@ -26,18 +26,14 @@ int main() {
 
     Game::SceneManager sceneManager;
     Game::MenuScene scene;
-    IO::Input::PollHandler input;
+    IO::Input::Handler input;
     sceneManager.changeTo(scene);
-
-    input.addHandler<UI::InputHandler>(
-        sceneManager.getCurrent().getUIHandler()
-    );
 
     while(!IO::Graphics::shouldClose()) {
         input.poll();
-        input.handle();
         IO::Graphics::beginFrame();
-        sceneManager.getCurrent().render();
+        sceneManager.render();
+        sceneManager.update(raylib::GetFrameTime());
         IO::Graphics::displayDebug(
             cfg.graphics.displayDebugInfo,
             cfg.graphics.showFps
