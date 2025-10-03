@@ -1,15 +1,16 @@
 #include "../../utils/drawing.hpp"
 #include "components.hpp"
 #include <cmath>
-#include <raylib.h>
 #include <algorithm>
+
+using namespace OpenWars::IO::Graphics;
 
 OpenWars::UI::ButtonComponent::ButtonComponent(
     const std::string& label,
-    raylib::Vector2 position,
+    Vector2 position,
     const std::string& id,
-    raylib::Color bg,
-    raylib::Color fg
+    Color bg,
+    Color fg
 )
     : Component(id)
     , label(label)
@@ -17,7 +18,7 @@ OpenWars::UI::ButtonComponent::ButtonComponent(
     , foreground(fg) {
     // calc size based on text
     int fontSize = 14;
-    int textWidth = raylib::MeasureText(label.c_str(), fontSize);
+    int textWidth = measureText(label.c_str(), fontSize);
 
     layout.width = textWidth + Theme::MARGIN * 2;
     layout.height = 28;
@@ -74,18 +75,16 @@ void OpenWars::UI::ButtonComponent::render() {
     float hoverFactor = animation.hoverProgress * 0.2f;
     float clickOffset = animation.clickProgress * 2.0f;
 
-    raylib::Color bg = raylib::ColorBrightness(background, hoverFactor);
-    raylib::Color outline =
-        raylib::ColorBrightness(Colors::ZINC_500, hoverFactor);
-    raylib::Color shadow =
-        raylib::ColorBrightness(Colors::ZINC_600, hoverFactor);
+    Color bg = colorBrightness(background, hoverFactor);
+    Color outline = colorBrightness(Colors::ZINC_500, hoverFactor);
+    Color shadow = colorBrightness(Colors::ZINC_600, hoverFactor);
 
     // apply click offset
-    raylib::Vector2 renderPos = {layout.x, layout.y + clickOffset};
+    Vector2 renderPos = {layout.x, layout.y + clickOffset};
 
     // shadow (less offset when clicked)
     float shadowOffset = 3.0f * (1.0f - animation.clickProgress * 0.5f);
-    raylib::Vector2 shadowPos = {
+    Vector2 shadowPos = {
         renderPos.x + shadowOffset,
         renderPos.y + shadowOffset
     };
@@ -102,8 +101,7 @@ void OpenWars::UI::ButtonComponent::render() {
     }
 
     // background
-    raylib::Color finalBg =
-        state.enabled ? bg : raylib::ColorBrightness(bg, -0.3f);
+    Color finalBg = state.enabled ? bg : colorBrightness(bg, -0.3f);
     Utils::Drawing::drawParallelogram(
         renderPos,
         layout.width,
@@ -127,21 +125,12 @@ void OpenWars::UI::ButtonComponent::render() {
     float centerY = renderPos.y - layout.height / 2.0f;
 
     int fontSize = 14;
-    int textWidth = raylib::MeasureText(label.c_str(), fontSize);
-    raylib::Vector2 labelPos = {
-        centerX - textWidth / 2.0f,
-        centerY - fontSize / 2.0f
-    };
+    int textWidth = measureText(label.c_str(), fontSize);
+    Vector2 labelPos = {centerX - textWidth / 2.0f, centerY - fontSize / 2.0f};
 
-    raylib::Color textColor =
-        state.enabled ? foreground : raylib::ColorBrightness(foreground, -0.4f);
-    raylib::DrawText(
-        label.c_str(),
-        labelPos.x,
-        labelPos.y,
-        fontSize,
-        textColor
-    );
+    Color textColor =
+        state.enabled ? foreground : colorBrightness(foreground, -0.4f);
+    drawText(label.c_str(), labelPos.x, labelPos.y, fontSize, textColor);
 
     // focus indicator
     if(state.focused && state.enabled) {
@@ -150,9 +139,9 @@ void OpenWars::UI::ButtonComponent::render() {
             layout.width,
             layout.height,
             skew,
-            raylib::ColorAlpha(
+            colorAlpha(
                 Colors::GREEN_400,
-                0.5f + 0.5f * std::sin(raylib::GetTime() * 3)
+                0.5f + 0.5f * std::sin(getTime() * 3)
             ),
             2.0f
         );
@@ -160,22 +149,20 @@ void OpenWars::UI::ButtonComponent::render() {
 }
 
 bool OpenWars::UI::ButtonComponent::handleInput(
-    const IO::Input::InputState& state
+    const IO::Input::InputState& inputState
 ) {
-    /*if(!enabled)
-        return false;*/
-
     wasHovered = isHovered;
-    isHovered = raylib::CheckCollisionPointRec(state.mousePos, getBounds());
+    isHovered = checkCollisionPointRec(inputState.mousePos, getBounds());
 
     // Dispatch hover events
     if(isHovered != wasHovered) {
         dispatchEvent(isHovered ? EventType::Hover : EventType::Blur);
+        state.hovered = isHovered;
         invalidate();
     }
 
     // Handle click
-    if(isHovered && state.pressingLeft) {
+    if(isHovered && inputState.pressingLeft) {
         // Trigger click animation
         animation.clickProgress = 1.0f;
 
@@ -195,7 +182,7 @@ void OpenWars::UI::ButtonComponent::setLabel(const std::string& newLabel) {
 
         // Recalculate size
         int fontSize = 14;
-        int textWidth = raylib::MeasureText(label.c_str(), fontSize);
+        int textWidth = measureText(label.c_str(), fontSize);
         layout.width = textWidth + Theme::MARGIN * 2;
 
         updateLayout();

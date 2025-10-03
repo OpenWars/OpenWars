@@ -3,7 +3,6 @@
 #include "io/graphics/graphics.hpp"
 #include "io/input/input.hpp"
 #include "io/log/logging.hpp"
-#include <raylib.h>
 
 using namespace OpenWars;
 
@@ -15,7 +14,7 @@ int main() {
 
     if(!cfg.load()) {
         cfg.graphics.multisampling = false;
-        cfg.graphics.vsync = 2;
+        cfg.graphics.vsync = 1;
         cfg.graphics.showFps = true;
         cfg.graphics.displayDebugInfo = true;
 
@@ -33,7 +32,7 @@ int main() {
         input.poll();
         IO::Graphics::beginFrame();
         sceneManager.render();
-        sceneManager.update(raylib::GetFrameTime());
+        sceneManager.update(IO::Graphics::getFrameTime());
         IO::Graphics::displayDebug(
             cfg.graphics.displayDebugInfo,
             cfg.graphics.showFps
@@ -41,4 +40,6 @@ int main() {
         IO::Graphics::swapBuffers();
     }
     IO::Graphics::exit();
+
+    return 0;
 }

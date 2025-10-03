@@ -4,3 +4,4 @@ out/
 .vscode/
 *.o
 tmp/
+cmake/

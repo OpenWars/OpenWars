@@ -1,6 +1,9 @@
 #include "../../ui/components/components.hpp"
+#include "../../ui/colors.hpp"
 #include "scene.hpp"
 #include <memory>
+
+using namespace OpenWars::IO::Graphics;
 
 OpenWars::Game::MenuScene::MenuScene()
     : Scene("MainMenu") {
@@ -8,10 +11,9 @@ OpenWars::Game::MenuScene::MenuScene()
 }
 
 void OpenWars::Game::MenuScene::createUI() {
-    // TODO
     auto startBtn = std::make_unique<UI::ButtonComponent>(
         "Start Game",
-        raylib::Vector2{100, 200},
+        Vector2{100, 200},
         "start_button"
     );
 
@@ -19,26 +21,31 @@ void OpenWars::Game::MenuScene::createUI() {
         if(!menuState.contentDownloaded) {
             showDownloadPrompt();
         } else {
+            // TODO: Start game
         }
     });
 
     auto optionsBtn = std::make_unique<UI::ButtonComponent>(
         "Options",
-        raylib::Vector2{100, 250},
+        Vector2{100, 250},
         "options_button"
     );
 
-    optionsBtn->onClick([]() {});
+    optionsBtn->onClick([]() {
+        // TODO: Open options
+    });
 
     auto exitBtn = std::make_unique<UI::ButtonComponent>(
         "Exit",
-        raylib::Vector2{100, 300},
+        Vector2{100, 300},
         "exit_button",
         UI::Theme::SECONDARY,
         UI::Theme::SECONDARY_FOREGROUND
     );
 
-    exitBtn->onClick([]() {});
+    exitBtn->onClick([]() {
+        // TODO: Exit game
+    });
 
     uiHandler->addComponent(std::move(startBtn));
     uiHandler->addComponent(std::move(optionsBtn));
@@ -75,20 +82,19 @@ void OpenWars::Game::MenuScene::onEnter() {
 
 void OpenWars::Game::MenuScene::update(float deltaTime) {
     Scene::update(deltaTime);
-
     // maybe animations here?
 }
 
 void OpenWars::Game::MenuScene::render() {
-    raylib::ClearBackground(UI::Colors::ZINC_900);
+    clearBackground(UI::Colors::ZINC_900);
 
     const char* title = "OpenWars";
     int titleSize = 48;
-    int titleWidth = raylib::MeasureText(title, titleSize);
+    int titleWidth = measureText(title, titleSize);
 
-    raylib::DrawText(
+    drawText(
         title,
-        raylib::GetScreenWidth() / 2 - titleWidth / 2,
+        getScreenWidth() / 2 - titleWidth / 2,
         50,
         titleSize,
         UI::Colors::GREEN_400

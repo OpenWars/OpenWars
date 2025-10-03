@@ -1,30 +1,39 @@
 #pragma once
 
 #include <cstdarg>
-
-namespace raylib {
-#include "raylib.h"
-}
+#include <SDL3/SDL.h>
 
 namespace OpenWars::IO::Logging {
+    enum LogLevel {
+        LOG_INFO = SDL_LOG_PRIORITY_INFO,
+        LOG_WARNING = SDL_LOG_PRIORITY_WARN,
+        LOG_ERROR = SDL_LOG_PRIORITY_ERROR,
+        LOG_DEBUG = SDL_LOG_PRIORITY_DEBUG,
+        LOG_FATAL = SDL_LOG_PRIORITY_CRITICAL
+    };
+
     void init();
 
     template <typename... Args> void log(const char* fmt, Args... args) {
-        TraceLog(raylib::LOG_INFO, fmt, args...);
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, fmt, args...);
     }
 
     template <typename... Args> void warn(const char* fmt, Args... args) {
-        TraceLog(raylib::LOG_WARNING, fmt, args...);
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, fmt, args...);
     }
 
     template <typename... Args> void debug(const char* fmt, Args... args) {
-        TraceLog(raylib::LOG_DEBUG, fmt, args...);
+        SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, fmt, args...);
     }
 
     template <typename... Args>
     void error(bool fatal, const char* fmt, Args... args) {
-        TraceLog(fatal ? raylib::LOG_FATAL : raylib::LOG_ERROR, fmt, args...);
+        if(fatal) {
+            SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, fmt, args...);
+        } else {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, fmt, args...);
+        }
     }
 
-    void out(int type, const char* message, std::va_list args);
+    void out(int priority, const char* message, std::va_list args);
 } // namespace OpenWars::IO::Logging

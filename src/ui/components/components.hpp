@@ -5,15 +5,11 @@
 #include <string>
 #include <functional>
 
-namespace raylib {
-#include "raylib.h"
-}
-
 namespace OpenWars::UI {
     class ButtonComponent : public Component {
         std::string label;
-        raylib::Color background;
-        raylib::Color foreground;
+        IO::Graphics::Color background;
+        IO::Graphics::Color foreground;
         bool isHovered;
         bool wasHovered;
 
@@ -25,10 +21,10 @@ namespace OpenWars::UI {
       public:
         ButtonComponent(
             const std::string& label,
-            raylib::Vector2 position,
+            IO::Graphics::Vector2 position,
             const std::string& id = "",
-            raylib::Color background = Theme::PRIMARY,
-            raylib::Color foreground = Theme::PRIMARY_FOREGROUND
+            IO::Graphics::Color background = Theme::PRIMARY,
+            IO::Graphics::Color foreground = Theme::PRIMARY_FOREGROUND
         );
 
         void render() override;
@@ -52,7 +48,7 @@ namespace OpenWars::UI {
         struct {
             float width;
             float height;
-            raylib::Vector2 position;
+            IO::Graphics::Vector2 position;
             bool valid = false;
         } layoutCache;
 
@@ -76,8 +72,8 @@ namespace OpenWars::UI {
         void addButton(
             const std::string& label,
             std::function<void()> callback,
-            raylib::Color bg = Theme::PRIMARY,
-            raylib::Color fg = Theme::PRIMARY_FOREGROUND
+            IO::Graphics::Color bg = Theme::PRIMARY,
+            IO::Graphics::Color fg = Theme::PRIMARY_FOREGROUND
         );
 
         void show();
@@ -99,19 +95,19 @@ namespace OpenWars::UI {
       public:
         static void layoutHorizontal(
             std::vector<Component*>& components,
-            const raylib::Rectangle& bounds,
+            const IO::Graphics::Rectangle& bounds,
             const LayoutOptions& options = LayoutOptions{}
         );
 
         static void layoutVertical(
             std::vector<Component*>& components,
-            const raylib::Rectangle& bounds,
+            const IO::Graphics::Rectangle& bounds,
             const LayoutOptions& options = LayoutOptions{}
         );
 
         static void layoutGrid(
             std::vector<Component*>& components,
-            const raylib::Rectangle& bounds,
+            const IO::Graphics::Rectangle& bounds,
             int columns,
             const LayoutOptions& options = LayoutOptions{}
         );

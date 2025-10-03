@@ -1,10 +1,7 @@
 #pragma once
 
 #include "colors.hpp"
-
-namespace raylib {
-#include "raylib.h"
-}
+#include "../io/graphics/graphics.hpp"
 
 namespace OpenWars::UI::Theme {
     // Spacing
@@ -12,9 +9,9 @@ namespace OpenWars::UI::Theme {
     const float MARGIN = 12.f;
 
     // Colors
-    const raylib::Color PRIMARY = Colors::GREEN_950;
-    const raylib::Color PRIMARY_FOREGROUND = Colors::GREEN_100;
+    const IO::Graphics::Color PRIMARY = Colors::GREEN_950;
+    const IO::Graphics::Color PRIMARY_FOREGROUND = Colors::GREEN_100;
 
-    const raylib::Color SECONDARY = Colors::ZINC_700;
-    const raylib::Color SECONDARY_FOREGROUND = Colors::ZINC_300;
+    const IO::Graphics::Color SECONDARY = Colors::ZINC_700;
+    const IO::Graphics::Color SECONDARY_FOREGROUND = Colors::ZINC_300;
 } // namespace OpenWars::UI::Theme

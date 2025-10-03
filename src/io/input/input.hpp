@@ -1,8 +1,7 @@
 #pragma once
 
-namespace raylib {
-#include "raylib.h"
-}
+#include "../graphics/graphics.hpp"
+#include <SDL3/SDL.h>
 
 namespace OpenWars::IO::Input {
     struct InputState {
@@ -11,7 +10,7 @@ namespace OpenWars::IO::Input {
         bool S = false;
         bool D = false;
 
-        raylib::Vector2 mousePos = {0, 0};
+        Graphics::Vector2 mousePos = {0, 0};
         bool pressingLeft = false;
         bool pressingRight = false;
     };
@@ -24,5 +23,9 @@ namespace OpenWars::IO::Input {
         }
 
         void poll();
+
+        const InputState& getState() const {
+            return state;
+        }
     };
 } // namespace OpenWars::IO::Input

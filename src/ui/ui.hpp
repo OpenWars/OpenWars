@@ -6,10 +6,7 @@
 #include <string>
 #include <functional>
 #include "../io/input/input.hpp"
-
-namespace raylib {
-#include "raylib.h"
-}
+#include "../io/graphics/graphics.hpp"
 
 namespace OpenWars::UI {
     // Forward declarations
@@ -32,7 +29,7 @@ namespace OpenWars::UI {
         bool focused = false;
         bool hovered = false;
         bool animating = false;
-        raylib::Rectangle bounds = {0, 0, 0, 0};
+        IO::Graphics::Rectangle bounds = {0, 0, 0, 0};
         float opacity = 1.0f;
     };
 
@@ -117,7 +114,7 @@ namespace OpenWars::UI {
             invalidate();
         }
 
-        raylib::Rectangle getBounds() const {
+        IO::Graphics::Rectangle getBounds() const {
             return state.bounds;
         }
 

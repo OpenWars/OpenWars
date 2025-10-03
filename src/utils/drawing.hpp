@@ -1,33 +1,30 @@
 #pragma once
 
 #include <string>
-
-namespace raylib {
-#include "raylib.h"
-}
+#include "../io/graphics/graphics.hpp"
 
 namespace OpenWars::Utils::Drawing {
     void drawParallelogram(
-        raylib::Vector2 position,
+        IO::Graphics::Vector2 position,
         float width,
         float height,
         float skew,
-        raylib::Color color
+        IO::Graphics::Color color
     );
     void drawParallelogramOutline(
-        raylib::Vector2 position,
+        IO::Graphics::Vector2 position,
         float width,
         float height,
         float skew,
-        raylib::Color color,
+        IO::Graphics::Color color,
         float thickness
     );
     bool pointInQuad(
-        raylib::Vector2 p,
-        raylib::Vector2 a,
-        raylib::Vector2 b,
-        raylib::Vector2 c,
-        raylib::Vector2 d
+        IO::Graphics::Vector2 p,
+        IO::Graphics::Vector2 a,
+        IO::Graphics::Vector2 b,
+        IO::Graphics::Vector2 c,
+        IO::Graphics::Vector2 d
     );
     void drawTextWrapped(
         const std::string& text,
@@ -35,6 +32,6 @@ namespace OpenWars::Utils::Drawing {
         int y,
         int maxWidth,
         int fontSize,
-        raylib::Color color
+        IO::Graphics::Color color
     );
 } // namespace OpenWars::Utils::Drawing
