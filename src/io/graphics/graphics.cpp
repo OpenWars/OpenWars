@@ -148,6 +148,8 @@ namespace OpenWars::IO::Graphics {
                 "/usr/share/fonts/liberation/LiberationSans-Regular.ttf",
                 size
             );
+            TTF_SetFontHinting(fonts[size], TTF_HINTING_NORMAL);
+            TTF_SetFontStyle(fonts[size], TTF_STYLE_NORMAL);
             /*
             For MacOS?
             if(!fonts[size]) {
@@ -164,8 +166,7 @@ namespace OpenWars::IO::Graphics {
             return;
 
         SDL_Color sdlColor = {color.r, color.g, color.b, color.a};
-        SDL_Surface* surface =
-            TTF_RenderText_Blended(font, text, sizeof(text), sdlColor);
+        SDL_Surface* surface = TTF_RenderText_Blended(font, text, 0, sdlColor);
         if(!surface)
             return;
 
@@ -239,7 +240,7 @@ namespace OpenWars::IO::Graphics {
             return 0;
 
         int w = 0;
-        TTF_GetStringSize(font, text, sizeof(text), &w, nullptr);
+        TTF_GetStringSize(font, text, 0, &w, nullptr);
         return w;
     }
 
