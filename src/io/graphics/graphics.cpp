@@ -148,8 +148,6 @@ namespace OpenWars::IO::Graphics {
                 "/usr/share/fonts/liberation/LiberationSans-Regular.ttf",
                 size
             );
-            TTF_SetFontHinting(fonts[size], TTF_HINTING_NORMAL);
-            TTF_SetFontStyle(fonts[size], TTF_STYLE_NORMAL);
             /*
             For MacOS?
             if(!fonts[size]) {
