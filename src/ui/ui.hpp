@@ -6,7 +6,7 @@
 #include <string>
 #include <functional>
 #include "../io/input/input.hpp"
-#include "../io/graphics/graphics.hpp"
+#include "../core/drawing/shapes.hpp"
 
 namespace OpenWars::UI {
     // Forward declarations
@@ -29,7 +29,7 @@ namespace OpenWars::UI {
         bool focused = false;
         bool hovered = false;
         bool animating = false;
-        IO::Graphics::Rectangle bounds = {0, 0, 0, 0};
+        Drawing::Rectangle bounds = {0, 0, 0, 0};
         float opacity = 1.0f;
     };
 
@@ -114,7 +114,7 @@ namespace OpenWars::UI {
             invalidate();
         }
 
-        IO::Graphics::Rectangle getBounds() const {
+        Drawing::Rectangle getBounds() const {
             return state.bounds;
         }
 

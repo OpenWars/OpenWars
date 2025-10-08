@@ -1,7 +1,10 @@
 #include "drawing.hpp"
+#include "../core/drawing/shapes.hpp"
+#include "../core/drawing/collision.hpp"
+#include "../core/drawing/text.hpp"
 #include <cstddef>
 
-using namespace OpenWars::IO::Graphics;
+using namespace OpenWars::Drawing;
 
 void OpenWars::Utils::Drawing::drawParallelogram(
     Vector2 position,
@@ -49,6 +52,7 @@ bool OpenWars::Utils::Drawing::pointInQuad(
            checkCollisionPointTriangle(p, c, d, a);
 }
 
+// is this needed?
 void OpenWars::Utils::Drawing::drawTextWrapped(
     const std::string& text,
     int x,

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "colors.hpp"
-#include "../io/graphics/graphics.hpp"
+#include "../core/colors.hpp"
 
 namespace OpenWars::UI::Theme {
     // Spacing
@@ -9,9 +8,9 @@ namespace OpenWars::UI::Theme {
     const float MARGIN = 12.f;
 
     // Colors
-    const IO::Graphics::Color PRIMARY = Colors::GREEN_950;
-    const IO::Graphics::Color PRIMARY_FOREGROUND = Colors::GREEN_100;
+    const Color PRIMARY = Colors::GREEN_950;
+    const Color PRIMARY_FOREGROUND = Colors::GREEN_100;
 
-    const IO::Graphics::Color SECONDARY = Colors::ZINC_700;
-    const IO::Graphics::Color SECONDARY_FOREGROUND = Colors::ZINC_300;
+    const Color SECONDARY = Colors::ZINC_700;
+    const Color SECONDARY_FOREGROUND = Colors::ZINC_300;
 } // namespace OpenWars::UI::Theme

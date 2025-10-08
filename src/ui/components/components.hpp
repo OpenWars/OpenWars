@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../ui.hpp"
+#include "../../core/drawing/shapes.hpp"
 #include "../theme.hpp"
 #include <string>
 #include <functional>
@@ -8,8 +9,8 @@
 namespace OpenWars::UI {
     class ButtonComponent : public Component {
         std::string label;
-        IO::Graphics::Color background;
-        IO::Graphics::Color foreground;
+        Color background;
+        Color foreground;
         bool isHovered;
         bool wasHovered;
 
@@ -21,10 +22,10 @@ namespace OpenWars::UI {
       public:
         ButtonComponent(
             const std::string& label,
-            IO::Graphics::Vector2 position,
+            Vector2 position,
             const std::string& id = "",
-            IO::Graphics::Color background = Theme::PRIMARY,
-            IO::Graphics::Color foreground = Theme::PRIMARY_FOREGROUND
+            Color background = Theme::PRIMARY,
+            Color foreground = Theme::PRIMARY_FOREGROUND
         );
 
         void render() override;
@@ -48,7 +49,7 @@ namespace OpenWars::UI {
         struct {
             float width;
             float height;
-            IO::Graphics::Vector2 position;
+            Vector2 position;
             bool valid = false;
         } layoutCache;
 
@@ -72,8 +73,8 @@ namespace OpenWars::UI {
         void addButton(
             const std::string& label,
             std::function<void()> callback,
-            IO::Graphics::Color bg = Theme::PRIMARY,
-            IO::Graphics::Color fg = Theme::PRIMARY_FOREGROUND
+            Color bg = Theme::PRIMARY,
+            Color fg = Theme::PRIMARY_FOREGROUND
         );
 
         void show();
@@ -95,19 +96,19 @@ namespace OpenWars::UI {
       public:
         static void layoutHorizontal(
             std::vector<Component*>& components,
-            const IO::Graphics::Rectangle& bounds,
+            const Drawing::Rectangle& bounds,
             const LayoutOptions& options = LayoutOptions{}
         );
 
         static void layoutVertical(
             std::vector<Component*>& components,
-            const IO::Graphics::Rectangle& bounds,
+            const Drawing::Rectangle& bounds,
             const LayoutOptions& options = LayoutOptions{}
         );
 
         static void layoutGrid(
             std::vector<Component*>& components,
-            const IO::Graphics::Rectangle& bounds,
+            const Drawing::Rectangle& bounds,
             int columns,
             const LayoutOptions& options = LayoutOptions{}
         );

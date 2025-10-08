@@ -1,5 +1,7 @@
 #include "../../ui/components/components.hpp"
-#include "../../ui/colors.hpp"
+#include "../../core/colors.hpp"
+#include "../../io/graphics/graphics.hpp"
+#include "../../core/drawing/text.hpp"
 #include "scene.hpp"
 #include <memory>
 
@@ -86,18 +88,18 @@ void OpenWars::Game::MenuScene::update(float deltaTime) {
 }
 
 void OpenWars::Game::MenuScene::render() {
-    clearBackground(UI::Colors::ZINC_900);
+    clearBackground(Colors::ZINC_900);
 
     const char* title = "OpenWars";
     int titleSize = 48;
-    int titleWidth = measureText(title, titleSize);
+    int titleWidth = Drawing::measureText(title, titleSize);
 
-    drawText(
+    Drawing::drawText(
         title,
         getScreenWidth() / 2 - titleWidth / 2,
         50,
         titleSize,
-        UI::Colors::GREEN_400
+        Colors::GREEN_400
     );
 
     Scene::render();

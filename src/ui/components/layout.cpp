@@ -1,10 +1,9 @@
 #include "components.hpp"
-
-using namespace OpenWars::IO::Graphics;
+#include "../../core/drawing/shapes.hpp"
 
 void OpenWars::UI::LayoutManager::layoutHorizontal(
     std::vector<Component*>& components,
-    const Rectangle& bounds,
+    const Drawing::Rectangle& bounds,
     const LayoutOptions& options
 ) {
     if(components.empty())
@@ -66,7 +65,7 @@ void OpenWars::UI::LayoutManager::layoutHorizontal(
 
 void OpenWars::UI::LayoutManager::layoutVertical(
     std::vector<Component*>& components,
-    const Rectangle& bounds,
+    const Drawing::Rectangle& bounds,
     const LayoutOptions& options
 ) {
     if(components.empty())
@@ -125,7 +124,7 @@ void OpenWars::UI::LayoutManager::layoutVertical(
 
 void OpenWars::UI::LayoutManager::layoutGrid(
     std::vector<Component*>& components,
-    const Rectangle& bounds,
+    const Drawing::Rectangle& bounds,
     int columns,
     const LayoutOptions& options
 ) {

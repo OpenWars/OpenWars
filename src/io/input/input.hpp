@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../graphics/graphics.hpp"
+#include "../../core/vector.hpp"
 #include <SDL3/SDL.h>
 
 namespace OpenWars::IO::Input {
@@ -10,7 +10,7 @@ namespace OpenWars::IO::Input {
         bool S = false;
         bool D = false;
 
-        Graphics::Vector2 mousePos = {0, 0};
+        Vector2 mousePos = {0, 0};
         bool pressingLeft = false;
         bool pressingRight = false;
     };

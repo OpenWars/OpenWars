@@ -1,9 +1,10 @@
 #include "../../utils/drawing.hpp"
+#include "../../core/drawing/text.hpp"
+#include "../../core/drawing/collision.hpp"
+#include "../../io/graphics/graphics.hpp"
 #include "components.hpp"
 #include <cmath>
 #include <algorithm>
-
-using namespace OpenWars::IO::Graphics;
 
 OpenWars::UI::ButtonComponent::ButtonComponent(
     const std::string& label,
@@ -18,7 +19,7 @@ OpenWars::UI::ButtonComponent::ButtonComponent(
     , foreground(fg) {
     // calc size based on text
     int fontSize = 14;
-    int textWidth = measureText(label.c_str(), fontSize);
+    int textWidth = Drawing::measureText(label.c_str(), fontSize);
 
     layout.width = textWidth + Theme::MARGIN * 2;
     layout.height = 28;
@@ -75,9 +76,9 @@ void OpenWars::UI::ButtonComponent::render() {
     float hoverFactor = animation.hoverProgress * 0.2f;
     float clickOffset = animation.clickProgress * 2.0f;
 
-    Color bg = colorBrightness(background, hoverFactor);
-    Color outline = colorBrightness(Colors::ZINC_500, hoverFactor);
-    Color shadow = colorBrightness(Colors::ZINC_600, hoverFactor);
+    Color bg = Colors::brightness(background, hoverFactor);
+    Color outline = Colors::brightness(Colors::ZINC_500, hoverFactor);
+    Color shadow = Colors::brightness(Colors::ZINC_600, hoverFactor);
 
     // apply click offset
     Vector2 renderPos = {layout.x, layout.y + clickOffset};
@@ -101,7 +102,7 @@ void OpenWars::UI::ButtonComponent::render() {
     }
 
     // background
-    Color finalBg = state.enabled ? bg : colorBrightness(bg, -0.3f);
+    Color finalBg = state.enabled ? bg : Colors::brightness(bg, -0.3f);
     Utils::Drawing::drawParallelogram(
         renderPos,
         layout.width,
@@ -125,12 +126,18 @@ void OpenWars::UI::ButtonComponent::render() {
     float centerY = renderPos.y - layout.height / 2.0f;
 
     int fontSize = 14;
-    int textWidth = measureText(label.c_str(), fontSize);
+    int textWidth = Drawing::measureText(label.c_str(), fontSize);
     Vector2 labelPos = {centerX - textWidth / 2.0f, centerY - fontSize / 2.0f};
 
     Color textColor =
-        state.enabled ? foreground : colorBrightness(foreground, -0.4f);
-    drawText(label.c_str(), labelPos.x, labelPos.y, fontSize, textColor);
+        state.enabled ? foreground : Colors::brightness(foreground, -0.4f);
+    Drawing::drawText(
+        label.c_str(),
+        labelPos.x,
+        labelPos.y,
+        fontSize,
+        textColor
+    );
 
     // focus indicator
     if(state.focused && state.enabled) {
@@ -139,9 +146,9 @@ void OpenWars::UI::ButtonComponent::render() {
             layout.width,
             layout.height,
             skew,
-            colorAlpha(
+            Colors::alpha(
                 Colors::GREEN_400,
-                0.5f + 0.5f * std::sin(getTime() * 3)
+                0.5f + 0.5f * std::sin(IO::Graphics::getTime() * 3)
             ),
             2.0f
         );
@@ -182,7 +189,7 @@ void OpenWars::UI::ButtonComponent::setLabel(const std::string& newLabel) {
 
         // Recalculate size
         int fontSize = 14;
-        int textWidth = measureText(label.c_str(), fontSize);
+        int textWidth = Drawing::measureText(label.c_str(), fontSize);
         layout.width = textWidth + Theme::MARGIN * 2;
 
         updateLayout();

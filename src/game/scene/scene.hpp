@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../ui/ui.hpp"
-#include "../../io/graphics/graphics.hpp"
 #include <memory>
 #include <functional>
 
@@ -114,12 +113,10 @@ namespace OpenWars::Game {
     };
 
     class FadeTransition : public TransitionEffect {
-        IO::Graphics::Color color;
+        Color color;
 
       public:
-        FadeTransition(
-            IO::Graphics::Color fadeColor = IO::Graphics::Color(0, 0, 0, 255)
-        )
+        FadeTransition(Color fadeColor = Color(0, 0, 0, 255))
             : color(fadeColor) {
         }
         void render(float progress) override;

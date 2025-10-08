@@ -1,5 +1,8 @@
 #include "../../utils/drawing.hpp"
-#include "../colors.hpp"
+#include "../../core/drawing/collision.hpp"
+#include "../../core/drawing/text.hpp"
+#include "../../core/colors.hpp"
+#include "../../io/graphics/graphics.hpp"
 #include "components.hpp"
 #include <algorithm>
 
@@ -90,12 +93,12 @@ void OpenWars::UI::PopupComponent::render() {
     if(!state.visible || animation.showProgress < 0.01f)
         return;
 
-    drawRectangle(
+    Drawing::drawRectangle(
         0,
         0,
         getScreenWidth(),
         getScreenHeight(),
-        colorAlpha(Colors::ZINC_950, 0.5f * animation.showProgress)
+        Colors::alpha(Colors::ZINC_950, 0.5f * animation.showProgress)
     );
 
     float scale = 0.9f + 0.1f * animation.showProgress;
@@ -116,7 +119,7 @@ void OpenWars::UI::PopupComponent::render() {
         width,
         height,
         Theme::SKEW,
-        colorAlpha(Colors::ZINC_600, shadowAlpha)
+        Colors::alpha(Colors::ZINC_600, shadowAlpha)
     );
 
     // Background
@@ -157,7 +160,7 @@ void OpenWars::UI::PopupComponent::render() {
 
     // Title text
     int titleSize = 22;
-    int textWidth = measureText(title.c_str(), titleSize);
+    int textWidth = Drawing::measureText(title.c_str(), titleSize);
     float centerX = pos.x + (width + Theme::SKEW) / 2.0f;
 
     Vector2 titlePos = {
@@ -165,7 +168,7 @@ void OpenWars::UI::PopupComponent::render() {
         pos.y - height + Theme::MARGIN - 6
     };
 
-    drawText(
+    Drawing::drawText(
         title.c_str(),
         (int)titlePos.x,
         (int)titlePos.y,
@@ -216,7 +219,7 @@ bool OpenWars::UI::PopupComponent::handleInput(
     bool clickedOutside = false;
     if(inputState.pressingLeft) {
         clickedOutside =
-            !checkCollisionPointRec(inputState.mousePos, getBounds());
+            !Drawing::checkCollisionPointRec(inputState.mousePos, getBounds());
     }
 
     // Handle button input

@@ -1,4 +1,6 @@
 #include "scene.hpp"
+#include "../../io/graphics/graphics.hpp"
+#include "../../core/drawing/shapes.hpp"
 
 using namespace OpenWars::IO::Graphics;
 
@@ -59,12 +61,12 @@ void OpenWars::Game::SceneManager::renderTransition() {
                       ? transition.progress * 2.0f
                       : (1.0f - transition.progress) * 2.0f;
 
-    drawRectangle(
+    Drawing::drawRectangle(
         0,
         0,
         getScreenWidth(),
         getScreenHeight(),
-        colorAlpha(Color(0, 0, 0, 255), alpha)
+        Colors::alpha(Color(0, 0, 0, 255), alpha)
     );
 }
 
@@ -90,12 +92,12 @@ void OpenWars::Game::SceneManager::completeTransition() {
 void OpenWars::Game::FadeTransition::render(float progress) {
     float alpha = progress < 0.5f ? progress * 2.0f : (1.0f - progress) * 2.0f;
 
-    drawRectangle(
+    Drawing::drawRectangle(
         0,
         0,
         getScreenWidth(),
         getScreenHeight(),
-        colorAlpha(color, alpha)
+        Colors::alpha(color, alpha)
     );
 }
 
@@ -103,7 +105,8 @@ void OpenWars::Game::SlideTransition::render(float progress) {
     float slideAmount =
         progress < 0.5f ? progress * 2.0f : (1.0f - progress) * 2.0f;
 
-    Rectangle rect = {0, 0, (float)getScreenWidth(), (float)getScreenHeight()};
+    Drawing::Rectangle rect =
+        {0, 0, (float)getScreenWidth(), (float)getScreenHeight()};
 
     switch(direction) {
     case Left:
