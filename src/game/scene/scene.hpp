@@ -93,6 +93,7 @@ namespace OpenWars::Game {
       public:
         Scene& getCurrent();
         void changeTo(Scene& target, float transitionDuration = 0.5f);
+        bool handleInput(const IO::Input::InputState& state);
         void update(float deltaTime);
         void render();
 

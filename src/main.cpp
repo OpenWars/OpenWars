@@ -31,8 +31,11 @@ int main() {
     while(!IO::Graphics::shouldClose()) {
         input.poll();
         IO::Graphics::beginFrame();
+
+        sceneManager.handleInput(input.getState());
         sceneManager.render();
         sceneManager.update(IO::Graphics::getFrameTime());
+
         IO::Graphics::displayDebug(
             cfg.graphics.displayDebugInfo,
             cfg.graphics.showFps

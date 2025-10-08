@@ -27,6 +27,20 @@ void OpenWars::Game::SceneManager::changeTo(
     }
 }
 
+bool OpenWars::Game::SceneManager::handleInput(
+    const IO::Input::InputState& state
+) {
+    if(transition.active) {
+        return false;
+    }
+
+    if(currentScene && currentScene->getUIHandler()) {
+        return currentScene->getUIHandler()->handleInput(state);
+    }
+
+    return false;
+}
+
 void OpenWars::Game::SceneManager::update(float deltaTime) {
     if(transition.active) {
         updateTransition(deltaTime);
