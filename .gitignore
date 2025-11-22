@@ -5,3 +5,6 @@ out/
 *.o
 tmp/
 cmake/
+cmake-build-debug/
+cmake-build-release/
+.idea/
