@@ -11,8 +11,8 @@ namespace OpenWars::IO::Input {
         bool D = false;
 
         Vector2 mousePos = {0, 0};
-        bool pressingLeft = false;
-        bool pressingRight = false;
+        bool downLeft = false, pressingLeft = false;
+        bool downRight = false, pressingRight = false;
     };
 
     class Handler {

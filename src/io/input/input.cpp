@@ -13,6 +13,13 @@ void OpenWars::IO::Input::Handler::poll() {
 
     state.mousePos.x = mouseX;
     state.mousePos.y = mouseY;
-    state.pressingLeft = (mouseState & SDL_BUTTON_LMASK) != 0;
-    state.pressingRight = (mouseState & SDL_BUTTON_RMASK) != 0;
+
+    bool down_left = (mouseState & SDL_BUTTON_LMASK) != 0;
+    bool down_right = (mouseState & SDL_BUTTON_RMASK) != 0;
+
+    state.pressingLeft = down_left && down_left != state.downLeft;
+    state.pressingRight = down_right && down_right != state.downRight;
+
+    state.downLeft = down_left;
+    state.downRight = down_right;
 }
