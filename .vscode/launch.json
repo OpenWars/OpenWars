@@ -1,0 +1,28 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "OpenWars Debug",
+      "type": "cppdbg",
+      "request": "launch",
+
+      "program": "${workspaceFolder}/build/openwars",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+
+      "stopAtEntry": false,
+
+      "environment": [],
+      "externalConsole": false,
+
+      "preLaunchTask": "cmake-build-debug",
+
+      "MIMode": "gdb",
+      "miDebuggerPath": "/usr/bin/gdb",
+
+      "setupCommands": [
+        { "text": "-enable-pretty-printing" }
+      ]
+    }
+  ]
+}

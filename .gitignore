@@ -1,10 +1,7 @@
+build/
 out/
 .clangd
 **/*.swp
-.vscode/
 *.o
 tmp/
-cmake/
-cmake-build-debug/
-cmake-build-release/
 .idea/
