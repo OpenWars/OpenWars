@@ -59,6 +59,7 @@ void OpenWars::UI::PopupComponent::updateLayout() {
                 btn->getBounds().width,
                 btn->getBounds().height
             );
+            btn->updateLayout();
             buttonX += btn->getBounds().width + Theme::MARGIN;
         }
     }
@@ -67,7 +68,8 @@ void OpenWars::UI::PopupComponent::updateLayout() {
 }
 
 void OpenWars::UI::PopupComponent::update(float deltaTime) {
-    if(!layoutCache.valid) {
+    if(!layoutCache.valid && animation.showProgress > 0.99f &&
+       !animation.closing) {
         updateLayout();
     }
 
@@ -84,8 +86,10 @@ void OpenWars::UI::PopupComponent::update(float deltaTime) {
         animation.closing = false;
     }
 
-    for(auto& btn : buttons) {
-        btn->update(deltaTime);
+    if(layoutCache.valid) {
+        for(auto& btn : buttons) {
+            btn->update(deltaTime);
+        }
     }
 }
 

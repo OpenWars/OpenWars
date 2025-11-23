@@ -41,12 +41,8 @@ OpenWars::UI::ButtonComponent::ButtonComponent(
 void OpenWars::UI::ButtonComponent::updateLayout() {
     // calc bounds if layout changed
     float skew = Theme::SKEW / 3.f;
-    state.bounds = {
-        layout.x,
-        layout.y - layout.height,
-        layout.width + skew,
-        layout.height
-    };
+    state.bounds =
+        {layout.x, layout.y - layout.height, layout.width, layout.height};
 }
 
 void OpenWars::UI::ButtonComponent::setOpacity(float alpha) {
