@@ -179,9 +179,9 @@ void OpenWars::UI::PopupComponent::render() {
         Colors::ZINC_200
     );
 
-    // Content with fade
-    float contentAlpha = std::max(0.0f, std::min(1.0f, animation.showProgress));
-    contentAlpha = contentAlpha * contentAlpha; // Apply easing if desired
+    // Content with fade - match the background overlay timing
+    float contentAlpha = animation.showProgress * animation.showProgress;
+    contentAlpha = std::max(0.0f, std::min(1.0f, contentAlpha));
 
     float topY = pos.y - height + Theme::MARGIN + 32;
     float textAreaWidth = width - (Theme::MARGIN * 2);
@@ -189,14 +189,18 @@ void OpenWars::UI::PopupComponent::render() {
     // Temporarily set alpha for text drawing
     Color textColor = Colors::ZINC_100;
     textColor.a = (unsigned char)(255 * contentAlpha);
-    Utils::Drawing::drawTextWrapped(
-        message,
-        (int)(centerX - textAreaWidth / 2) + Theme::SKEW,
-        (int)topY,
-        (int)textAreaWidth,
-        16,
-        textColor
-    );
+
+    // Only draw if visible
+    if(contentAlpha > 0.01f) {
+        Utils::Drawing::drawTextWrapped(
+            message,
+            (int)(centerX - textAreaWidth / 2) + Theme::SKEW,
+            (int)topY,
+            (int)textAreaWidth,
+            16,
+            textColor
+        );
+    }
 
     // Render buttons with stagger animation
     float baseProgress = animation.showProgress * animation.showProgress;

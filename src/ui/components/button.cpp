@@ -143,7 +143,7 @@ void OpenWars::UI::ButtonComponent::render() {
         labelPos.x,
         labelPos.y,
         fontSize,
-        textColor
+        Colors::alpha(textColor, alpha)
     );
 
     // focus indicator
