@@ -204,19 +204,23 @@ void OpenWars::UI::PopupComponent::render() {
         );
     }
 
-    // Render buttons with stagger animation
+    // Buttons stutter on entry, fade on exit
     float baseProgress = animation.showProgress * animation.showProgress;
 
     for(size_t i = 0; i < buttons.size(); ++i) {
-        float staggerDelay = i * 0.08f;
-        float staggerProgress = std::max(0.0f, baseProgress - staggerDelay);
-        float btnAlpha =
-            std::min(1.0f, staggerProgress / (1.0f - staggerDelay));
+        float btnAlpha;
+
+        if(animation.closing) {
+            btnAlpha = popupAlpha;
+        } else {
+            float staggerDelay = i * 0.08f;
+            float staggerProgress = std::max(0.0f, baseProgress - staggerDelay);
+            btnAlpha = std::min(1.0f, staggerProgress / (1.0f - staggerDelay));
+            btnAlpha *= popupAlpha;
+        }
 
         if(btnAlpha > 0.01f) {
-            buttons[i]->setOpacity(
-                btnAlpha * popupAlpha
-            ); // Combine with popup alpha
+            buttons[i]->setOpacity(btnAlpha);
             buttons[i]->render();
         }
     }
