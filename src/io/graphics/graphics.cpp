@@ -26,7 +26,8 @@ namespace OpenWars::IO::Graphics {
             return;
         }
 
-        uint32_t flags = SDL_WINDOW_RESIZABLE;
+        // todo: remove flags completely?
+        uint32_t flags = 0;
         window = SDL_CreateWindow("OpenWars Engine", 1024, 512, flags);
         if(!window) {
             SDL_Log("Window creation failed: %s", SDL_GetError());
