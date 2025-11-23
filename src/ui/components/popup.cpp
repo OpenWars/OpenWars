@@ -93,15 +93,15 @@ void OpenWars::UI::PopupComponent::render() {
     if(!state.visible || animation.showProgress < 0.01f)
         return;
 
+    // Use raw progress for overlay, squared for scale/content sync
+    float overlayAlpha = animation.showProgress * animation.showProgress;
+
     Drawing::drawRectangle(
         0,
         0,
         getScreenWidth(),
         getScreenHeight(),
-        Colors::alpha(
-            Colors::ZINC_950,
-            animation.showProgress * animation.showProgress
-        )
+        Colors::alpha(Colors::ZINC_950, overlayAlpha)
     );
 
     float scale = 0.9f + 0.1f * animation.showProgress;
@@ -115,7 +115,10 @@ void OpenWars::UI::PopupComponent::render() {
     pos.x += (layoutCache.width - width) / 2.0f;
     pos.y += (layoutCache.height - height) / 2.0f;
 
-    float shadowAlpha = animation.showProgress;
+    // Use linear progress for popup opacity so it fades with scale
+    float popupAlpha = animation.showProgress;
+
+    float shadowAlpha = popupAlpha;
     Vector2 shadowOffset = {pos.x + 3, pos.y + 3};
     Utils::Drawing::drawParallelogram(
         shadowOffset,
@@ -125,26 +128,26 @@ void OpenWars::UI::PopupComponent::render() {
         Colors::alpha(Colors::ZINC_600, shadowAlpha)
     );
 
-    // Background
+    // Background with alpha
     Utils::Drawing::drawParallelogram(
         pos,
         width,
         height,
         Theme::SKEW,
-        Colors::ZINC_800
+        Colors::alpha(Colors::ZINC_800, popupAlpha)
     );
 
-    // Outline
+    // Outline with alpha
     Utils::Drawing::drawParallelogramOutline(
         pos,
         width,
         height,
         Theme::SKEW,
-        Colors::ZINC_600,
+        Colors::alpha(Colors::ZINC_600, popupAlpha),
         2
     );
 
-    // Title bar
+    // Title bar with alpha
     float titleBarY = pos.y - height + 32;
     float heightFromTop = 32;
     float skewOffsetAtTitleBar = (heightFromTop / height) * Theme::SKEW;
@@ -158,10 +161,10 @@ void OpenWars::UI::PopupComponent::render() {
         width,
         32,
         skewOffsetAtTitleBar,
-        Colors::ZINC_600
+        Colors::alpha(Colors::ZINC_600, popupAlpha)
     );
 
-    // Title text
+    // Title text with alpha
     int titleSize = 18;
     int textWidth = Drawing::measureText(title.c_str(), titleSize);
     float centerX = pos.x + (width + Theme::SKEW) / 2.0f;
@@ -171,26 +174,25 @@ void OpenWars::UI::PopupComponent::render() {
         pos.y - height + Theme::MARGIN - 6
     };
 
+    Color titleColor = Colors::ZINC_200;
+    titleColor.a = (unsigned char)(255 * popupAlpha);
     Drawing::drawText(
         title.c_str(),
         (int)titlePos.x,
         (int)titlePos.y,
         titleSize,
-        Colors::ZINC_200
+        titleColor
     );
 
-    // Content with fade - match the background overlay timing
-    float contentAlpha = animation.showProgress * animation.showProgress;
-    contentAlpha = std::max(0.0f, std::min(1.0f, contentAlpha));
+    // Content with fade - use same alpha as popup
+    float contentAlpha = popupAlpha;
 
     float topY = pos.y - height + Theme::MARGIN + 32;
     float textAreaWidth = width - (Theme::MARGIN * 2);
 
-    // Temporarily set alpha for text drawing
     Color textColor = Colors::ZINC_100;
     textColor.a = (unsigned char)(255 * contentAlpha);
 
-    // Only draw if visible
     if(contentAlpha > 0.01f) {
         Utils::Drawing::drawTextWrapped(
             message,
@@ -212,7 +214,9 @@ void OpenWars::UI::PopupComponent::render() {
             std::min(1.0f, staggerProgress / (1.0f - staggerDelay));
 
         if(btnAlpha > 0.01f) {
-            buttons[i]->setOpacity(btnAlpha);
+            buttons[i]->setOpacity(
+                btnAlpha * popupAlpha
+            ); // Combine with popup alpha
             buttons[i]->render();
         }
     }
