@@ -1,6 +1,8 @@
 #include "graphics.hpp"
 #include "../../core/colors.hpp"
+#include "../../core/core.hpp"
 #include "../../core/drawing/text.hpp"
+#include "../log/logging.hpp"
 #include <SDL3_ttf/SDL_ttf.h>
 #include <map>
 
@@ -17,26 +19,34 @@ namespace OpenWars::IO::Graphics {
 
     void init(int vsync, bool multisampling) {
         if(!SDL_Init(SDL_INIT_VIDEO)) {
-            SDL_Log("SDL init failed: %s", SDL_GetError());
+            IO::Logging::error(true, "SDL init failed: %s", SDL_GetError());
             return;
         }
 
         if(!TTF_Init()) {
-            SDL_Log("TTF init failed: %s", SDL_GetError());
+            IO::Logging::error(true, "TTF init failed: %s", SDL_GetError());
             return;
         }
 
         // todo: remove flags completely?
         uint32_t flags = 0;
-        window = SDL_CreateWindow("OpenWars Engine", 1024, 512, flags);
+        window = SDL_CreateWindow(OpenWars::NAME, 1024, 512, flags);
         if(!window) {
-            SDL_Log("Window creation failed: %s", SDL_GetError());
+            IO::Logging::error(
+                true,
+                "Window creation failed: %s",
+                SDL_GetError()
+            );
             return;
         }
 
         renderer = SDL_CreateRenderer(window, nullptr);
         if(!renderer) {
-            SDL_Log("Renderer creation failed: %s", SDL_GetError());
+            IO::Logging::error(
+                true,
+                "Renderer creation failed: %s",
+                SDL_GetError()
+            );
             return;
         }
 
