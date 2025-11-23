@@ -8,18 +8,9 @@ using namespace OpenWars;
 
 int main() {
     IO::Logging::init();
+
     Config::Manager cfg;
-    cfg.load();
-    cfg.dump();
-
-    if(!cfg.load()) {
-        cfg.graphics.multisampling = false;
-        cfg.graphics.vsync = 1;
-        cfg.graphics.showFps = true;
-        cfg.graphics.displayDebugInfo = true;
-
-        cfg.save();
-    }
+    cfg.init();
 
     IO::Graphics::init(cfg.graphics.vsync, cfg.graphics.multisampling);
 

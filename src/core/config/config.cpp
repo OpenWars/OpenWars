@@ -52,6 +52,21 @@ bool OpenWars::Config::Manager::load() {
     return true;
 }
 
+void OpenWars::Config::Manager::init() {
+    this->load();
+    this->dump();
+
+    if(!this->load()) {
+        // Default settings
+        this->graphics.multisampling = false;
+        this->graphics.vsync = 1;
+        this->graphics.showFps = true;
+        this->graphics.displayDebugInfo = true;
+
+        this->save();
+    }
+}
+
 bool OpenWars::Config::Manager::save() {
     std::lock_guard<std::mutex> lk(mutex);
     std::ostringstream oss;

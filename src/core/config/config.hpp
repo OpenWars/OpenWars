@@ -40,6 +40,9 @@ namespace OpenWars::Config {
       public:
         Manager(const std::string& appName = "OpenWars");
 
+        void init();
+
+        // todo: consider this being private
         bool load();
         bool save();
         void dump();
