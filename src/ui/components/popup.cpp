@@ -98,7 +98,10 @@ void OpenWars::UI::PopupComponent::render() {
         0,
         getScreenWidth(),
         getScreenHeight(),
-        Colors::alpha(Colors::ZINC_950, 0.5f * animation.showProgress)
+        Colors::alpha(
+            Colors::ZINC_950,
+            animation.showProgress * animation.showProgress
+        )
     );
 
     float scale = 0.9f + 0.1f * animation.showProgress;
@@ -159,7 +162,7 @@ void OpenWars::UI::PopupComponent::render() {
     );
 
     // Title text
-    int titleSize = 22;
+    int titleSize = 18;
     int textWidth = Drawing::measureText(title.c_str(), titleSize);
     float centerX = pos.x + (width + Theme::SKEW) / 2.0f;
 
@@ -177,14 +180,15 @@ void OpenWars::UI::PopupComponent::render() {
     );
 
     // Content with fade
-    float contentAlpha = std::max(0.0f, (animation.showProgress - 0.3f) / 0.7f);
+    float contentAlpha = std::max(0.0f, std::min(1.0f, animation.showProgress));
+    contentAlpha = contentAlpha * contentAlpha; // Apply easing if desired
+
     float topY = pos.y - height + Theme::MARGIN + 32;
     float textAreaWidth = width - (Theme::MARGIN * 2);
 
     // Temporarily set alpha for text drawing
     Color textColor = Colors::ZINC_100;
     textColor.a = (unsigned char)(255 * contentAlpha);
-
     Utils::Drawing::drawTextWrapped(
         message,
         (int)(centerX - textAreaWidth / 2) + Theme::SKEW,
@@ -195,15 +199,16 @@ void OpenWars::UI::PopupComponent::render() {
     );
 
     // Render buttons with stagger animation
-    float buttonAlpha = std::max(0.0f, (animation.showProgress - 0.5f) / 0.5f);
+    float baseProgress = animation.showProgress * animation.showProgress;
+
     for(size_t i = 0; i < buttons.size(); ++i) {
-        float staggerDelay = i * 0.1f;
-        float btnAlpha = std::max(
-            0.0f,
-            (buttonAlpha - staggerDelay) / (1.0f - staggerDelay)
-        );
+        float staggerDelay = i * 0.08f;
+        float staggerProgress = std::max(0.0f, baseProgress - staggerDelay);
+        float btnAlpha =
+            std::min(1.0f, staggerProgress / (1.0f - staggerDelay));
 
         if(btnAlpha > 0.01f) {
+            buttons[i]->setOpacity(btnAlpha);
             buttons[i]->render();
         }
     }

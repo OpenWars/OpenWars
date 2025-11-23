@@ -13,6 +13,7 @@ namespace OpenWars::UI {
         Color foreground;
         bool isHovered;
         bool wasHovered;
+        float alpha = 1.f;
 
         struct AnimationState {
             float hoverProgress;
@@ -32,6 +33,7 @@ namespace OpenWars::UI {
         bool handleInput(const IO::Input::InputState& state) override;
         void update(float deltaTime) override;
         void updateLayout() override;
+        void setOpacity(float alpha);
 
         void setLabel(const std::string& newLabel);
         const std::string& getLabel() const {

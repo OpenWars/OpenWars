@@ -49,6 +49,10 @@ void OpenWars::UI::ButtonComponent::updateLayout() {
     };
 }
 
+void OpenWars::UI::ButtonComponent::setOpacity(float alpha) {
+    this->alpha = alpha;
+}
+
 void OpenWars::UI::ButtonComponent::update(float deltaTime) {
     // hover animation
     float targetHover = state.hovered ? 1.0f : 0.0f;
@@ -76,9 +80,12 @@ void OpenWars::UI::ButtonComponent::render() {
     float hoverFactor = animation.hoverProgress * 0.2f;
     float clickOffset = animation.clickProgress * 2.0f;
 
-    Color bg = Colors::brightness(background, hoverFactor);
-    Color outline = Colors::brightness(Colors::ZINC_500, hoverFactor);
-    Color shadow = Colors::brightness(Colors::ZINC_600, hoverFactor);
+    Color bg =
+        Colors::alpha(Colors::brightness(background, hoverFactor), alpha);
+    Color outline =
+        Colors::alpha(Colors::brightness(Colors::ZINC_500, hoverFactor), alpha);
+    Color shadow =
+        Colors::alpha(Colors::brightness(Colors::ZINC_600, hoverFactor), alpha);
 
     // apply click offset
     Vector2 renderPos = {layout.x, layout.y + clickOffset};
