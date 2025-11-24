@@ -4,6 +4,8 @@
 #include "io/graphics/graphics.hpp"
 #include "io/input/input.hpp"
 #include "io/log/logging.hpp"
+#include <cctype>
+#include <locale>
 
 using namespace OpenWars;
 
@@ -17,7 +19,12 @@ int main() {
     );
 
     IO::Logging::log("%s", "Loading configuration...");
-    Config::Manager cfg;
+    Config::Manager cfg(
+        std::tolower(
+            OpenWars::NAME,
+            std::locale("en_US.utf8")
+        ) // fixme: find better method
+    );
     cfg.init();
     IO::Logging::log("%s", "Finished loading configuration.");
 
