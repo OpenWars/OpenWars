@@ -1,5 +1,6 @@
 #include "scene.hpp"
 #include "../../io/graphics/graphics.hpp"
+#include "../../io/log/logging.hpp"
 #include "../../core/drawing/shapes.hpp"
 
 using namespace OpenWars::IO::Graphics;
@@ -25,6 +26,8 @@ void OpenWars::Game::SceneManager::changeTo(
     if(currentScene) {
         currentScene->onPause();
     }
+
+    IO::Logging::debug("Scene changed to %s.", typeid(target).name());
 }
 
 bool OpenWars::Game::SceneManager::handleInput(

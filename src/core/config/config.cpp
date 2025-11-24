@@ -97,7 +97,7 @@ std::string OpenWars::Config::Manager::trim(const std::string& s) {
 }
 
 void OpenWars::Config::Manager::dump() {
-    IO::Logging::log("=== Configuration Dump ===");
+    IO::Logging::log("%s", "=== Configuration Dump ===");
 
     IO::Logging::log("%s", "[Graphics]");
     dumpStruct(graphics, Graphics::fields);
@@ -105,5 +105,5 @@ void OpenWars::Config::Manager::dump() {
     IO::Logging::log("%s", "[Player]");
     dumpStruct(player, Player::fields);
 
-    IO::Logging::log("=== End Configuration Dump ===");
+    IO::Logging::log("%s", "=== End Configuration Dump ===");
 }
