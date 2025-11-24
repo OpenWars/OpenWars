@@ -5,7 +5,6 @@
 #include "io/input/input.hpp"
 #include "io/log/logging.hpp"
 #include <cctype>
-#include <locale>
 
 using namespace OpenWars;
 
@@ -19,12 +18,7 @@ int main() {
     );
 
     IO::Logging::log("%s", "Loading configuration...");
-    Config::Manager cfg(
-        std::tolower(
-            OpenWars::NAME,
-            std::locale("en_US.utf8")
-        ) // fixme: find better method
-    );
+    Config::Manager cfg; // FIXME! Other mods will overwrite OW's config
     cfg.init();
     IO::Logging::log("%s", "Finished loading configuration.");
 
