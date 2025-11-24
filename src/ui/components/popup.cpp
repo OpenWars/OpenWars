@@ -213,19 +213,40 @@ void OpenWars::UI::PopupComponent::render() {
 
     for(size_t i = 0; i < buttons.size(); ++i) {
         float btnAlpha;
+        float btnYOffset = 0.0f;
 
         if(animation.closing) {
             btnAlpha = popupAlpha;
+            btnYOffset = yOffset;
         } else {
             float staggerDelay = i * 0.08f;
             float staggerProgress = std::max(0.0f, baseProgress - staggerDelay);
             btnAlpha = std::min(1.0f, staggerProgress / (1.0f - staggerDelay));
             btnAlpha *= popupAlpha;
+            btnYOffset = yOffset * (1.0f - std::min(1.0f, staggerProgress));
         }
 
         if(btnAlpha > 0.01f) {
             buttons[i]->setOpacity(btnAlpha);
+
+            // Apply vertical offset
+            auto originalBounds = buttons[i]->getBounds();
+            buttons[i]->setBounds(
+                originalBounds.x + (btnYOffset * 0.5),
+                originalBounds.y + (btnYOffset * 1.6),
+                originalBounds.width,
+                originalBounds.height
+            );
+
             buttons[i]->render();
+
+            // Restore original position
+            buttons[i]->setBounds(
+                originalBounds.x,
+                originalBounds.y,
+                originalBounds.width,
+                originalBounds.height
+            );
         }
     }
 }
