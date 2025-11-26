@@ -1,62 +1,139 @@
-/**
- *
-   ___                __        __
-  / _ \ _ __   ___ _ _\ \      / /_ _ _ __ ___
- | | | | '_ \ / _ \ '_ \ \ /\ / / _` | '__/ __|
- | |_| | |_) |  __/ | | \ V  V / (_| | |  \__ \
-  \___/| .__/ \___|_| |_|\_/\_/ \__,_|_|  |___/
-       |_|
+#pragma once
 
-Copyright (C) 2024 OpenWars Team
+#include "../../ui/ui.hpp"
+#include <memory>
+#include <functional>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+namespace OpenWars::Game {
+    enum class SceneEvent { Enter, Exit, Pause, Resume, Update, Render };
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+    class Scene {
+      protected:
+        std::unique_ptr<OpenWars::UI::Handler> uiHandler;
+        bool initialized = false;
+        std::string sceneName;
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-#ifndef __openwars__game__scene__scene__h__
-#define __openwars__game__scene__scene__h__
+        struct SceneState {
+            bool active = false;
+            bool transitioning = false;
+            float transitionProgress = 0.0f;
+        } state;
 
-namespace OpenWars {
-	// Enum for identifing different game scenes
-	typedef enum {
-		// Loading screen between scenes or boot screen
-		// ! Never actually shown, for reference purposes only
-		LOADING = 0,
-		// Main menu screen
-		MAIN = 1,
-		// In-game music
-		GAME = 2
-	} Scenes;
+      public:
+        Scene(const std::string& name)
+            : sceneName(name) {
+            uiHandler = std::make_unique<OpenWars::UI::Handler>();
+        }
+        virtual ~Scene() = default;
 
-	class SceneController {
-		public:
-			OpenWars::Scenes currentScene = OpenWars::Scenes::LOADING;
+        virtual void onEnter() {
+            state.active = true;
+        }
+        virtual void onExit() {
+            state.active = false;
+        }
+        virtual void onPause() {
+        }
+        virtual void onResume() {
+        }
 
-			SceneController();
-			~SceneController();
-	};
+        virtual void update(float deltaTime) {
+            if(uiHandler) {
+                uiHandler->update(deltaTime);
+            }
+        }
 
-	// Scenes::MAIN
-	class MainScene {
-		public:
-			const char* playerName;
+        virtual void render() {
+            if(uiHandler) {
+                uiHandler->renderOverlay();
+            }
+        }
 
-			MainScene(const char* playerName);
-			~MainScene();
+        OpenWars::UI::Handler* getUIHandler() {
+            return uiHandler.get();
+        }
 
-			void render();
-	};
+        const std::string& getName() const {
+            return sceneName;
+        }
+        bool isActive() const {
+            return state.active;
+        }
+    };
 
-	// TODO Scenes::GAME - Until map format is finished.
-}
+    class MenuScene : public Scene {
+        struct MenuState {
+            int selectedOption = 0;
+            bool contentDownloaded = false;
+        } menuState;
 
-#endif
+      public:
+        MenuScene();
+
+        void onEnter() override;
+        void update(float deltaTime) override;
+        void render() override;
+
+      private:
+        void createUI();
+        void showDownloadPrompt();
+    };
+
+    class SceneManager {
+        Scene* currentScene = nullptr;
+        Scene* nextScene = nullptr;
+
+        struct TransitionState {
+            bool active = false;
+            float progress = 0.0f;
+            float duration = 0.5f;
+            std::function<void()> onComplete;
+        } transition;
+
+      public:
+        Scene& getCurrent();
+        void changeTo(Scene& target, float transitionDuration = 0.5f);
+        bool handleInput(const IO::Input::InputState& state);
+        void update(float deltaTime);
+        void render();
+
+        bool isTransitioning() const {
+            return transition.active;
+        }
+
+      private:
+        void updateTransition(float deltaTime);
+        void renderTransition();
+        void completeTransition();
+    };
+
+    class TransitionEffect {
+      public:
+        virtual ~TransitionEffect() = default;
+        virtual void render(float progress) = 0;
+    };
+
+    class FadeTransition : public TransitionEffect {
+        Color color;
+
+      public:
+        FadeTransition(Color fadeColor = Color(0, 0, 0, 255))
+            : color(fadeColor) {
+        }
+        void render(float progress) override;
+    };
+
+    class SlideTransition : public TransitionEffect {
+      public:
+        enum Direction { Left, Right, Up, Down };
+
+      private:
+        Direction direction;
+
+      public:
+        SlideTransition(Direction dir)
+            : direction(dir) {
+        }
+        void render(float progress) override;
+    };
+} // namespace OpenWars::Game

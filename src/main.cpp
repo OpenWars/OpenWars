@@ -1,73 +1,52 @@
-#include "io/log.hpp"
-#include "logic/task/task.hpp"
-#include "misc/auditor.hpp"
-#include "visual/visual.hpp"
-#include "io/clay.hpp"
-#include <cstdlib>
+#include "core/config/config.hpp"
+#include "core/core.hpp"
+#include "game/scene/scene.hpp"
+#include "io/graphics/graphics.hpp"
+#include "io/input/input.hpp"
+#include "io/log/logging.hpp"
+#include <cctype>
 
-const int screen_width = 1280;
-const int screen_height = 720;
+using namespace OpenWars;
 
-OpenWars::Tasks::King king;
+int main() {
+    IO::Logging::init();
+    IO::Logging::log(
+        "Starting OpenWars engine for %s v%s (testing: %hhd)...",
+        OpenWars::NAME,
+        OpenWars::VERSION,
+        OpenWars::IS_TESTING_BUILD
+    );
 
-void ciao(int code) {
-	OpenWars::Clay::deinit();
-	OpenWars::deinit_video();
-	king.deinit_pawns();
-	OpenWars::deinit_auditor();
+    IO::Logging::log("%s", "Loading configuration...");
+    Config::Manager cfg; // FIXME! Other mods will overwrite OW's config
+    cfg.init();
+    IO::Logging::log("%s", "Finished loading configuration.");
 
-	std::exit(code);
-};
+    IO::Logging::log("%s", "Creating window...");
+    IO::Graphics::init(cfg.graphics.vsync, cfg.graphics.multisampling);
+    IO::Logging::log("%s", "Finished creating window.");
 
-namespace Raylib {
-	#include <raylib.h>
-};
+    IO::Logging::log("%s", "Initializing I/O.");
+    Game::SceneManager sceneManager;
+    Game::MenuScene scene;
+    IO::Input::Handler input;
+    sceneManager.changeTo(scene);
 
-int main(void) {
-	const char *err = nullptr;
+    while(!IO::Graphics::shouldClose()) {
+        input.poll();
+        IO::Graphics::beginFrame();
 
-	if(OpenWars::init_auditor(&err) < 0) {
-		OpenWars::log_error("Couldn't initialize Auditor: %s\n", err);
-		ciao(1);
-	}
+        sceneManager.handleInput(input.getState());
+        sceneManager.render();
+        sceneManager.update(IO::Graphics::getFrameTime());
 
-	if(king.init_pawns(2, &err) < 0) {
-		OpenWars::log_error("Couldn't initialize King: %s\n", err);
-		ciao(1);
-	}
+        IO::Graphics::displayDebug(
+            cfg.graphics.displayDebugInfo,
+            cfg.graphics.showFps
+        );
+        IO::Graphics::swapBuffers();
+    }
+    IO::Graphics::exit();
 
-	if(OpenWars::init_video(screen_width, screen_height, "OpenWars", &err) < 0) {
-		OpenWars::log_error("Couldn't initialize the window: %s\n", err);
-		ciao(1);
-	}
-
-	if(OpenWars::Clay::init(&err) < 0) {
-		OpenWars::log_error("Couldn't initialize ClayUI: %s\n", err);
-		ciao(1);
-	}
-
-	Raylib::Camera2D cam;
-	cam.target = Raylib::Vector2 { 0.0f, 0.0f };
-	cam.offset = Raylib::Vector2 { 0.0f, 0.0f };
-	cam.rotation = 0.0f;
-	cam.zoom = 1.0f;
-
-	Clay_LayoutConfig layoutElement = Clay_LayoutConfig { .padding = {5} };
-
-	while(OpenWars::should_close_window() == false) {
-		OpenWars::init_frame(&err);
-
-		// [TODO]
-		OpenWars::Clay::update();
-		OpenWars::Clay::start_frame();
-
-		// [TODO]
-
-		OpenWars::Clay::end_frame(&cam);
-		// [TODO]
-
-		OpenWars::swap_buffers(&err);
-	};
-
-	ciao(0);
+    return 0;
 }

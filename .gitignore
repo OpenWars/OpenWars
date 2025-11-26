@@ -1,7 +1,8 @@
+build/
 out/
 .clangd
-.clang-format
 **/*.swp
-.vscode/
 *.o
 tmp/
+.idea/
+.cache/
