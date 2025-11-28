@@ -59,11 +59,13 @@ set(ASSETS_CPP ${CMAKE_BINARY_DIR}/assets_pak.cpp)
 
 add_custom_command(
     OUTPUT ${ASSETS_CPP}
-    COMMAND xxd -i ${ASSETS_PAK} > ${ASSETS_CPP}
+    COMMAND xxd -i assets.pak > ${ASSETS_CPP}
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DEPENDS ${ASSETS_PAK}
 )
 
 add_library(EmbeddedAssets ${ASSETS_CPP})
+target_compile_options(EmbeddedAssets PRIVATE -fPIC)
 
 file(GLOB_RECURSE sources CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
