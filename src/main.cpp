@@ -16,7 +16,7 @@ int main() {
     );
 
     IO::Logging::log("%s", "Loading configuration...");
-    Config::Manager cfg; // FIXME! Other mods will overwrite OW's config
+    Config::Manager cfg(OpenWars::CONFIG_DIR);
     cfg.init();
     IO::Logging::log("%s", "Finished loading configuration.");
 
