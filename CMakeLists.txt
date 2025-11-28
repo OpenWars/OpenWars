@@ -75,6 +75,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${SDL3_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} 
     PRIVATE SDL3::SDL3
     PRIVATE SDL3_ttf::SDL3_ttf
-	PRIVATE minizip
+	PRIVATE MINIZIP::minizip
 	PRIVATE EmbeddedAssets
 )
