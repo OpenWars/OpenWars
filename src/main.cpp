@@ -4,8 +4,6 @@
 #include "io/graphics/graphics.hpp"
 #include "io/input/input.hpp"
 #include "io/log/logging.hpp"
-#include <cctype>
-
 using namespace OpenWars;
 
 int main() {
