@@ -1,4 +1,5 @@
 #include "text.hpp"
+#include "../assets/assets.hpp"
 #include "../../io/graphics/graphics.hpp"
 #include <SDL3_ttf/SDL_ttf.h>
 #include <map>
@@ -6,16 +7,10 @@
 
 TTF_Font* OpenWars::Drawing::getFont(int size) {
     if(fonts.find(size) == fonts.end()) {
-        fonts[size] = TTF_OpenFont(
-            "/usr/share/fonts/liberation/LiberationSans-Regular.ttf",
+        fonts[size] = OpenWars::Assets::Manager::get().loadFont(
+            "fonts/FreeSans.ttf",
             size
         );
-        /*
-        For MacOS?
-        if(!fonts[size]) {
-            fonts[size] =
-                TTF_OpenFont("/System/Library/Fonts/Helvetica.ttc", size);
-        }*/
     }
     return fonts[size];
 }
