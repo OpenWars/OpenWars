@@ -1,6 +1,7 @@
 #include "text.hpp"
 #include "../assets/assets.hpp"
 #include "../../io/graphics/graphics.hpp"
+#include "../../io/log/logging.hpp"
 #include <SDL3_ttf/SDL_ttf.h>
 #include <map>
 #include <string>
@@ -11,7 +12,14 @@ TTF_Font* OpenWars::Drawing::getFont(int size) {
             "fonts/FreeSans.ttf",
             size
         );
+
+        if(!fonts[size]) {
+            IO::Logging::error(false, "Failed to load font size %d", size);
+        } else {
+            IO::Logging::debug("Successfully loaded font size %d", size);
+        }
     }
+
     return fonts[size];
 }
 

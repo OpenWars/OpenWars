@@ -10,6 +10,7 @@
 #include <minizip/mz_strm_mem.h>
 #include <minizip/mz_zip.h>
 #include <minizip/mz_zip_rw.h>
+#include "../../io/log/logging.hpp"
 
 extern unsigned char assets_pak[];
 extern unsigned int assets_pak_len;
@@ -66,27 +67,97 @@ namespace OpenWars::Assets {
 
         TTF_Font* loadFont(const std::string& path, int ptsize) const {
             SDL_IOStream* rw = loadRW(path);
-            if(!rw)
+            if(!rw) {
+                IO::Logging::error(
+                    false,
+                    "Failed to create IO stream for font: %s",
+                    path.c_str()
+                );
                 return nullptr;
+            }
+
             return TTF_OpenFontIO(rw, 1, ptsize);
         }
 
       protected:
         Manager() {
+            IO::Logging::debug(
+                "assets_pak pointer: %p, length: %u",
+                (void*)assets_pak,
+                assets_pak_len
+            );
+
+            if(assets_pak_len == 0) {
+                IO::Logging::error(
+                    true,
+                    "%s",
+                    "Embedded assets are missing or empty!"
+                );
+                return;
+            }
+
+            // Create memory stream for minizip-ng
+            mem_stream = mz_stream_mem_create();
+            if(!mem_stream) {
+                IO::Logging::error(
+                    true,
+                    "%s",
+                    "Failed to create memory stream"
+                );
+                return;
+            }
+
+            // Set the buffer
+            mz_stream_mem_set_buffer(
+                mem_stream,
+                (void*)assets_pak,
+                assets_pak_len
+            );
+
+            // Open the memory stream
+            int32_t err =
+                mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_READ);
+            if(err != MZ_OK) {
+                IO::Logging::error(
+                    true,
+                    "Failed to open memory stream: %d",
+                    err
+                );
+                mz_stream_mem_delete(&mem_stream);
+                return;
+            }
+
+            // Create ZIP reader
             zip_reader = mz_zip_reader_create();
+            if(!zip_reader) {
+                IO::Logging::error(true, "%s", "Failed to create ZIP reader");
+                mz_stream_mem_close(mem_stream);
+                mz_stream_mem_delete(&mem_stream);
+                return;
+            }
 
-            // Open ZIP archive directly from memory
-            mem_stream = mz_stream_ioapi_create();
-            mz_stream_mem_set_buffer(mem_stream, assets_pak, assets_pak_len);
-
-            mz_zip_reader_open(zip_reader, mem_stream);
+            // Open ZIP reader with the memory stream
+            err = mz_zip_reader_open(zip_reader, mem_stream);
+            if(err != MZ_OK) {
+                IO::Logging::error(true, "Failed to open ZIP reader: %d", err);
+                mz_zip_reader_delete(&zip_reader);
+                mz_stream_mem_close(mem_stream);
+                mz_stream_mem_delete(&mem_stream);
+            } else {
+                IO::Logging::debug("%s", "ZIP reader opened successfully");
+            }
         }
 
         ~Manager() {
-            mz_zip_reader_close(zip_reader);
-            mz_zip_reader_delete(&zip_reader);
+            if(zip_reader) {
+                mz_zip_reader_close(zip_reader);
+                mz_zip_reader_delete(&zip_reader);
+            }
 
-            mz_stream_delete(&mem_stream);
+            if(mem_stream) {
+                mz_stream_mem_close(mem_stream);
+                mz_stream_mem_delete(&mem_stream);
+            }
         }
 
         void* zip_reader = nullptr;

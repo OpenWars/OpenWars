@@ -37,8 +37,9 @@ set(ASSETS_PAK ${CMAKE_BINARY_DIR}/assets.pak)
 
 add_custom_command(
     OUTPUT ${ASSETS_PAK}
-    COMMAND zip -r ${ASSETS_PAK} ${ASSETS_DIR} -x "*.git*"
+    COMMAND zip -r ${ASSETS_PAK} . -x "*.git*"
     DEPENDS ${ASSET_FILES}
+    WORKING_DIRECTORY ${ASSETS_DIR}
 )
 
 set(ASSETS_CPP ${CMAKE_BINARY_DIR}/assets_pak.cpp)
