@@ -229,24 +229,21 @@ void OpenWars::UI::PopupComponent::render() {
         if(btnAlpha > 0.01f) {
             buttons[i]->setOpacity(btnAlpha);
 
-            // Apply vertical offset
-            auto originalBounds = buttons[i]->getBounds();
-            buttons[i]->setBounds(
-                originalBounds.x + (btnYOffset * 0.5),
-                originalBounds.y + (btnYOffset * 1.6),
-                originalBounds.width,
-                originalBounds.height
-            );
+            // hack: DON'T modify bounds - just save/restore layout for
+            // rendering
+            auto layout = buttons[i]->getBounds();
+            float originalX = layout.x;
+            float originalY = layout.y;
+
+            // temporarily modify layout for rendering only
+            layout.x += btnYOffset * 0.5f;
+            layout.y += btnYOffset * 1.6f;
 
             buttons[i]->render();
 
-            // Restore original position
-            buttons[i]->setBounds(
-                originalBounds.x,
-                originalBounds.y,
-                originalBounds.width,
-                originalBounds.height
-            );
+            // restore
+            layout.x = originalX;
+            layout.y = originalY;
         }
     }
 }
