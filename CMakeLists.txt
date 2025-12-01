@@ -4,6 +4,7 @@ project(openwars)
 set(CMAKE_CXX_STANDARD 17)
 
 include(FetchContent)
+set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE ALWAYS)
 
 # Dependencies
 function(include_dependency depName gitURL gitTag)
@@ -14,45 +15,30 @@ function(include_dependency depName gitURL gitTag)
 		GIT_PROGRESS	TRUE
 	)
 	
-	FetchContent_MakeAvailable(${depName})
+	FetchContent_MakeAvailable(${depName})	
 endfunction()
+	
+include_dependency(SDL3 https://github.com/libsdl-org/SDL.git release-3.2.x)
+include_dependency(SDL3_ttf https://github.com/libsdl-org/SDL_ttf.git release-3.2.x)
+include_dependency(minizip https://github.com/zlib-ng/minizip-ng 4.0.10)
 
-## SDL
-find_package(SDL3 QUIET)
-if(NOT SDL3_FOUND)
-	message(STATUS "Downloading SDL3 from GitHub")
-	include_dependency(SDL3 https://github.com/libsdl-org/SDL.git release-3.2.x)
-else()
-	message(STATUS "Using local SDL3")
-endif()
+# Assets - Doesn't work with include_dependency and I don't have idea why
+FetchContent_Declare(OpenWarsAssets
+	GIT_REPOSITORY https://github.com/OpenWars/resources
+	GIT_TAG main
+	GIT_SHALLOW		TRUE
+	GIT_PROGRESS	TRUE
+)
 
-find_package(SDL3_ttf QUIET)
-if(NOT SDL3_ttf_FOUND)
-	message(STATUS "Downloading SDL3_ttf from GitHub")
-	include_dependency(SDL3_ttf https://github.com/libsdl-org/SDL_ttf.git release-3.2.x)
-else()
-	message(STATUS "Using local SDL3_ttf")
-endif()
-
-## MiniZIP
-find_package(minizip QUIET)
-if(NOT minizip_FOUND)
-	message(STATUS "Downloading MiniZip from GitHub")
-	include_dependency(minizip-ng https://github.com/zlib-ng/minizip-ng 4.0.10)
-else()
-	message(STATUS "Using local MiniZip")
-endif()
-
-# Assets
-include_dependency(OpenWarsAssets https://github.com/OpenWars/resources main)
+FetchContent_MakeAvailable(OpenWarsAssets)
 
 set(ASSETS_DIR ${openwarsassets_SOURCE_DIR})
 set(ASSETS_PAK ${CMAKE_BINARY_DIR}/assets.pak)
 
 add_custom_command(
     OUTPUT ${ASSETS_PAK}
-    COMMAND ${CMAKE_COMMAND} -E tar cf ${ASSETS_PAK} --format=zip ${ASSETS_DIR}
-    DEPENDS ${ASSETS_DIR}
+    COMMAND zip -r ${ASSETS_PAK} ${ASSETS_DIR} -x "*.git*"
+    DEPENDS ${ASSET_FILES}
 )
 
 set(ASSETS_CPP ${CMAKE_BINARY_DIR}/assets_pak.cpp)
@@ -66,6 +52,7 @@ add_custom_command(
 
 add_library(EmbeddedAssets ${ASSETS_CPP})
 target_compile_options(EmbeddedAssets PRIVATE -fPIC)
+
 
 file(GLOB_RECURSE sources CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
