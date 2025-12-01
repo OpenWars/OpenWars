@@ -81,8 +81,8 @@ void OpenWars::Game::SceneManager::renderTransition() {
     Drawing::drawRectangle(
         0,
         0,
-        getScreenWidth(),
-        getScreenHeight(),
+        getWindowWidth(),
+        getWindowHeight(),
         Colors::alpha(Color(0, 0, 0, 255), alpha)
     );
 }
@@ -112,8 +112,8 @@ void OpenWars::Game::FadeTransition::render(float progress) {
     Drawing::drawRectangle(
         0,
         0,
-        getScreenWidth(),
-        getScreenHeight(),
+        getWindowWidth(),
+        getWindowHeight(),
         Colors::alpha(color, alpha)
     );
 }
@@ -123,7 +123,7 @@ void OpenWars::Game::SlideTransition::render(float progress) {
         progress < 0.5f ? progress * 2.0f : (1.0f - progress) * 2.0f;
 
     Drawing::Rectangle rect =
-        {0, 0, (float)getScreenWidth(), (float)getScreenHeight()};
+        {0, 0, (float)getWindowWidth(), (float)getWindowHeight()};
 
     switch(direction) {
     case Left:

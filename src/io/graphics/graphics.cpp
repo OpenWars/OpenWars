@@ -132,14 +132,14 @@ namespace OpenWars::IO::Graphics {
         SDL_RenderClear(renderer);
     }
 
-    int getScreenWidth() {
+    int getWindowWidth() {
         int w = 0;
         if(window)
             SDL_GetWindowSize(window, &w, nullptr);
         return w;
     }
 
-    int getScreenHeight() {
+    int getWindowHeight() {
         int h = 0;
         if(window)
             SDL_GetWindowSize(window, nullptr, &h);

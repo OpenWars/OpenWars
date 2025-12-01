@@ -28,8 +28,8 @@ namespace OpenWars::IO::Graphics {
     void clearBackground(Color color);
 
     // Window functions
-    int getScreenWidth();
-    int getScreenHeight();
+    int getWindowWidth();
+    int getWindowHeight();
     int getMonitorRefreshRate(int monitor);
     int getCurrentMonitor();
 

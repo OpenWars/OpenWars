@@ -19,14 +19,14 @@ OpenWars::UI::PopupComponent::PopupComponent(
     // begin hidden
     state.visible = false;
 
-    layoutCache.width = getScreenWidth() * 0.666f;
-    layoutCache.height = getScreenHeight() / 2.0f;
+    layoutCache.width = getWindowWidth() * 0.666f;
+    layoutCache.height = getWindowHeight() / 2.0f;
 }
 
 void OpenWars::UI::PopupComponent::updateLayout() {
     layoutCache.position = {
-        (getScreenWidth() - layoutCache.width - Theme::SKEW) / 2.0f,
-        (getScreenHeight() + layoutCache.height) / 2.0f
+        (getWindowWidth() - layoutCache.width - Theme::SKEW) / 2.0f,
+        (getWindowHeight() + layoutCache.height) / 2.0f
     };
 
     state.bounds = {
@@ -103,8 +103,8 @@ void OpenWars::UI::PopupComponent::render() {
     Drawing::drawRectangle(
         0,
         0,
-        getScreenWidth(),
-        getScreenHeight(),
+        getWindowWidth(),
+        getWindowHeight(),
         Colors::alpha(Colors::ZINC_950, overlayAlpha)
     );
 
