@@ -16,7 +16,6 @@ OpenWars::UI::CarouselComponent::CarouselComponent(
     layout.x = position.x;
     layout.y = position.y;
 
-    // Initialize animation state
     animation.itemOffsets.resize(items.size(), 0.0f);
     animation.targetSelection = 0.0f;
     animation.selectionTransition = 0.0f;
@@ -30,7 +29,6 @@ void OpenWars::UI::CarouselComponent::updateLayout() {
         return;
     }
 
-    // Calculate total height needed
     float totalHeight = items.size() * options.itemHeight +
                         (items.size() - 1) * options.itemSpacing;
 
@@ -84,13 +82,24 @@ void OpenWars::UI::CarouselComponent::render() {
         bool isSelected = (i == selectedIndex);
         bool isHovered = (i == hoveredIndex);
 
-        // Calculate position with offset
-        float itemY = getItemY(i);
-        float itemX = layout.x + animation.itemOffsets[i];
+        int distance = (int)i - selectedIndex;
 
-        // Selected item gets large box, others stay small
+        float scale = 1.0f;
+        float distanceOffset = 0.0f;
+        float alphaMultiplier = 1.0f;
+
+        if(!isSelected) {
+            // Items further from selection get smaller and shift left
+            float absDist = std::abs((float)distance);
+            scale = std::max(0.4f, 1.0f - absDist * 0.15f);
+            distanceOffset = -absDist * 40.0f; // Move left progressively
+            alphaMultiplier = std::max(0.3f, 1.0f - absDist * 0.2f);
+        }
+
+        float itemY = getItemY(i);
+        float itemX = layout.x + animation.itemOffsets[i] + distanceOffset;
+
         if(isSelected) {
-            // Large selection box (AW2 style)
             int fontSize = (int)(options.fontSize * 1.5f);
             int textWidth = Drawing::measureText(item.label.c_str(), fontSize);
 
@@ -152,7 +161,7 @@ void OpenWars::UI::CarouselComponent::render() {
             );
 
             // Triangle indicator
-            float indicatorX = itemX - Theme::MARGIN;
+            float indicatorX = itemX - (Theme::MARGIN * 2);
             float indicatorY = itemY;
             Vector2 v1 = {indicatorX - 8, indicatorY - 8};
             Vector2 v2 = {indicatorX - 8, indicatorY + 8};
@@ -160,16 +169,18 @@ void OpenWars::UI::CarouselComponent::render() {
             Drawing::drawTriangle(v1, v2, v3, Colors::GREEN_300);
 
         } else {
-            // Non-selected: simple small text
-            int fontSize = (int)options.fontSize;
+            int baseFontSize = (int)options.fontSize;
+            int fontSize = (int)(baseFontSize * scale);
 
             Color textColor =
                 item.enabled ? options.normalColor : options.disabledColor;
 
-            // Slight brightness on hover
             if(isHovered && item.enabled) {
                 textColor = Colors::brightness(textColor, 0.3f);
             }
+
+            // Apply alpha based on distance
+            textColor = Colors::alpha(textColor, alphaMultiplier);
 
             Drawing::drawText(
                 item.label.c_str(),
@@ -247,7 +258,6 @@ void OpenWars::UI::CarouselComponent::selectItem(int index) {
         animation.targetSelection = (float)index;
         invalidate();
 
-        // Dispatch selection change event
         dispatchEvent(EventType::Change, &index);
     }
 }
