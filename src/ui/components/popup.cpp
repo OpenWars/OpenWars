@@ -256,7 +256,7 @@ bool OpenWars::UI::PopupComponent::handleInput(
 
     // Check if click is outside popup (for closing)
     bool clickedOutside = false;
-    if(inputState.pressingLeft) {
+    if(inputState.pressed.leftClick) {
         clickedOutside =
             !Drawing::checkCollisionPointRec(inputState.mousePos, getBounds());
     }

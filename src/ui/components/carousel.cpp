@@ -213,17 +213,14 @@ bool OpenWars::UI::CarouselComponent::handleInput(
 
     bool consumed = false;
 
-    bool upPressed = inputState.ArrowUp;
-    bool downPressed = inputState.ArrowDown;
-
-    if(upPressed && !wasUpPressed) {
+    if(inputState.pressed.arrowUp) {
         // Wrap to last item when at first
         int newIndex = (selectedIndex - 1 + items.size()) % items.size();
         selectItem(newIndex);
         consumed = true;
     }
 
-    if(downPressed && !wasDownPressed) {
+    if(inputState.pressed.arrowDown) {
         // Wrap to first item when at last
         int newIndex = (selectedIndex + 1) % items.size();
         selectItem(newIndex);
@@ -245,7 +242,8 @@ bool OpenWars::UI::CarouselComponent::handleInput(
         invalidate();
     }
 
-    if(inputState.pressingLeft && hoveredIndex >= 0) {
+    // FIXME: Doesn't work too well, hover too
+    /*if(inputState.pressed.leftClick && hoveredIndex >= 0) {
         selectItem(hoveredIndex);
 
         if(items[hoveredIndex].enabled && items[hoveredIndex].onSelect) {
@@ -253,7 +251,7 @@ bool OpenWars::UI::CarouselComponent::handleInput(
         }
 
         consumed = true;
-    }
+    }*/
 
     return consumed;
 }

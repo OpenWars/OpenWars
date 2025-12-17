@@ -4,15 +4,28 @@
 void OpenWars::IO::Input::Handler::poll() {
     const bool* keystate = SDL_GetKeyboardState(nullptr);
 
-    state.W = keystate[SDL_SCANCODE_W];
-    state.A = keystate[SDL_SCANCODE_A];
-    state.S = keystate[SDL_SCANCODE_S];
-    state.D = keystate[SDL_SCANCODE_D];
-    state.ArrowUp = keystate[SDL_SCANCODE_UP];
-    state.ArrowDown = keystate[SDL_SCANCODE_DOWN];
-    state.ArrowLeft = keystate[SDL_SCANCODE_LEFT];
-    state.ArrowRight = keystate[SDL_SCANCODE_RIGHT];
+    // --- current down state ---
+    state.down.W = keystate[SDL_SCANCODE_W];
+    state.down.A = keystate[SDL_SCANCODE_A];
+    state.down.S = keystate[SDL_SCANCODE_S];
+    state.down.D = keystate[SDL_SCANCODE_D];
+    state.down.arrowUp = keystate[SDL_SCANCODE_UP];
+    state.down.arrowDown = keystate[SDL_SCANCODE_DOWN];
+    state.down.arrowLeft = keystate[SDL_SCANCODE_LEFT];
+    state.down.arrowRight = keystate[SDL_SCANCODE_RIGHT];
 
+    // --- pressed this frame ---
+    state.pressed.W = state.down.W && !state.wasDown.W;
+    state.pressed.A = state.down.A && !state.wasDown.A;
+    state.pressed.S = state.down.S && !state.wasDown.S;
+    state.pressed.D = state.down.D && !state.wasDown.D;
+    state.pressed.arrowUp = state.down.arrowUp && !state.wasDown.arrowUp;
+    state.pressed.arrowDown = state.down.arrowDown && !state.wasDown.arrowDown;
+    state.pressed.arrowLeft = state.down.arrowLeft && !state.wasDown.arrowLeft;
+    state.pressed.arrowRight =
+        state.down.arrowRight && !state.wasDown.arrowRight;
+
+    // --- mouse ---
     float mouseX, mouseY;
     uint32_t mouseState = SDL_GetMouseState(&mouseX, &mouseY);
 
@@ -22,9 +35,21 @@ void OpenWars::IO::Input::Handler::poll() {
     bool down_left = (mouseState & SDL_BUTTON_LMASK) != 0;
     bool down_right = (mouseState & SDL_BUTTON_RMASK) != 0;
 
-    state.pressingLeft = down_left && down_left != state.downLeft;
-    state.pressingRight = down_right && down_right != state.downRight;
+    state.pressed.leftClick = down_left && !state.wasDown.leftClick;
+    state.pressed.rightClick = down_right && !state.wasDown.rightClick;
 
-    state.downLeft = down_left;
-    state.downRight = down_right;
+    state.down.leftClick = down_left;
+    state.down.rightClick = down_right;
+
+    // --- save down state for next frame ---
+    state.wasDown.W = state.down.W;
+    state.wasDown.A = state.down.A;
+    state.wasDown.S = state.down.S;
+    state.wasDown.D = state.down.D;
+    state.wasDown.arrowUp = state.down.arrowUp;
+    state.wasDown.arrowDown = state.down.arrowDown;
+    state.wasDown.arrowLeft = state.down.arrowLeft;
+    state.wasDown.arrowRight = state.down.arrowRight;
+    state.wasDown.leftClick = state.down.leftClick;
+    state.wasDown.rightClick = state.down.rightClick;
 }

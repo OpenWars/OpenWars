@@ -182,7 +182,7 @@ bool OpenWars::UI::ButtonComponent::handleInput(
     }
 
     // Handle click
-    if(isHovered && inputState.pressingLeft) {
+    if(isHovered && inputState.pressed.leftClick) {
         // Trigger click animation
         animation.clickProgress = 1.0f;
 

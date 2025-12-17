@@ -5,18 +5,47 @@
 
 namespace OpenWars::IO::Input {
     struct InputState {
-        bool W = false;
-        bool A = false;
-        bool S = false;
-        bool D = false;
-        bool ArrowLeft = false;
-        bool ArrowRight = false;
-        bool ArrowUp = false;
-        bool ArrowDown = false;
+
+        struct {
+            bool W = false;
+            bool A = false;
+            bool S = false;
+            bool D = false;
+            bool arrowLeft = false;
+            bool arrowRight = false;
+            bool arrowUp = false;
+            bool arrowDown = false;
+            bool leftClick = false;
+            bool rightClick = false;
+        } down;
+
+        struct {
+            bool W = false;
+            bool A = false;
+            bool S = false;
+            bool D = false;
+            bool arrowLeft = false;
+            bool arrowRight = false;
+            bool arrowUp = false;
+            bool arrowDown = false;
+            bool leftClick = false;
+            bool rightClick = false;
+        } wasDown;
+
+        struct {
+            bool W = false;
+            bool A = false;
+            bool S = false;
+            bool D = false;
+            bool arrowLeft = false;
+            bool arrowRight = false;
+            bool arrowUp = false;
+            bool arrowDown = false;
+            bool leftClick = false;
+            bool rightClick = false;
+        } pressed;
 
         Vector2 mousePos = {0, 0};
-        bool downLeft = false, pressingLeft = false;
-        bool downRight = false, pressingRight = false;
     };
 
     class Handler {

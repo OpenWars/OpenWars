@@ -41,6 +41,7 @@ void OpenWars::Game::MenuScene::createUI() {
          true},
         {"DESIGN ROOM",
          []() { IO::Logging::log("%s", "Design Room selected"); },
+         true,
          Colors::ORANGE_400,
          Colors::ORANGE_900,
          Colors::ORANGE_600}
