@@ -79,6 +79,10 @@ void OpenWars::UI::CarouselComponent::render() {
 
     for(size_t i = 0; i < items.size(); ++i) {
         const auto& item = items[i];
+
+        if(!item.enabled)
+            continue;
+
         bool isSelected = (i == selectedIndex);
         bool isHovered = (i == hoveredIndex);
 
