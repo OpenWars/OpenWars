@@ -76,7 +76,6 @@ namespace OpenWars::Game {
 
       private:
         void createUI();
-        void showDownloadPrompt();
     };
 
     class SceneManager {
