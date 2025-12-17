@@ -17,9 +17,7 @@ OpenWars::UI::ButtonComponent::ButtonComponent(
     , label(label)
     , background(bg)
     , foreground(fg) {
-    // calc size based on text
-    int fontSize = 14;
-    int textWidth = Drawing::measureText(label.c_str(), fontSize);
+    int textWidth = Drawing::measureText(label.c_str(), options.textSize);
 
     layout.width = textWidth + Theme::MARGIN * 2;
     layout.height = 28;
@@ -125,12 +123,24 @@ void OpenWars::UI::ButtonComponent::render() {
     );
 
     // text
-    float centerX = renderPos.x + (layout.width + skew) / 2.0f;
+    Vector2 labelPos = {};
+    int textWidth = Drawing::measureText(label.c_str(), options.textSize);
+
     float centerY = renderPos.y - layout.height / 2.0f;
 
-    int fontSize = 14;
-    int textWidth = Drawing::measureText(label.c_str(), fontSize);
-    Vector2 labelPos = {centerX - textWidth / 2.0f, centerY - fontSize / 2.0f};
+    if(options.textAlignment == Alignment::Center) {
+        float centerX = renderPos.x + (layout.width + skew) / 2.0f;
+
+        labelPos = {
+            centerX - textWidth / 2.0f,
+            centerY - options.textSize / 2.0f
+        };
+    } else {
+        labelPos = {
+            renderPos.x + skew,
+            centerY - options.textSize / 2.0f,
+        };
+    }
 
     Color textColor =
         state.enabled ? foreground : Colors::brightness(foreground, -0.4f);
@@ -138,7 +148,7 @@ void OpenWars::UI::ButtonComponent::render() {
         label.c_str(),
         labelPos.x,
         labelPos.y,
-        fontSize,
+        options.textSize,
         Colors::alpha(textColor, alpha)
     );
 
@@ -190,9 +200,7 @@ void OpenWars::UI::ButtonComponent::setLabel(const std::string& newLabel) {
     if(label != newLabel) {
         label = newLabel;
 
-        // Recalculate size
-        int fontSize = 14;
-        int textWidth = Drawing::measureText(label.c_str(), fontSize);
+        int textWidth = Drawing::measureText(label.c_str(), options.textSize);
         layout.width = textWidth + Theme::MARGIN * 2;
 
         updateLayout();

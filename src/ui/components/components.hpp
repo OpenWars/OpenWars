@@ -7,6 +7,8 @@
 #include <functional>
 
 namespace OpenWars::UI {
+    enum class Alignment { Left, Center, Right, Top, Middle, Bottom };
+
     class ButtonComponent : public Component {
         std::string label;
         Color background;
@@ -28,6 +30,11 @@ namespace OpenWars::UI {
             Color background = Theme::PRIMARY,
             Color foreground = Theme::PRIMARY_FOREGROUND
         );
+
+        struct ButtonOptions {
+            Alignment textAlignment = Alignment::Center;
+            float textSize = 14;
+        } options;
 
         void render() override;
         bool handleInput(const IO::Input::InputState& state) override;
@@ -86,7 +93,6 @@ namespace OpenWars::UI {
         void setMessage(const std::string& newMessage);
     };
 
-    enum class Alignment { Left, Center, Right, Top, Middle, Bottom };
     struct LayoutOptions {
         float spacing = Theme::MARGIN;
         Alignment horizontalAlign = Alignment::Center;
