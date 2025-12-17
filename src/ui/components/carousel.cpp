@@ -77,16 +77,20 @@ void OpenWars::UI::CarouselComponent::render() {
     if(!state.visible || items.empty())
         return;
 
-    for(size_t i = 0; i < items.size(); ++i) {
-        const auto& item = items[i];
+    int itemCount = items.size();
 
-        if(!item.enabled)
-            continue;
+    int visibleRange =
+        std::min(4, itemCount); // increae for more items on viewport
+
+    for(int offset = -visibleRange; offset <= visibleRange; ++offset) {
+        int i = (selectedIndex + offset + itemCount) % itemCount;
+
+        const auto& item = items[i];
 
         bool isSelected = (i == selectedIndex);
         bool isHovered = (i == hoveredIndex);
 
-        int distance = (int)i - selectedIndex;
+        int distance = offset;
 
         float scale = 1.0f;
         float distanceOffset = 0.0f;
@@ -100,7 +104,8 @@ void OpenWars::UI::CarouselComponent::render() {
             alphaMultiplier = std::max(0.3f, 1.0f - absDist * 0.2f);
         }
 
-        float itemY = getItemY(i);
+        float itemY =
+            layout.y + offset * (options.itemHeight + options.itemSpacing);
         float itemX = layout.x + animation.itemOffsets[i] + distanceOffset;
 
         if(isSelected) {
@@ -209,17 +214,17 @@ bool OpenWars::UI::CarouselComponent::handleInput(
     bool downPressed = inputState.ArrowDown;
 
     if(upPressed && !wasUpPressed) {
-        if(selectedIndex > 0) {
-            selectItem(selectedIndex - 1);
-            consumed = true;
-        }
+        // Wrap to last item when at first
+        int newIndex = (selectedIndex - 1 + items.size()) % items.size();
+        selectItem(newIndex);
+        consumed = true;
     }
 
     if(downPressed && !wasDownPressed) {
-        if(selectedIndex < (int)items.size() - 1) {
-            selectItem(selectedIndex + 1);
-            consumed = true;
-        }
+        // Wrap to first item when at last
+        int newIndex = (selectedIndex + 1) % items.size();
+        selectItem(newIndex);
+        consumed = true;
     }
 
     wasUpPressed = upPressed;
