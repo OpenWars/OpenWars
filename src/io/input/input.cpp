@@ -1,4 +1,5 @@
 #include "input.hpp"
+#include <SDL3/SDL_scancode.h>
 
 void OpenWars::IO::Input::Handler::poll() {
     const bool* keystate = SDL_GetKeyboardState(nullptr);
@@ -7,6 +8,10 @@ void OpenWars::IO::Input::Handler::poll() {
     state.A = keystate[SDL_SCANCODE_A];
     state.S = keystate[SDL_SCANCODE_S];
     state.D = keystate[SDL_SCANCODE_D];
+    state.ArrowUp = keystate[SDL_SCANCODE_UP];
+    state.ArrowDown = keystate[SDL_SCANCODE_DOWN];
+    state.ArrowLeft = keystate[SDL_SCANCODE_LEFT];
+    state.ArrowRight = keystate[SDL_SCANCODE_RIGHT];
 
     float mouseX, mouseY;
     uint32_t mouseState = SDL_GetMouseState(&mouseX, &mouseY);

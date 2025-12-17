@@ -9,6 +9,10 @@ namespace OpenWars::IO::Input {
         bool A = false;
         bool S = false;
         bool D = false;
+        bool ArrowLeft = false;
+        bool ArrowRight = false;
+        bool ArrowUp = false;
+        bool ArrowDown = false;
 
         Vector2 mousePos = {0, 0};
         bool downLeft = false, pressingLeft = false;
