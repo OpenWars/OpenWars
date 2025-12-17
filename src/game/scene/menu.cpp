@@ -18,21 +18,32 @@ OpenWars::Game::MenuScene::MenuScene()
 void OpenWars::Game::MenuScene::createUI() {
     // Create menu items
     std::vector<UI::CarouselItem> menuItems = {
-        {"CAMPAIGN",
+        {"SINGLEPLAYER",
          []() { IO::Logging::log("%s", "Campaign selected"); },
-         true},
+         true,
+         Colors::BLUE_400,
+         Colors::BLUE_900,
+         Colors::BLUE_600},
         {"BATTLE MAPS",
          []() { IO::Logging::log("%s", "Battle Maps selected"); },
-         true},
+         true,
+         Colors::AMBER_400,
+         Colors::AMBER_900,
+         Colors::AMBER_600},
         {"WAR ROOM",
          []() { IO::Logging::log("%s", "War Room selected"); },
+         true,
+         Colors::RED_400,
+         Colors::RED_900,
+         Colors::RED_600},
+        {"MULTIPLAYER",
+         []() { IO::Logging::log("%s", "Versus selected"); },
          true},
-        {"VERSUS", []() { IO::Logging::log("%s", "Versus selected"); }, true},
-        {
-            "DESIGN ROOM",
-            []() { IO::Logging::log("%s", "Design Room selected"); },
-            false // Disabled for demo
-        }
+        {"DESIGN ROOM",
+         []() { IO::Logging::log("%s", "Design Room selected"); },
+         Colors::ORANGE_400,
+         Colors::ORANGE_900,
+         Colors::ORANGE_600}
     };
 
     // Create carousel positioned on left side

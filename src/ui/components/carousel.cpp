@@ -5,6 +5,7 @@
 #include "../../utils/drawing.hpp"
 #include <algorithm>
 #include <cmath>
+#include <iterator>
 
 OpenWars::UI::CarouselComponent::CarouselComponent(
     const std::vector<CarouselItem>& items,
@@ -51,21 +52,19 @@ void OpenWars::UI::CarouselComponent::update(float deltaTime) {
         (animation.targetSelection - animation.selectionTransition) *
         deltaTime * transitionSpeed;
 
-    // Update each item's horizontal offset
+    // Update each item's horizontal offset based on whether it's selected
     for(size_t i = 0; i < items.size(); ++i) {
         float targetOffset =
-            (i == selectedIndex) ? options.selectedOffset : 0.0f;
+            (i == (size_t)selectedIndex) ? options.selectedOffset : 0.0f;
         animation.itemOffsets[i] +=
             (targetOffset - animation.itemOffsets[i]) * deltaTime * 10.0f;
     }
 
     // Check if still animating
-    state.animating =
-        std::abs(animation.selectionTransition - animation.targetSelection) >
-        0.01f;
+    state.animating = false;
     for(size_t i = 0; i < items.size(); ++i) {
         float targetOffset =
-            (i == selectedIndex) ? options.selectedOffset : 0.0f;
+            (i == (size_t)selectedIndex) ? options.selectedOffset : 0.0f;
         if(std::abs(animation.itemOffsets[i] - targetOffset) > 0.01f) {
             state.animating = true;
             break;
@@ -104,9 +103,13 @@ void OpenWars::UI::CarouselComponent::render() {
             alphaMultiplier = std::max(0.3f, 1.0f - absDist * 0.2f);
         }
 
+        // Use offset-based Y position for circular layout
         float itemY =
             layout.y + offset * (options.itemHeight + options.itemSpacing);
-        float itemX = layout.x + animation.itemOffsets[i] + distanceOffset;
+
+        // Smoothly interpolate the X position
+        float baseX = layout.x + animation.itemOffsets[i];
+        float itemX = baseX + distanceOffset;
 
         if(isSelected) {
             int fontSize = (int)(options.fontSize * 1.5f);
@@ -164,7 +167,7 @@ void OpenWars::UI::CarouselComponent::render() {
             Drawing::drawText(
                 item.label.c_str(),
                 (int)(itemX + Theme::MARGIN),
-                (int)(itemY - fontSize / 2.0f),
+                (int)(itemY - fontSize / 2.0f) - 6,
                 fontSize,
                 item.enabled ? Colors::WHITE : Colors::ZINC_400
             );
@@ -175,7 +178,7 @@ void OpenWars::UI::CarouselComponent::render() {
             Vector2 v1 = {indicatorX - 8, indicatorY - 8};
             Vector2 v2 = {indicatorX - 8, indicatorY + 8};
             Vector2 v3 = {indicatorX + 2, indicatorY};
-            Drawing::drawTriangle(v1, v2, v3, Colors::GREEN_300);
+            Drawing::drawTriangle(v1, v2, v3, Colors::ZINC_300);
 
         } else {
             int baseFontSize = (int)options.fontSize;
@@ -226,9 +229,6 @@ bool OpenWars::UI::CarouselComponent::handleInput(
         selectItem(newIndex);
         consumed = true;
     }
-
-    wasUpPressed = upPressed;
-    wasDownPressed = downPressed;
 
     int oldHovered = hoveredIndex;
     hoveredIndex = -1;
