@@ -5,6 +5,7 @@
 #include "../../utils/drawing.hpp"
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
 #include <iterator>
 
 OpenWars::UI::CarouselComponent::CarouselComponent(
@@ -252,6 +253,14 @@ bool OpenWars::UI::CarouselComponent::handleInput(
 
         consumed = true;
     }*/
+
+    if(inputState.pressed.enter) {
+        if(items[selectedIndex].enabled && items[selectedIndex].onSelect) {
+            items[selectedIndex].onSelect();
+        }
+
+        consumed = true;
+    }
 
     return consumed;
 }

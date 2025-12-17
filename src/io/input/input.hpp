@@ -17,6 +17,7 @@ namespace OpenWars::IO::Input {
             bool arrowDown = false;
             bool leftClick = false;
             bool rightClick = false;
+            bool enter = false;
         } down;
 
         struct {
@@ -30,6 +31,7 @@ namespace OpenWars::IO::Input {
             bool arrowDown = false;
             bool leftClick = false;
             bool rightClick = false;
+            bool enter = false;
         } wasDown;
 
         struct {
@@ -43,6 +45,7 @@ namespace OpenWars::IO::Input {
             bool arrowDown = false;
             bool leftClick = false;
             bool rightClick = false;
+            bool enter = false;
         } pressed;
 
         Vector2 mousePos = {0, 0};

@@ -1,6 +1,5 @@
 #include "input.hpp"
 #include <SDL3/SDL_scancode.h>
-
 void OpenWars::IO::Input::Handler::poll() {
     const bool* keystate = SDL_GetKeyboardState(nullptr);
 
@@ -13,6 +12,7 @@ void OpenWars::IO::Input::Handler::poll() {
     state.down.arrowDown = keystate[SDL_SCANCODE_DOWN];
     state.down.arrowLeft = keystate[SDL_SCANCODE_LEFT];
     state.down.arrowRight = keystate[SDL_SCANCODE_RIGHT];
+    state.down.enter = keystate[SDL_SCANCODE_RETURN];
 
     // --- pressed this frame ---
     state.pressed.W = state.down.W && !state.wasDown.W;
@@ -24,6 +24,7 @@ void OpenWars::IO::Input::Handler::poll() {
     state.pressed.arrowLeft = state.down.arrowLeft && !state.wasDown.arrowLeft;
     state.pressed.arrowRight =
         state.down.arrowRight && !state.wasDown.arrowRight;
+    state.pressed.enter = state.down.enter && !state.wasDown.enter;
 
     // --- mouse ---
     float mouseX, mouseY;
@@ -52,4 +53,5 @@ void OpenWars::IO::Input::Handler::poll() {
     state.wasDown.arrowRight = state.down.arrowRight;
     state.wasDown.leftClick = state.down.leftClick;
     state.wasDown.rightClick = state.down.rightClick;
+    state.wasDown.enter = state.down.enter;
 }
