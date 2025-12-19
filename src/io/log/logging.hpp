@@ -12,7 +12,7 @@ namespace OpenWars::IO::Logging {
         LOG_FATAL = SDL_LOG_PRIORITY_CRITICAL
     };
 
-    void init();
+    void init(int argc, char* argv[]);
 
     template <typename... Args> void log(const char* fmt, Args... args) {
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, fmt, args...);

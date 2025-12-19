@@ -6,8 +6,8 @@
 #include "io/log/logging.hpp"
 using namespace OpenWars;
 
-int main() {
-    IO::Logging::init();
+int main(int argc, char* argv[]) {
+    IO::Logging::init(argc, argv);
     IO::Logging::log(
         "Starting OpenWars engine for %s v%s (testing: %hhd)...",
         OpenWars::NAME,
