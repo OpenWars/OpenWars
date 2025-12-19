@@ -7,7 +7,7 @@
       "request": "launch",
 
       "program": "${workspaceFolder}/build/openwars",
-      "args": [],
+      "args": ["--log=debug"],
       "cwd": "${workspaceFolder}",
 
       "stopAtEntry": false,
