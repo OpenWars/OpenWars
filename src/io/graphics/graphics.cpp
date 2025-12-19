@@ -3,6 +3,7 @@
 #include "../../core/core.hpp"
 #include "../../core/drawing/text.hpp"
 #include "../log/logging.hpp"
+#include <SDL3/SDL_init.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <map>
 
@@ -57,6 +58,12 @@ namespace OpenWars::IO::Graphics {
             {Vector3{0, 0, 0}, Vector3{0, 0, 0}, Vector3{0, 1, 0}, 45.0f, 0};
 
         lastFrameTime = SDL_GetTicksNS();
+
+        SDL_SetAppMetadata(
+            OpenWars::NAME,
+            OpenWars::VERSION,
+            "org.chimoteam.openwars"
+        );
     }
 
     void displayDebug(bool debug, bool fps) {
