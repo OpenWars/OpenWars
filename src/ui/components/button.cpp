@@ -2,7 +2,7 @@
 #include "../../core/drawing/text.hpp"
 #include "../../core/drawing/collision.hpp"
 #include "../../io/graphics/graphics.hpp"
-#include "components.hpp"
+#include "button.hpp"
 #include <cmath>
 #include <algorithm>
 

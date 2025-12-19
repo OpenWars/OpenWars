@@ -1,11 +1,11 @@
-#include "components.hpp"
+#include "carousel.hpp"
 #include "../../core/drawing/text.hpp"
 #include "../../core/drawing/collision.hpp"
-#include "../../core/colors.hpp"
 #include "../../utils/drawing.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <vector>
 
 OpenWars::UI::CarouselComponent::CarouselComponent(
     const std::vector<CarouselItem>& items,

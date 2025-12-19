@@ -7,6 +7,7 @@
 #include <functional>
 #include "../io/input/input.hpp"
 #include "../core/drawing/shapes.hpp"
+#include "theme.hpp"
 
 namespace OpenWars::UI {
     // Forward declarations
@@ -172,4 +173,35 @@ namespace OpenWars::UI {
             parentHandler->markDirty();
         }
     }
+
+    enum class Alignment { Left, Center, Right, Top, Middle, Bottom };
+
+    struct LayoutOptions {
+        float spacing = Theme::MARGIN;
+        Alignment horizontalAlign = Alignment::Center;
+        Alignment verticalAlign = Alignment::Middle;
+        float padding = Theme::MARGIN;
+    };
+
+    class LayoutManager {
+      public:
+        static void layoutHorizontal(
+            std::vector<Component*>& components,
+            const Drawing::Rectangle& bounds,
+            const LayoutOptions& options = LayoutOptions{}
+        );
+
+        static void layoutVertical(
+            std::vector<Component*>& components,
+            const Drawing::Rectangle& bounds,
+            const LayoutOptions& options = LayoutOptions{}
+        );
+
+        static void layoutGrid(
+            std::vector<Component*>& components,
+            const Drawing::Rectangle& bounds,
+            int columns,
+            const LayoutOptions& options = LayoutOptions{}
+        );
+    };
 } // namespace OpenWars::UI

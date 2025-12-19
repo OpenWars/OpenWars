@@ -1,9 +1,8 @@
 #include "../../utils/drawing.hpp"
 #include "../../core/drawing/collision.hpp"
 #include "../../core/drawing/text.hpp"
-#include "../../core/colors.hpp"
 #include "../../io/graphics/graphics.hpp"
-#include "components.hpp"
+#include "popup.hpp"
 #include <algorithm>
 
 using namespace OpenWars::IO::Graphics;

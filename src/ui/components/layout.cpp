@@ -1,5 +1,4 @@
-#include "components.hpp"
-#include "../../core/drawing/shapes.hpp"
+#include "../ui.hpp"
 
 void OpenWars::UI::LayoutManager::layoutHorizontal(
     std::vector<Component*>& components,
