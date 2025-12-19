@@ -1,4 +1,3 @@
-#include "../../core/colors.hpp"
 #include "../../core/drawing/text.hpp"
 #include "../../io/graphics/graphics.hpp"
 #include "../../io/log/logging.hpp"
@@ -57,11 +56,9 @@ void OpenWars::Game::MenuScene::createUI() {
         "main_menu_carousel"
     );
 
-    uiHandler->addComponent(std::move(carousel));
+    carousel->setDescriptionOutput(&menuState.currentDescription);
 
-    // we search again for carousel even when we still have
-    // access here, is there a better method?
-    updateDescription();
+    uiHandler->addComponent(std::move(carousel));
 }
 
 void OpenWars::Game::MenuScene::onEnter() {
@@ -70,17 +67,7 @@ void OpenWars::Game::MenuScene::onEnter() {
 }
 
 void OpenWars::Game::MenuScene::update(float deltaTime) {
-    updateDescription();
     Scene::update(deltaTime);
-}
-
-void OpenWars::Game::MenuScene::updateDescription() {
-    auto* carousel = dynamic_cast<UI::CarouselComponent*>(
-        uiHandler->findComponentById("main_menu_carousel")
-    );
-
-    if(carousel)
-        menuState.currentDescription = carousel->currentDescription;
 }
 
 void OpenWars::Game::MenuScene::render() {
@@ -102,7 +89,7 @@ void OpenWars::Game::MenuScene::render() {
     );
 
     drawText(
-        menuState.currentDescription->c_str(),
+        menuState.currentDescription.c_str(),
         70,
         (int)(descY + 20),
         18,

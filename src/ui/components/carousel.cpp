@@ -270,11 +270,12 @@ void OpenWars::UI::CarouselComponent::selectItem(int index) {
 
     if(selectedIndex != index) {
         selectedIndex = index;
-        currentDescription = &items[index].description;
         animation.targetSelection = (float)index;
         invalidate();
 
         dispatchEvent(EventType::Change, &index);
+
+        updateDescriptionOutput();
     }
 }
 
@@ -324,4 +325,11 @@ OpenWars::UI::CarouselComponent::getItemBounds(int index) const {
         (float)textWidth + Theme::MARGIN * 2,
         options.itemHeight
     };
+}
+
+void OpenWars::UI::CarouselComponent::updateDescriptionOutput() {
+    if(descriptionOutput && selectedIndex >= 0 &&
+       selectedIndex < (int)items.size()) {
+        *descriptionOutput = items[selectedIndex].description;
+    }
 }

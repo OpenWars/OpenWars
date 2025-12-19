@@ -63,9 +63,7 @@ namespace OpenWars::Game {
 
     class MenuScene : public Scene {
         struct MenuState {
-            int selectedOption = 0;
-            bool contentDownloaded = false;
-            std::string* currentDescription;
+            std::string currentDescription = "";
         } menuState;
 
       public:

@@ -6,7 +6,6 @@
 #include "../ui.hpp"
 
 namespace OpenWars::UI {
-
     struct CarouselItem {
         std::string label;
         std::string description;
@@ -43,14 +42,14 @@ namespace OpenWars::UI {
         bool wasUpPressed = false;
         bool wasDownPressed = false;
 
+        std::string* descriptionOutput = nullptr;
+
       public:
         CarouselComponent(
             const std::vector<CarouselItem>& items,
             Vector2 position,
             const std::string& id = ""
         );
-
-        std::string* currentDescription = &items[0].description; // hack!
 
         void render() override;
         bool handleInput(const IO::Input::InputState& state) override;
@@ -60,6 +59,10 @@ namespace OpenWars::UI {
         void addItem(const CarouselItem& item);
         void removeItem(int index);
         void setSelectedIndex(int index);
+        void setDescriptionOutput(std::string* output) {
+            descriptionOutput = output;
+            updateDescriptionOutput();
+        }
 
         int getSelectedIndex() const {
             return selectedIndex;
@@ -82,5 +85,6 @@ namespace OpenWars::UI {
         float getItemY(int index) const;
         Drawing::Rectangle getItemBounds(int index) const;
         void selectItem(int index);
+        void updateDescriptionOutput();
     };
 } // namespace OpenWars::UI
