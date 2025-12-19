@@ -19,6 +19,12 @@ namespace OpenWars::IO::Graphics {
     static int currentFPS = 0;
 
     void init(int vsync, bool multisampling) {
+        SDL_SetAppMetadata(
+            OpenWars::NAME,
+            OpenWars::VERSION,
+            "org.chimoteam.openwars"
+        );
+
         if(!SDL_Init(SDL_INIT_VIDEO)) {
             IO::Logging::error(true, "SDL init failed: %s", SDL_GetError());
             return;
@@ -28,12 +34,6 @@ namespace OpenWars::IO::Graphics {
             IO::Logging::error(true, "TTF init failed: %s", SDL_GetError());
             return;
         }
-
-        SDL_SetAppMetadata(
-            OpenWars::NAME,
-            OpenWars::VERSION,
-            "org.chimoteam.openwars"
-        );
 
         window = SDL_CreateWindow(OpenWars::NAME, 1024, 512, 0);
         if(!window) {
