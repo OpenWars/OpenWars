@@ -124,6 +124,7 @@ namespace OpenWars::UI {
 
     struct CarouselItem {
         std::string label;
+        std::string description;
         std::function<void()> onSelect;
         bool enabled = true;
         Color border = Colors::GREEN_400;
@@ -164,6 +165,8 @@ namespace OpenWars::UI {
             const std::string& id = ""
         );
 
+        std::string* currentDescription = &items[0].description; // hack!
+
         void render() override;
         bool handleInput(const IO::Input::InputState& state) override;
         void update(float deltaTime) override;
@@ -172,6 +175,7 @@ namespace OpenWars::UI {
         void addItem(const CarouselItem& item);
         void removeItem(int index);
         void setSelectedIndex(int index);
+
         int getSelectedIndex() const {
             return selectedIndex;
         }

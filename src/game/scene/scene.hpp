@@ -65,6 +65,7 @@ namespace OpenWars::Game {
         struct MenuState {
             int selectedOption = 0;
             bool contentDownloaded = false;
+            std::string* currentDescription;
         } menuState;
 
       public:
@@ -75,6 +76,7 @@ namespace OpenWars::Game {
         void render() override;
 
       private:
+        void updateDescription();
         void createUI();
     };
 

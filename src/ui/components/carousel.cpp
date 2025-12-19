@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
-#include <iterator>
 
 OpenWars::UI::CarouselComponent::CarouselComponent(
     const std::vector<CarouselItem>& items,
@@ -271,6 +270,7 @@ void OpenWars::UI::CarouselComponent::selectItem(int index) {
 
     if(selectedIndex != index) {
         selectedIndex = index;
+        currentDescription = &items[index].description;
         animation.targetSelection = (float)index;
         invalidate();
 
