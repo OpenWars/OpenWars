@@ -97,13 +97,13 @@ std::string OpenWars::Config::Manager::trim(const std::string& s) {
 }
 
 void OpenWars::Config::Manager::dump() {
-    IO::Logging::log("%s", "=== Configuration Dump ===");
+    IO::Logging::debug("%s", "=== Configuration Dump ===");
 
-    IO::Logging::log("%s", "[Graphics]");
+    IO::Logging::debug("%s", "[Graphics]");
     dumpStruct(graphics, Graphics::fields);
 
-    IO::Logging::log("%s", "[Player]");
+    IO::Logging::debug("%s", "[Player]");
     dumpStruct(player, Player::fields);
 
-    IO::Logging::log("%s", "=== End Configuration Dump ===");
+    IO::Logging::debug("%s", "=== End Configuration Dump ===");
 }

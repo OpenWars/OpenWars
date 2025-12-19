@@ -99,7 +99,7 @@ namespace OpenWars::Config {
         template <typename Struct, typename T>
         void dumpField(const Struct& s, const Field<Struct, T>& field) {
             std::string value = getFieldValue(s, field);
-            IO::Logging::log("  %s = %s", field.name, value.c_str());
+            IO::Logging::debug("  %s = %s", field.name, value.c_str());
         }
     };
 } // namespace OpenWars::Config
