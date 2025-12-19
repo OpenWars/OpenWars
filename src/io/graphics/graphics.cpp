@@ -29,9 +29,13 @@ namespace OpenWars::IO::Graphics {
             return;
         }
 
-        // todo: remove flags completely?
-        uint32_t flags = 0;
-        window = SDL_CreateWindow(OpenWars::NAME, 1024, 512, flags);
+        SDL_SetAppMetadata(
+            OpenWars::NAME,
+            OpenWars::VERSION,
+            "org.chimoteam.openwars"
+        );
+
+        window = SDL_CreateWindow(OpenWars::NAME, 1024, 512, 0);
         if(!window) {
             IO::Logging::error(
                 true,
@@ -58,12 +62,6 @@ namespace OpenWars::IO::Graphics {
             {Vector3{0, 0, 0}, Vector3{0, 0, 0}, Vector3{0, 1, 0}, 45.0f, 0};
 
         lastFrameTime = SDL_GetTicksNS();
-
-        SDL_SetAppMetadata(
-            OpenWars::NAME,
-            OpenWars::VERSION,
-            "org.chimoteam.openwars"
-        );
     }
 
     void displayDebug(bool debug, bool fps) {
