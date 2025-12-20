@@ -60,24 +60,6 @@ namespace OpenWars::Game {
             return state.active;
         }
     };
-
-    class MenuScene : public Scene {
-        struct MenuState {
-            std::string currentDescription = "";
-        } menuState;
-
-      public:
-        MenuScene();
-
-        void onEnter() override;
-        void update(float deltaTime) override;
-        void render() override;
-
-      private:
-        void updateDescription();
-        void createUI();
-    };
-
     class SceneManager {
         Scene* currentScene = nullptr;
         Scene* nextScene = nullptr;
