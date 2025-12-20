@@ -1,10 +1,8 @@
 #include "unit.hpp"
-#include "../co/co.hpp"
 #include "damage.hpp"
 #include <algorithm>
 
 namespace OpenWars::Game {
-
     Unit::Unit(UnitType type, int playerID, Vector2 startPos)
         : type(type)
         , playerID(playerID)

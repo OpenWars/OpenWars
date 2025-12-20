@@ -2,13 +2,11 @@
 
 #include "../../core/vector.hpp"
 #include "../../core/colors.hpp"
+#include "../co/co.hpp"
+#include "../map/terrain.hpp"
 #include <string>
 
 namespace OpenWars::Game {
-    // Forward declarations
-    class CO;
-    class Terrain;
-
     enum class UnitType {
         // Infantry
         Infantry,

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../map/terrain.hpp"
 #include "unit.hpp"
 #include <unordered_map>
 

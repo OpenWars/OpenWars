@@ -5,7 +5,6 @@
 #include <algorithm>
 
 namespace OpenWars::Game {
-
     int DamageCalculator::calculateDamage(
         const Unit* attacker,
         const Unit* defender,
