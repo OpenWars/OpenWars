@@ -48,7 +48,6 @@ namespace OpenWars::Game {
         Infantry,
         Mech,
         TireA, // Tires (Recon, APC, etc.)
-        TireB, // Some games have tire variants
         Tread,
         Air,
         Sea,
