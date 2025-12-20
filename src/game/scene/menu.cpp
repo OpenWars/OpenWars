@@ -3,7 +3,7 @@
 #include "../../io/log/logging.hpp"
 #include "../../utils/drawing.hpp"
 #include "../../ui/components/carousel.hpp"
-#include "scene.hpp"
+#include "menu.hpp"
 
 using namespace OpenWars::IO::Graphics;
 using namespace OpenWars::Drawing;
