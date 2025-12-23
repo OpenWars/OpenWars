@@ -20,6 +20,7 @@ endfunction()
 	
 include_dependency(SDL3 https://github.com/libsdl-org/SDL.git release-3.2.x)
 include_dependency(SDL3_ttf https://github.com/libsdl-org/SDL_ttf.git release-3.2.x)
+include_dependency(SDL3_image https://hithub.com/libsdl-org/SDL_image.git release-3.2.x)
 include_dependency(minizip https://github.com/zlib-ng/minizip-ng 4.0.10)
 
 # Assets - Doesn't work with include_dependency and I don't have idea why
@@ -63,6 +64,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${SDL3_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} 
     PRIVATE SDL3::SDL3
     PRIVATE SDL3_ttf::SDL3_ttf
+	PRIVATE SDL3_image::SDL3_image
 	PRIVATE MINIZIP::minizip
 	PRIVATE EmbeddedAssets
 )
