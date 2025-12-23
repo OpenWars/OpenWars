@@ -47,7 +47,7 @@ namespace OpenWars::Game {
     enum class MovementType {
         Infantry,
         Mech,
-        TireA, // Tires (Recon, APC, etc.)
+        Tire,
         Tread,
         Air,
         Sea,

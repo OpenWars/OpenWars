@@ -1,4 +1,5 @@
 #include "map.hpp"
+#include "terrain.hpp"
 
 namespace OpenWars::Game {
 
@@ -59,17 +60,15 @@ namespace OpenWars::Game {
 
         TerrainType type = terrain->getType();
 
-        // Movement costs depend on movement type and terrain
-        // Based on Advance Wars mechanics
         switch(movementType) {
         case MovementType::Infantry:
         case MovementType::Mech:
             switch(type) {
             case TerrainType::Plain:
             case TerrainType::Road:
-            case TerrainType::Beach:
+            case TerrainType::Coast:
             case TerrainType::City:
-            case TerrainType::Base:
+            case TerrainType::Factory:
             case TerrainType::Airport:
             case TerrainType::Port:
             case TerrainType::Lab:
@@ -85,34 +84,30 @@ namespace OpenWars::Game {
                 return 1;
             case TerrainType::River:
             case TerrainType::Sea:
-            case TerrainType::Shoal:
-            case TerrainType::Reef:
                 return -1; // Impassable
             }
             break;
 
-        case MovementType::TireA:
+        case MovementType::Tire:
             switch(type) {
             case TerrainType::Plain:
             case TerrainType::Road:
-            case TerrainType::Beach:
+            case TerrainType::Coast:
             case TerrainType::City:
-            case TerrainType::Base:
             case TerrainType::Airport:
             case TerrainType::Port:
             case TerrainType::HQ:
             case TerrainType::Lab:
             case TerrainType::CommTower:
+            case TerrainType::Factory:
                 return 1;
             case TerrainType::Wood:
-            case TerrainType::Shoal:
                 return 3;
             case TerrainType::Mountain:
             case TerrainType::Silo:
                 return -1; // Impassable
             case TerrainType::River:
             case TerrainType::Sea:
-            case TerrainType::Reef:
             case TerrainType::Pipe:
                 return -1; // Impassable
             }
@@ -120,11 +115,11 @@ namespace OpenWars::Game {
 
         case MovementType::Tread:
             switch(type) {
+            case TerrainType::Factory:
             case TerrainType::Plain:
             case TerrainType::Road:
-            case TerrainType::Beach:
+            case TerrainType::Coast:
             case TerrainType::City:
-            case TerrainType::Base:
             case TerrainType::Airport:
             case TerrainType::Port:
             case TerrainType::HQ:
@@ -138,45 +133,30 @@ namespace OpenWars::Game {
                 return -1; // Impassable
             case TerrainType::River:
             case TerrainType::Sea:
-            case TerrainType::Shoal:
-            case TerrainType::Reef:
             case TerrainType::Pipe:
                 return -1; // Impassable
             }
             break;
 
         case MovementType::Air:
-            // Air units can move over most terrain except mountains
-            switch(type) {
-            case TerrainType::Mountain:
-                return -1; // Impassable
-            default:
-                return 1; // All other terrain costs 1 for air
-            }
+            return 1;
 
         case MovementType::Sea:
             switch(type) {
             case TerrainType::Sea:
-            case TerrainType::Shoal:
-            case TerrainType::Reef:
-            case TerrainType::River:
+            case TerrainType::Coast:
                 return 1;
             case TerrainType::Port:
-            case TerrainType::Base:
                 return 1;
             default:
                 return -1; // Impassable on land
             }
 
         case MovementType::Lander:
-            // Landers can move on water and beach
             switch(type) {
             case TerrainType::Sea:
-            case TerrainType::Shoal:
-            case TerrainType::Beach:
-                return 1;
+            case TerrainType::Coast:
             case TerrainType::Port:
-            case TerrainType::Base:
                 return 1;
             default:
                 return -1;
