@@ -60,7 +60,7 @@ namespace OpenWars::Game {
     Recon::Recon(int playerID, Vector2 startPos)
         : Unit(UnitType::Recon, playerID, startPos) {
         name = "Recon";
-        movementType = MovementType::TireA;
+        movementType = MovementType::Tire;
         moveRange = 8;
         vision = 5;
         maxFuel = 80;
@@ -188,7 +188,7 @@ namespace OpenWars::Game {
     Rockets::Rockets(int playerID, Vector2 startPos)
         : Unit(UnitType::Rockets, playerID, startPos) {
         name = "Rockets";
-        movementType = MovementType::TireA;
+        movementType = MovementType::Tire;
         moveRange = 5;
         vision = 1;
         maxFuel = 50;

@@ -57,7 +57,7 @@ namespace OpenWars::Game {
             if((current == TerrainType::Plain ||
                 current == TerrainType::Wood) &&
                waterCount > landCount) {
-                smoothed[y][x] = TerrainType::Beach;
+                smoothed[y][x] = TerrainType::Coast;
             } else {
                 smoothed[y][x] = current;
             }
@@ -110,7 +110,7 @@ namespace OpenWars::Game {
                 if(noise < 0.3f) {
                     type = TerrainType::Sea;
                 } else if(noise < 0.4f) {
-                    type = TerrainType::Beach;
+                    type = TerrainType::Coast;
                 } else if(noise < 0.65f) {
                     type = TerrainType::Plain;
                 } else if(noise < 0.85f) {
@@ -270,8 +270,8 @@ namespace OpenWars::Game {
         }
 
         // Add some bases
-        map->setTerrain(2, 2, TerrainType::Base, 3);
-        map->setTerrain(width - 3, height - 3, TerrainType::Base, 3);
+        map->setTerrain(2, 2, TerrainType::Factory, 3);
+        map->setTerrain(width - 3, height - 3, TerrainType::Factory, 3);
 
         // Add HQ units at specific points
         map->setTerrain(1, 1, TerrainType::HQ, 3);
@@ -319,8 +319,8 @@ namespace OpenWars::Game {
         }
 
         // Add bases at opposite corners
-        map->setTerrain(2, height / 2 - 1, TerrainType::Base, 3);
-        map->setTerrain(width - 3, height / 2 - 1, TerrainType::Base, 3);
+        map->setTerrain(2, height / 2 - 1, TerrainType::Factory, 3);
+        map->setTerrain(width - 3, height / 2 - 1, TerrainType::Factory, 3);
 
         addRoads(map.get());
         smoothTerrain(map.get());
