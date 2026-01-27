@@ -1,4 +1,5 @@
 #pragma once
+#include "../units/unit.hpp"
 
 namespace OpenWars::Game {
     enum class TerrainType {
@@ -33,8 +34,13 @@ namespace OpenWars::Game {
         int getDefenseStars() const {
             return defenseStars;
         }
+        int getMovementCost(MovementType movementType);
+        bool isPassable(MovementType movementType) {
+            return getMovementCost(movementType) >= 0;
+        }
         TerrainType getType() const {
             return type;
         }
+        void render();
     };
 } // namespace OpenWars::Game
