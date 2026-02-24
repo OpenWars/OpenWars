@@ -1,5 +1,6 @@
 #include "core/config/config.hpp"
 #include "core/core.hpp"
+#include "game/scene/game.hpp"
 #include "game/scene/menu.hpp"
 #include "io/graphics/graphics.hpp"
 #include "io/input/input.hpp"
@@ -26,7 +27,7 @@ int main(int argc, char* argv[]) {
 
     IO::Logging::log("%s", "Initializing I/O.");
     Game::SceneManager sceneManager;
-    Game::MenuScene scene;
+    Game::GameScene scene;
     IO::Input::Handler input;
     sceneManager.changeTo(scene);
 

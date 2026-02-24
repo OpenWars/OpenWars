@@ -17,7 +17,7 @@ int OpenWars::Game::Terrain::getMovementCost(MovementType movementType) {
         case TerrainType::CommTower:
         case TerrainType::HQ:
             return 1;
-        case TerrainType::Wood:
+        case TerrainType::Woods:
         case TerrainType::Silo:
             return 2;
         case TerrainType::Mountain:
@@ -43,7 +43,7 @@ int OpenWars::Game::Terrain::getMovementCost(MovementType movementType) {
         case TerrainType::CommTower:
         case TerrainType::Factory:
             return 1;
-        case TerrainType::Wood:
+        case TerrainType::Woods:
             return 3;
         case TerrainType::Mountain:
         case TerrainType::Silo:
@@ -68,7 +68,7 @@ int OpenWars::Game::Terrain::getMovementCost(MovementType movementType) {
         case TerrainType::Lab:
         case TerrainType::CommTower:
             return 1;
-        case TerrainType::Wood:
+        case TerrainType::Woods:
             return 2;
         case TerrainType::Mountain:
         case TerrainType::Silo:

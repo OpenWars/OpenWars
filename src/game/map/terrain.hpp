@@ -1,11 +1,12 @@
 #pragma once
-#include "../units/unit.hpp"
 
 namespace OpenWars::Game {
+    enum class MovementType;
+
     enum class TerrainType {
         Plain,
         Road,
-        Wood,
+        Woods,
         Mountain,
         River,
         Coast,

@@ -55,7 +55,7 @@ namespace OpenWars::Game {
             // Smooth transitions
             auto current = t->getType();
             if((current == TerrainType::Plain ||
-                current == TerrainType::Wood) &&
+                current == TerrainType::Woods) &&
                waterCount > landCount) {
                 smoothed[y][x] = TerrainType::Coast;
             } else {
@@ -114,13 +114,13 @@ namespace OpenWars::Game {
                 } else if(noise < 0.65f) {
                     type = TerrainType::Plain;
                 } else if(noise < 0.85f) {
-                    type = TerrainType::Wood;
+                    type = TerrainType::Woods;
                 } else {
                     type = TerrainType::Mountain;
                 }
 
                 int defense = type == TerrainType::Mountain   ? 4
-                              : type == TerrainType::Wood     ? 2
+                              : type == TerrainType::Woods    ? 2
                               : type == TerrainType::Mountain ? 1
                                                               : 0;
                 map->setTerrain(x, y, type, defense);
@@ -206,7 +206,7 @@ namespace OpenWars::Game {
             std::uniform_int_distribution<> heightDist(2, height - 3);
             int x = widthDist(generator);
             int y = heightDist(generator);
-            map->fillRectangle(x, y, 3, 3, TerrainType::Wood, 2);
+            map->fillRectangle(x, y, 3, 3, TerrainType::Woods, 2);
         }
 
         addStructures(map.get(), 4, TerrainType::City);
@@ -228,7 +228,7 @@ namespace OpenWars::Game {
                 if(noise < 0.2f) {
                     type = TerrainType::Mountain;
                 } else if(noise < 0.4f) {
-                    type = TerrainType::Wood;
+                    type = TerrainType::Woods;
                 } else if(noise < 0.6f) {
                     type = TerrainType::Plain;
                 } else {
@@ -253,7 +253,7 @@ namespace OpenWars::Game {
         map->fillRectangle(0, 0, 4, 4, TerrainType::Mountain, 4);
 
         // Top-right: Forest
-        map->fillRectangle(width - 4, 0, 4, 4, TerrainType::Wood, 2);
+        map->fillRectangle(width - 4, 0, 4, 4, TerrainType::Woods, 2);
 
         // Bottom-left: Water
         map->fillRectangle(0, height - 4, 4, 4, TerrainType::Sea, 0);
@@ -293,7 +293,7 @@ namespace OpenWars::Game {
                 if(noise < 0.3f) {
                     type = TerrainType::Mountain;
                 } else if(noise < 0.5f) {
-                    type = TerrainType::Wood;
+                    type = TerrainType::Woods;
                 } else {
                     type = TerrainType::Plain;
                 }

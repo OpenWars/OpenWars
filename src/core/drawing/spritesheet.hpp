@@ -24,6 +24,12 @@ namespace OpenWars::Drawing {
         void drawFrameInto(int frameIndex, const SDL_FRect& dstRect);
 
         int getFrameCount() const;
+        int getCols() const {
+            return cols;
+        }
+        int getRows() const {
+            return rows;
+        }
 
       private:
         SpriteSheet() = default;
