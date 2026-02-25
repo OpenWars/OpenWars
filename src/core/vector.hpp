@@ -11,16 +11,16 @@ namespace OpenWars {
             , y(y) {
         }
 
-        float GetLength() const {
+        float getLength() const {
             return std::sqrt(x * x + y * y);
         }
 
-        float GetDistance(const Vector2& v) const {
-            return (*this - v).GetLength();
+        float getDistance(const Vector2& v) const {
+            return (*this - v).getLength();
         }
 
-        Vector2 Normalize() const {
-            return *this / GetLength();
+        Vector2 normalize() const {
+            return *this / getLength();
         }
 
         Vector2 operator*(float mult) const {
@@ -81,6 +81,87 @@ namespace OpenWars {
             : x(x)
             , y(y)
             , z(z) {
+        }
+
+        float getLength() const {
+            return std::sqrt(x * x + y * y + z * z);
+        }
+
+        float getDistance(const Vector3& v) const {
+            return (*this - v).getLength();
+        }
+
+        Vector3 normalize() const {
+            float len = getLength();
+            if(len == 0.0f)
+                return Vector3{0, 0, 0};
+            return *this / len;
+        }
+
+        float dotProduct(const Vector3& v) const {
+            return x * v.x + y * v.y + z * v.z;
+        }
+
+        Vector3 crossProduct(const Vector3& v) const {
+            return Vector3{
+                y * v.z - z * v.y,
+                z * v.x - x * v.z,
+                x * v.y - y * v.x
+            };
+        }
+
+        Vector3 operator*(float mult) const {
+            return Vector3{x * mult, y * mult, z * mult};
+        }
+
+        Vector3 operator/(float div) const {
+            if(div == 0.0f) {
+                return Vector3{0, 0, 0};
+            }
+            return Vector3{x / div, y / div, z / div};
+        }
+
+        Vector3& operator*=(float mult) {
+            x *= mult;
+            y *= mult;
+            z *= mult;
+            return *this;
+        }
+
+        Vector3& operator/=(float div) {
+            if(div == 0.0f) {
+                return *this;
+            }
+            x /= div;
+            y /= div;
+            z /= div;
+            return *this;
+        }
+
+        Vector3 operator+(const Vector3& v) const {
+            return Vector3{x + v.x, y + v.y, z + v.z};
+        }
+
+        Vector3 operator-(const Vector3& v) const {
+            return Vector3{x - v.x, y - v.y, z - v.z};
+        }
+
+        Vector3& operator+=(const Vector3& v) {
+            x += v.x;
+            y += v.y;
+            z += v.z;
+            return *this;
+        }
+
+        Vector3& operator-=(const Vector3& v) {
+            x -= v.x;
+            y -= v.y;
+            z -= v.z;
+            return *this;
+        }
+
+        Vector3 operator-() const {
+            return Vector3{-x, -y, -z};
         }
     };
 } // namespace OpenWars
