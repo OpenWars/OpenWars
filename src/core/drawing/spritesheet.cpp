@@ -64,6 +64,9 @@ SpriteSheet* SpriteSheet::loadFromAssets(
         return nullptr;
     }
 
+    // Set nearest-neighbor filtering to prevent texture bleeding between frames
+    SDL_SetTextureScaleMode(tex, SDL_SCALEMODE_NEAREST);
+
     SpriteSheet* ss = new SpriteSheet();
     ss->texture = tex;
     ss->frameW = frameWidth;
@@ -126,12 +129,15 @@ void SpriteSheet::drawFrame(int frameIndex, float x, float y, float scale) {
     int col = frameIndex % cols;
     int row = frameIndex / cols;
 
+    // Small inset (0.25px) to prevent bleeding from adjacent frames
+    // while minimizing visible border effects
     SDL_FRect src = {
-        (float)(col * frameW),
-        (float)(row * frameH),
-        (float)frameW,
-        (float)frameH
+        (float)(col * frameW) + 0.25f,
+        (float)(row * frameH) + 0.25f,
+        (float)frameW - 0.5f,
+        (float)frameH - 0.5f
     };
+
     SDL_FRect dst = {x, y, frameW * scale, frameH * scale};
 
     SDL_RenderTexture(IO::Graphics::getRenderer(), texture, &src, &dst);

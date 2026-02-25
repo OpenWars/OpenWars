@@ -214,6 +214,7 @@ void OpenWars::Game::GameScene::renderMap() {
     int viewportW = camera->getViewportWidth();
     int viewportH = camera->getViewportHeight();
 
+    float scaledTileSize = TILE_SIZE * zoom;
     float camOffsetX = viewportW / 2.0f - (cameraPos.x * zoom);
     float camOffsetY = viewportH / 2.0f - (cameraPos.y * zoom);
 
@@ -222,13 +223,12 @@ void OpenWars::Game::GameScene::renderMap() {
             const TileFrame& frame = tileFrames[y][x];
             int frameIndex = getTileFrameIndex(frame);
 
-            float screenX = (x * TILE_SIZE * zoom) + camOffsetX;
-            float screenY = (y * TILE_SIZE * zoom) + camOffsetY;
+            float screenX = (x * scaledTileSize) + camOffsetX;
+            float screenY = (y * scaledTileSize) + camOffsetY;
 
             // Only draw if visible in viewport
-            float tileScreenSize = TILE_SIZE * zoom;
-            if(screenX + tileScreenSize > 0 && screenX < viewportW &&
-               screenY + tileScreenSize > 0 && screenY < viewportH) {
+            if(screenX + scaledTileSize > 0 && screenX < viewportW &&
+               screenY + scaledTileSize > 0 && screenY < viewportH) {
                 sheet->drawFrame(frameIndex, screenX, screenY, zoom);
             }
         }
