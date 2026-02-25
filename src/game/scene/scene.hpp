@@ -50,7 +50,7 @@ namespace OpenWars::Game {
             }
         }
 
-        virtual void handleInput(const IO::Input::InputState& state);
+        virtual void handleInput(const IO::Input::InputState& state) {};
 
         OpenWars::UI::Handler* getUIHandler() {
             return uiHandler.get();
@@ -59,6 +59,7 @@ namespace OpenWars::Game {
         const std::string& getName() const {
             return sceneName;
         }
+
         bool isActive() const {
             return state.active;
         }
