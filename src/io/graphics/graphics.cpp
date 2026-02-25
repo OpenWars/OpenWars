@@ -10,7 +10,7 @@
 namespace OpenWars::IO::Graphics {
     static SDL_Window* window = nullptr;
     static SDL_Renderer* renderer = nullptr;
-    static Camera3D camera;
+    static Camera mainCamera;
     static bool shouldCloseFlag = false;
     static uint64_t lastFrameTime = 0;
     static float deltaTime = 0.0f;
@@ -57,9 +57,6 @@ namespace OpenWars::IO::Graphics {
 
         SDL_SetRenderVSync(renderer, vsync);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-
-        camera =
-            {Vector3{0, 0, 0}, Vector3{0, 0, 0}, Vector3{0, 1, 0}, 45.0f, 0};
 
         lastFrameTime = SDL_GetTicksNS();
     }
@@ -124,10 +121,6 @@ namespace OpenWars::IO::Graphics {
         // TODO (same as beginAttached)
     }
 
-    Camera3D getCamera() {
-        return camera;
-    }
-
     void swapBuffers() {
         SDL_RenderPresent(renderer);
     }
@@ -175,5 +168,13 @@ namespace OpenWars::IO::Graphics {
 
     SDL_Window* getWindow() {
         return window;
+    }
+
+    Camera& getCamera() {
+        return mainCamera;
+    }
+
+    void updateCamera(float deltaTime) {
+        mainCamera.update(deltaTime);
     }
 } // namespace OpenWars::IO::Graphics

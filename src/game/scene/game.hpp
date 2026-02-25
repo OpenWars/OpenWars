@@ -2,6 +2,8 @@
 
 #include "scene.hpp"
 #include "../../core/drawing/spritesheet.hpp"
+#include "../../io/graphics/camera.hpp"
+#include "../../io/input/input.hpp"
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -16,6 +18,8 @@ namespace OpenWars::Game {
       private:
         std::unique_ptr<Map> gameMap;
         std::unordered_map<int, Drawing::SpriteSheet*> spritesheets;
+        std::unique_ptr<IO::Graphics::Camera> camera;
+        IO::Input::InputState lastInputState;
 
         struct TileFrame {
             int spriteIndex;
@@ -34,6 +38,8 @@ namespace OpenWars::Game {
         void loadSpritesheets();
         void unloadSpritesheets();
         void initializeTileFrames();
+        void initializeCamera();
+        void handleCameraInput(const IO::Input::InputState& input);
         int getTerrainSpriteIndex(TerrainType type, int x, int y) const;
         int getTileFrameIndex(const TileFrame& frame) const;
         int getAnimationFrameIndex(TerrainType type, int animFrame) const;
@@ -47,9 +53,14 @@ namespace OpenWars::Game {
         void onExit() override;
         void update(float deltaTime) override;
         void render() override;
+        void handleInput(const IO::Input::InputState& input) override;
 
         Map* getMap() const {
             return gameMap.get();
+        }
+
+        IO::Graphics::Camera* getCamera() const {
+            return camera.get();
         }
 
         void setWeather(Weather weather);

@@ -2,17 +2,10 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
-#include "../../core/vector.hpp"
 #include "../../core/colors.hpp"
+#include "camera.hpp"
 
 namespace OpenWars::IO::Graphics {
-    struct Camera3D {
-        Vector3 position;
-        Vector3 target;
-        Vector3 up;
-        float fov;
-        int projection;
-    };
 
     // Core functions
     void init(int vsync, bool multisampling);
@@ -22,10 +15,13 @@ namespace OpenWars::IO::Graphics {
     void beginFrame();
     void beginAttached();
     void endAttached();
-    Camera3D getCamera();
     void swapBuffers();
 
     void clearBackground(Color color);
+
+    // Camera access
+    Camera& getCamera();
+    void updateCamera(float deltaTime);
 
     // Window functions
     int getWindowWidth();

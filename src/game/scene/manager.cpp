@@ -37,6 +37,12 @@ bool OpenWars::Game::SceneManager::handleInput(
         return false;
     }
 
+    // Handle scene input first
+    if(currentScene) {
+        currentScene->handleInput(state);
+    }
+
+    // Then pass to UI
     if(currentScene && currentScene->getUIHandler()) {
         return currentScene->getUIHandler()->handleInput(state);
     }

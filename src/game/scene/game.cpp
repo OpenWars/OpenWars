@@ -1,6 +1,7 @@
 #include "game.hpp"
 #include "../map/map.hpp"
 #include "../../io/graphics/graphics.hpp"
+#include "../../io/input/input.hpp"
 #include "../../io/log/logging.hpp"
 
 using namespace OpenWars::IO::Graphics;
@@ -9,6 +10,7 @@ using namespace OpenWars::Drawing;
 OpenWars::Game::GameScene::GameScene()
     : Scene("GameScene") {
     gameMap = std::make_unique<Map>(20, 20);
+    camera = std::make_unique<IO::Graphics::Camera>();
 }
 
 OpenWars::Game::GameScene::~GameScene() {
@@ -69,6 +71,62 @@ void OpenWars::Game::GameScene::initializeTileFrames() {
                 frame.spriteIndex = coord1Based(5, 3);
             }
         }
+    }
+}
+
+void OpenWars::Game::GameScene::initializeCamera() {
+    int mapWidth = gameMap->getWidth();
+    int mapHeight = gameMap->getHeight();
+
+    float mapPixelWidth = mapWidth * TILE_SIZE;
+    float mapPixelHeight = mapHeight * TILE_SIZE;
+
+    float mapCenterX = mapPixelWidth / 2.0f;
+    float mapCenterY = mapPixelHeight / 2.0f;
+
+    camera->instantPan(Vector3{mapCenterX, mapCenterY, 10.0f});
+    camera->setBoundaries(0.0f, mapPixelWidth, 0.0f, mapPixelHeight);
+    camera->setZoomLimits(0.5f, 4.0f);
+    camera->setZoom(1.0f);
+}
+
+void OpenWars::Game::GameScene::handleCameraInput(
+    const IO::Input::InputState& input
+) {
+    if(!camera)
+        return;
+
+    const float panSpeed = 300.0f;
+    const float zoomSpeed = 0.1f;
+
+    float panX = 0.0f;
+    float panY = 0.0f;
+
+    if(input.down.arrowLeft || input.down.A) {
+        panX = -panSpeed;
+    }
+    if(input.down.arrowRight || input.down.D) {
+        panX = panSpeed;
+    }
+    if(input.down.arrowUp || input.down.W) {
+        panY = -panSpeed;
+    }
+    if(input.down.arrowDown || input.down.S) {
+        panY = panSpeed;
+    }
+
+    if(panX != 0.0f || panY != 0.0f) {
+        camera->pan(
+            panX * IO::Graphics::getFrameTime(),
+            panY * IO::Graphics::getFrameTime()
+        );
+    }
+
+    if(input.pressed.rightClick) {
+        camera->applyZoom(zoomSpeed);
+    }
+    if(input.pressed.leftClick) {
+        camera->applyZoom(-zoomSpeed);
     }
 }
 
@@ -151,15 +209,28 @@ void OpenWars::Game::GameScene::renderMap() {
     int mapWidth = gameMap->getWidth();
     int mapHeight = gameMap->getHeight();
 
+    Vector3 cameraPos = camera->getPosition();
+    float zoom = camera->getZoom();
+    int viewportW = camera->getViewportWidth();
+    int viewportH = camera->getViewportHeight();
+
+    float camOffsetX = viewportW / 2.0f - (cameraPos.x * zoom);
+    float camOffsetY = viewportH / 2.0f - (cameraPos.y * zoom);
+
     for(int y = 0; y < mapHeight; ++y) {
         for(int x = 0; x < mapWidth; ++x) {
             const TileFrame& frame = tileFrames[y][x];
             int frameIndex = getTileFrameIndex(frame);
 
-            float screenX = x * TILE_SIZE;
-            float screenY = y * TILE_SIZE;
+            float screenX = (x * TILE_SIZE * zoom) + camOffsetX;
+            float screenY = (y * TILE_SIZE * zoom) + camOffsetY;
 
-            sheet->drawFrame(frameIndex, screenX, screenY, 1.0f);
+            // Only draw if visible in viewport
+            float tileScreenSize = TILE_SIZE * zoom;
+            if(screenX + tileScreenSize > 0 && screenX < viewportW &&
+               screenY + tileScreenSize > 0 && screenY < viewportH) {
+                sheet->drawFrame(frameIndex, screenX, screenY, zoom);
+            }
         }
     }
 }
@@ -177,6 +248,7 @@ void OpenWars::Game::GameScene::onEnter() {
         gameMap->fillRectangle(15, 0, 5, 10, TerrainType::Sea, 0);
 
         initializeTileFrames();
+        initializeCamera();
         initialized = true;
     }
 }
@@ -188,6 +260,14 @@ void OpenWars::Game::GameScene::onExit() {
 
 void OpenWars::Game::GameScene::update(float deltaTime) {
     Scene::update(deltaTime);
+
+    // Update camera with input
+    handleCameraInput(lastInputState);
+
+    // Update camera
+    if(camera) {
+        camera->update(deltaTime);
+    }
 
     animationAccum += deltaTime;
     if(animationAccum >= ANIMATION_FRAME_TIME) {
@@ -201,6 +281,12 @@ void OpenWars::Game::GameScene::update(float deltaTime) {
             }
         }
     }
+}
+
+void OpenWars::Game::GameScene::handleInput(
+    const IO::Input::InputState& input
+) {
+    lastInputState = input;
 }
 
 void OpenWars::Game::GameScene::render() {

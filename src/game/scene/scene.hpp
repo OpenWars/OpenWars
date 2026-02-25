@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../ui/ui.hpp"
+#include "../../io/input/input.hpp"
 #include <memory>
 #include <functional>
 
@@ -48,6 +49,8 @@ namespace OpenWars::Game {
                 uiHandler->renderOverlay();
             }
         }
+
+        virtual void handleInput(const IO::Input::InputState& state);
 
         OpenWars::UI::Handler* getUIHandler() {
             return uiHandler.get();
