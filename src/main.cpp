@@ -1,6 +1,5 @@
 #include "core/config/config.hpp"
 #include "core/core.hpp"
-#include "game/scene/game.hpp"
 #include "game/scene/menu.hpp"
 #include "game/scene/scene.hpp"
 #include "io/graphics/graphics.hpp"

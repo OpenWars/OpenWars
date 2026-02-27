@@ -73,16 +73,34 @@ void OpenWars::Game::SceneManager::render() {
 void OpenWars::Game::SceneManager::updateTransition(float deltaTime) {
     transition.progress += deltaTime / transition.duration;
 
+    // Switch scene at midpoint
+    if(transition.progress >= 0.5f && currentScene != nextScene) {
+        if(currentScene) {
+            currentScene->onExit();
+        }
+        currentScene = nextScene;
+        if(currentScene) {
+            currentScene->onEnter();
+        }
+    }
+
     if(transition.progress >= 1.0f) {
         completeTransition();
     }
 }
 
 void OpenWars::Game::SceneManager::renderTransition() {
-    // Default fade transition
+    // Fade out during first half, fade in during second half
     float alpha = transition.progress < 0.5f
                       ? transition.progress * 2.0f
                       : (1.0f - transition.progress) * 2.0f;
+
+    // During transition, show the current scene and fade it out
+    // At the midpoint, scene switches and fades in
+    if(transition.progress >= 0.5f && nextScene != nullptr) {
+        // Second half: new scene is rendering, fade it in
+        // Current scene will be switched by completeTransition
+    }
 
     Drawing::drawRectangle(
         0,
@@ -94,17 +112,7 @@ void OpenWars::Game::SceneManager::renderTransition() {
 }
 
 void OpenWars::Game::SceneManager::completeTransition() {
-    if(currentScene) {
-        currentScene->onExit();
-    }
-
-    currentScene = nextScene;
     nextScene = nullptr;
-
-    if(currentScene) {
-        currentScene->onEnter();
-    }
-
     transition.active = false;
 
     if(transition.onComplete) {
