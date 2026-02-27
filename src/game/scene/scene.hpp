@@ -76,6 +76,11 @@ namespace OpenWars::Game {
         } transition;
 
       public:
+        static SceneManager& get() {
+            static SceneManager inst;
+            return inst;
+        }
+
         Scene& getCurrent();
         void changeTo(Scene& target, float transitionDuration = 0.5f);
         bool handleInput(const IO::Input::InputState& state);
@@ -90,6 +95,13 @@ namespace OpenWars::Game {
         void updateTransition(float deltaTime);
         void renderTransition();
         void completeTransition();
+
+      protected:
+        SceneManager() {};
+        ~SceneManager() {};
+
+        SceneManager(const SceneManager&) = delete;
+        SceneManager& operator=(const SceneManager&) = delete;
     };
 
     class TransitionEffect {

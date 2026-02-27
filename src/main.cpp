@@ -2,6 +2,7 @@
 #include "core/core.hpp"
 #include "game/scene/game.hpp"
 #include "game/scene/menu.hpp"
+#include "game/scene/scene.hpp"
 #include "io/graphics/graphics.hpp"
 #include "io/input/input.hpp"
 #include "io/log/logging.hpp"
@@ -26,18 +27,17 @@ int main(int argc, char* argv[]) {
     IO::Logging::log("%s", "Finished creating window.");
 
     IO::Logging::log("%s", "Initializing I/O.");
-    Game::SceneManager sceneManager;
     Game::GameScene scene;
     IO::Input::Handler input;
-    sceneManager.changeTo(scene);
+    Game::SceneManager::get().changeTo(scene);
 
     while(!IO::Graphics::shouldClose()) {
         input.poll();
         IO::Graphics::beginFrame();
 
-        sceneManager.handleInput(input.getState());
-        sceneManager.render();
-        sceneManager.update(IO::Graphics::getFrameTime());
+        Game::SceneManager::get().handleInput(input.getState());
+        Game::SceneManager::get().render();
+        Game::SceneManager::get().update(IO::Graphics::getFrameTime());
 
         IO::Graphics::displayDebug(
             cfg.graphics.displayDebugInfo,
