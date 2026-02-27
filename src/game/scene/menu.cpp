@@ -3,6 +3,8 @@
 #include "../../io/log/logging.hpp"
 #include "../../utils/drawing.hpp"
 #include "../../ui/components/carousel.hpp"
+#include "game.hpp"
+#include "scene.hpp"
 #include "menu.hpp"
 
 using namespace OpenWars::IO::Graphics;
@@ -32,7 +34,7 @@ void OpenWars::Game::MenuScene::createUI() {
          Colors::AMBER_600},
         {"WAR ROOM",
          "Play against selected scenarios and score the highest!",
-         []() { IO::Logging::log("%s", "War Room selected"); },
+         []() { SceneManager::get().changeTo(*new GameScene()); },
          true,
          Colors::RED_400,
          Colors::RED_900,

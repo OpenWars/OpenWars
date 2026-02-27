@@ -27,9 +27,9 @@ int main(int argc, char* argv[]) {
     IO::Logging::log("%s", "Finished creating window.");
 
     IO::Logging::log("%s", "Initializing I/O.");
-    Game::GameScene scene;
+
     IO::Input::Handler input;
-    Game::SceneManager::get().changeTo(scene);
+    Game::SceneManager::get().changeTo(*new Game::MenuScene());
 
     while(!IO::Graphics::shouldClose()) {
         input.poll();
