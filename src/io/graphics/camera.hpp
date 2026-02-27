@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../input/input.hpp"
 #include "../../core/vector.hpp"
 
 namespace OpenWars::IO::Graphics {
@@ -147,5 +148,43 @@ namespace OpenWars::IO::Graphics {
         void clampZoom();
         void updateViewMatrix() const;
         void updateProjectionMatrix() const;
+    };
+
+    /**
+     * Manages camera movement and zoom based on input.
+     * Decouples input handling and camera control from scene logic.
+     */
+    class CameraController {
+      private:
+        Camera* camera;
+
+        // Input sensitivity settings
+        float panSpeed = 300.0f;
+        float zoomSpeed = 0.1f;
+
+      public:
+        CameraController(Camera* cam);
+
+        /**
+         * Process input state and update camera accordingly.
+         * Should be called once per frame during input handling phase.
+         */
+        void handleInput(const Input::InputState& input);
+
+        // Configuration methods
+        void setPanSpeed(float speed);
+        float getPanSpeed() const {
+            return panSpeed;
+        }
+
+        void setZoomSpeed(float speed);
+        float getZoomSpeed() const {
+            return zoomSpeed;
+        }
+
+        // Direct camera access for configuration
+        Camera* getCamera() const {
+            return camera;
+        }
     };
 } // namespace OpenWars::IO::Graphics

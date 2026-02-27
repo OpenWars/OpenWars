@@ -478,4 +478,48 @@ namespace OpenWars::IO::Graphics {
         projMatrixDirty = false;
     }
 
+    CameraController::CameraController(Camera* cam)
+        : camera(cam) {
+    }
+
+    void CameraController::handleInput(const Input::InputState& input) {
+        if(!camera)
+            return;
+
+        float panX = 0.0f;
+        float panY = 0.0f;
+
+        if(input.down.arrowLeft || input.down.A) {
+            panX = -panSpeed;
+        }
+        if(input.down.arrowRight || input.down.D) {
+            panX = panSpeed;
+        }
+        if(input.down.arrowUp || input.down.W) {
+            panY = -panSpeed;
+        }
+        if(input.down.arrowDown || input.down.S) {
+            panY = panSpeed;
+        }
+
+        if(panX != 0.0f || panY != 0.0f) {
+            camera->pan(panX * getFrameTime(), panY * getFrameTime());
+        }
+
+        if(input.pressed.rightClick) {
+            camera->applyZoom(zoomSpeed);
+        }
+        if(input.pressed.leftClick) {
+            camera->applyZoom(-zoomSpeed);
+        }
+    }
+
+    void CameraController::setPanSpeed(float speed) {
+        panSpeed = speed;
+    }
+
+    void CameraController::setZoomSpeed(float speed) {
+        zoomSpeed = speed;
+    }
+
 } // namespace OpenWars::IO::Graphics
