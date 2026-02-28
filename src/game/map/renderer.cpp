@@ -137,6 +137,34 @@ int OpenWars::Game::MapRenderer::getAnimationFrameIndex(
     }
 }
 
+OpenWars::Game::MapRenderer::TerrainLayer
+OpenWars::Game::MapRenderer::getTerrainLayer(TerrainType type) const {
+    // Foreground layer: elevated and visually prominent terrain
+    switch(type) {
+    case TerrainType::Woods:
+    case TerrainType::Mountain:
+    case TerrainType::HQ:
+    case TerrainType::Factory:
+    case TerrainType::Airport:
+    case TerrainType::Port:
+    case TerrainType::Lab:
+    case TerrainType::CommTower:
+    case TerrainType::Silo:
+        return TerrainLayer::Foreground;
+
+    // Background layer: plains and base terrain
+    case TerrainType::Plain:
+    case TerrainType::Road:
+    case TerrainType::River:
+    case TerrainType::Coast:
+    case TerrainType::Sea:
+    case TerrainType::City:
+    case TerrainType::Pipe:
+    default:
+        return TerrainLayer::Background;
+    }
+}
+
 void OpenWars::Game::MapRenderer::update(float deltaTime) {
     animationAccum += deltaTime;
     if(animationAccum >= ANIMATION_FRAME_TIME) {
@@ -183,8 +211,40 @@ void OpenWars::Game::MapRenderer::render(IO::Graphics::Camera* camera) {
     float camOffsetX = viewportW / 2.0f - (cameraPos.x * zoom);
     float camOffsetY = viewportH / 2.0f - (cameraPos.y * zoom);
 
+    auto coord1Based = [this](int row, int col) {
+        return (row - 1) * spritesheetCols + (col - 1);
+    };
+
+    // First pass: render plains as background for all tiles
     for(int y = 0; y < mapHeight; ++y) {
         for(int x = 0; x < mapWidth; ++x) {
+            Terrain* terrain = gameMap->getTerrain(x, y);
+            if(!terrain)
+                continue;
+
+            // For foreground terrain, render plains underneath
+            if(getTerrainLayer(terrain->getType()) ==
+               TerrainLayer::Foreground) {
+                float screenX = (x * scaledTileSize) + camOffsetX;
+                float screenY = (y * scaledTileSize) + camOffsetY;
+
+                // Only draw if visible in viewport
+                if(screenX + scaledTileSize > 0 && screenX < viewportW &&
+                   screenY + scaledTileSize > 0 && screenY < viewportH) {
+                    int plainSpriteIndex = coord1Based(1, 1);
+                    sheet->drawFrame(plainSpriteIndex, screenX, screenY, zoom);
+                }
+            }
+        }
+    }
+
+    // Second pass: render all terrain (both background and foreground)
+    for(int y = 0; y < mapHeight; ++y) {
+        for(int x = 0; x < mapWidth; ++x) {
+            Terrain* terrain = gameMap->getTerrain(x, y);
+            if(!terrain)
+                continue;
+
             const TileFrame& frame = tileFrames[y][x];
             int frameIndex = getTileFrameIndex(frame);
 

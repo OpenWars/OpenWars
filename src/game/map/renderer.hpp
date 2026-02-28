@@ -24,6 +24,11 @@ namespace OpenWars::Game {
             int frameCount = 1;
         };
 
+        enum class TerrainLayer {
+            Background, // Plains and base terrain
+            Foreground  // Woods, mountains, and elevated terrain
+        };
+
         Map* gameMap;
         std::unordered_map<int, Drawing::SpriteSheet*> spritesheets;
         std::vector<std::vector<TileFrame>> tileFrames;
@@ -38,6 +43,7 @@ namespace OpenWars::Game {
         int getTerrainSpriteIndex(TerrainType type, int x, int y) const;
         int getTileFrameIndex(const TileFrame& frame) const;
         int getAnimationFrameIndex(TerrainType type, int animFrame) const;
+        TerrainLayer getTerrainLayer(TerrainType type) const;
 
       public:
         MapRenderer(Map* map);
