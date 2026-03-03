@@ -486,31 +486,8 @@ namespace OpenWars::IO::Graphics {
         if(!camera)
             return;
 
-        float panX = 0.0f;
-        float panY = 0.0f;
-
-        if(input.down.arrowLeft || input.down.A) {
-            panX = -panSpeed;
-        }
-        if(input.down.arrowRight || input.down.D) {
-            panX = panSpeed;
-        }
-        if(input.down.arrowUp || input.down.W) {
-            panY = -panSpeed;
-        }
-        if(input.down.arrowDown || input.down.S) {
-            panY = panSpeed;
-        }
-
-        if(panX != 0.0f || panY != 0.0f) {
-            camera->pan(panX * getFrameTime(), panY * getFrameTime());
-        }
-
-        if(input.pressed.rightClick) {
-            camera->applyZoom(zoomSpeed);
-        }
-        if(input.pressed.leftClick) {
-            camera->applyZoom(-zoomSpeed);
+        if(input.scrollY != 0.0f) {
+            camera->applyZoom(input.scrollY * zoomSpeed);
         }
     }
 

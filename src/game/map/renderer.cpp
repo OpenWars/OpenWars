@@ -180,6 +180,35 @@ void OpenWars::Game::MapRenderer::update(float deltaTime) {
     }
 }
 
+OpenWars::Vector2 OpenWars::Game::MapRenderer::getTileAtScreenPos(
+    const Vector2& screenPos,
+    IO::Graphics::Camera* camera
+) const {
+    if(!camera || !gameMap) {
+        return Vector2{-1, -1};
+    }
+
+    Vector3 cameraPos = camera->getPosition();
+    float zoom = camera->getZoom();
+    int viewportW = camera->getViewportWidth();
+    int viewportH = camera->getViewportHeight();
+
+    float scaledTileSize = TILE_SIZE * zoom;
+    float camOffsetX = viewportW / 2.0f - (cameraPos.x * zoom);
+    float camOffsetY = viewportH / 2.0f - (cameraPos.y * zoom);
+
+    // Convert screen coordinates to tile coordinates
+    int tileX = (int)((screenPos.x - camOffsetX) / scaledTileSize);
+    int tileY = (int)((screenPos.y - camOffsetY) / scaledTileSize);
+
+    // Check if tile is within bounds
+    if(gameMap->isInBounds(tileX, tileY)) {
+        return Vector2{(float)tileX, (float)tileY};
+    }
+
+    return Vector2{-1, -1};
+}
+
 void OpenWars::Game::MapRenderer::render(IO::Graphics::Camera* camera) {
     if(tileFrames.empty() || !camera) {
         return;

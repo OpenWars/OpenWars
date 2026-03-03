@@ -87,12 +87,6 @@ namespace OpenWars::IO::Graphics {
     }
 
     bool shouldClose() {
-        SDL_Event event;
-        while(SDL_PollEvent(&event)) {
-            if(event.type == SDL_EVENT_QUIT) {
-                shouldCloseFlag = true;
-            }
-        }
         return shouldCloseFlag;
     }
 

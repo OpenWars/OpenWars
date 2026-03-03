@@ -3,6 +3,12 @@
 #include "../../core/vector.hpp"
 #include <SDL3/SDL.h>
 
+namespace OpenWars::IO {
+    namespace Events {
+        class Manager;
+    }
+} // namespace OpenWars::IO
+
 namespace OpenWars::IO::Input {
     struct InputState {
 
@@ -49,6 +55,8 @@ namespace OpenWars::IO::Input {
         } pressed;
 
         Vector2 mousePos = {0, 0};
+        float scrollY =
+            0.0f; // Vertical scroll delta (positive = up, negative = down)
     };
 
     class Handler {
@@ -58,7 +66,7 @@ namespace OpenWars::IO::Input {
         Handler() {
         }
 
-        void poll();
+        void poll(const Events::Manager& eventManager);
 
         const InputState& getState() const {
             return state;

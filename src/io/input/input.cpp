@@ -1,7 +1,13 @@
 #include "input.hpp"
+#include "../events/events.hpp"
 #include <SDL3/SDL_scancode.h>
-void OpenWars::IO::Input::Handler::poll() {
+#include <SDL3/SDL_events.h>
+
+void OpenWars::IO::Input::Handler::poll(const Events::Manager& eventManager) {
     const bool* keystate = SDL_GetKeyboardState(nullptr);
+
+    // Reset scroll wheel every frame
+    state.scrollY = eventManager.getScrollY();
 
     // --- current down state ---
     state.down.W = keystate[SDL_SCANCODE_W];

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../core/drawing/spritesheet.hpp"
+#include "../../core/vector.hpp"
 #include "../../io/graphics/camera.hpp"
 #include <unordered_map>
 #include <vector>
@@ -59,6 +60,14 @@ namespace OpenWars::Game {
 
         // Rendering
         void render(IO::Graphics::Camera* camera);
+
+        // Utility methods
+        // Returns the tile coordinates at a screen position, or (-1, -1) if out
+        // of bounds
+        Vector2 getTileAtScreenPos(
+            const Vector2& screenPos,
+            IO::Graphics::Camera* camera
+        ) const;
 
         // Weather management
         void setWeather(Weather weather);
