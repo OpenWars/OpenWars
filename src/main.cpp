@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
 
     IO::Input::Handler input;
     IO::Events::Manager events;
-    Game::SceneManager::get().changeTo(*new Game::MenuScene());
+    Game::SceneManager::get().changeTo<Game::MenuScene>();
 
     while(!events.shouldClose()) {
         events.poll();

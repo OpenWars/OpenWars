@@ -7,32 +7,32 @@
 #include <vector>
 
 namespace OpenWars::Game {
-    // Forward declarations
     class Map;
     enum class TerrainType;
     enum class Weather { Clear, Rain, Snow };
 
-    /**
-     * Responsible for rendering map tiles and managing terrain animation.
-     * Handles spritesheet loading, tile frame management, and rendering logic.
-     */
     class MapRenderer {
       private:
         struct TileFrame {
-            int spriteIndex;
+            int spriteIndex = 0;
             float animationTime = 0.0f;
             float animationSpeed = 0.0f;
             int frameCount = 1;
         };
 
-        enum class TerrainLayer {
-            Background, // Plains and base terrain
-            Foreground  // Woods, mountains, and elevated terrain
-        };
+        enum class TerrainLayer { Background, Foreground };
 
         Map* gameMap;
         std::unordered_map<int, Drawing::SpriteSheet*> spritesheets;
-        std::vector<std::vector<TileFrame>> tileFrames;
+
+        std::vector<TileFrame> tileFrames;
+        int tileFrameWidth = 0;
+
+        /*
+         * Indices into tileFrames that have animationSpeed > 0.
+         * update() only touches these entries, not the whole map.
+         */
+        std::vector<int> animatedTileIndices;
 
         Weather currentWeather = Weather::Clear;
         float animationAccum = 0.0f;
@@ -40,7 +40,9 @@ namespace OpenWars::Game {
         const int TILE_SIZE = 16;
         int spritesheetCols = 0;
 
-        // Private methods for sprite index calculation
+        int coord1Based(int row, int col) const {
+            return (row - 1) * spritesheetCols + (col - 1);
+        };
         int getTerrainSpriteIndex(TerrainType type, int x, int y) const;
         int getTileFrameIndex(const TileFrame& frame) const;
         int getAnimationFrameIndex(TerrainType type, int animFrame) const;
@@ -50,26 +52,18 @@ namespace OpenWars::Game {
         MapRenderer(Map* map);
         ~MapRenderer();
 
-        // Lifecycle management
         void loadSpritesheets();
         void unloadSpritesheets();
         void initializeTileFrames();
 
-        // Updates
         void update(float deltaTime);
-
-        // Rendering
         void render(IO::Graphics::Camera* camera);
 
-        // Utility methods
-        // Returns the tile coordinates at a screen position, or (-1, -1) if out
-        // of bounds
         Vector2 getTileAtScreenPos(
             const Vector2& screenPos,
             IO::Graphics::Camera* camera
         ) const;
 
-        // Weather management
         void setWeather(Weather weather);
         Weather getWeather() const {
             return currentWeather;

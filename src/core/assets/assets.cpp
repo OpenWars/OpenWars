@@ -1,6 +1,6 @@
 #include "assets.hpp"
-
 #include "../../io/log/logging.hpp"
+#include <cstring>
 
 OpenWars::Assets::Manager::Manager() {
     IO::Logging::debug(
@@ -14,17 +14,14 @@ OpenWars::Assets::Manager::Manager() {
         return;
     }
 
-    // Create memory stream for minizip-ng
     mem_stream = mz_stream_mem_create();
     if(!mem_stream) {
         IO::Logging::error(true, "%s", "Failed to create memory stream");
         return;
     }
 
-    // Set the buffer
     mz_stream_mem_set_buffer(mem_stream, (void*)assets_pak, assets_pak_len);
 
-    // Open the memory stream
     int32_t err = mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_READ);
     if(err != MZ_OK) {
         IO::Logging::error(true, "Failed to open memory stream: %d", err);
@@ -32,7 +29,6 @@ OpenWars::Assets::Manager::Manager() {
         return;
     }
 
-    // Create ZIP reader
     zip_reader = mz_zip_reader_create();
     if(!zip_reader) {
         IO::Logging::error(true, "%s", "Failed to create ZIP reader");
@@ -41,7 +37,6 @@ OpenWars::Assets::Manager::Manager() {
         return;
     }
 
-    // Open ZIP reader with the memory stream
     err = mz_zip_reader_open(zip_reader, mem_stream);
     if(err != MZ_OK) {
         IO::Logging::error(true, "Failed to open ZIP reader: %d", err);
@@ -58,15 +53,14 @@ OpenWars::Assets::Manager::~Manager() {
         mz_zip_reader_close(zip_reader);
         mz_zip_reader_delete(&zip_reader);
     }
-
     if(mem_stream) {
         mz_stream_mem_close(mem_stream);
         mz_stream_mem_delete(&mem_stream);
     }
 }
+
 std::vector<unsigned char>
 OpenWars::Assets::Manager::load(const std::string& path) const {
-
     int32_t err = mz_zip_reader_locate_entry(zip_reader, path.c_str(), 0);
     if(err != MZ_OK)
         return {};
@@ -75,7 +69,7 @@ OpenWars::Assets::Manager::load(const std::string& path) const {
     if(err != MZ_OK)
         return {};
 
-    mz_zip_file* fileInfo;
+    mz_zip_file* fileInfo = nullptr;
     mz_zip_reader_entry_get_info(zip_reader, &fileInfo);
 
     int64_t size = fileInfo->uncompressed_size;
@@ -89,7 +83,7 @@ OpenWars::Assets::Manager::load(const std::string& path) const {
         mz_zip_reader_entry_read(zip_reader, out.data(), (int32_t)size);
 
     mz_zip_reader_entry_close(zip_reader);
-    if(read != size)
+    if(read != (int32_t)size)
         return {};
 
     return out;
@@ -100,11 +94,10 @@ SDL_IOStream* OpenWars::Assets::Manager::loadRW(const std::string& path) const {
     if(data.empty())
         return nullptr;
 
-    // SDL copies pointer; we hand ownership to SDL
-    void* mem = malloc(data.size());
-    memcpy(mem, data.data(), data.size());
-
-    return SDL_IOFromMem(mem, (int)data.size());
+    SDL_IOStream* s = SDL_IOFromDynamicMem();
+    SDL_WriteIO(s, data.data(), data.size());
+    SDL_SeekIO(s, 0, SDL_IO_SEEK_SET);
+    return s;
 }
 
 TTF_Font*

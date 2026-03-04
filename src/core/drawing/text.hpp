@@ -5,7 +5,7 @@
 #include <map>
 
 namespace OpenWars::Drawing {
-    static std::map<int, TTF_Font*> fonts;
+    extern std::map<int, TTF_Font*> fonts;
 
     TTF_Font* getFont(int size);
     void drawText(const char* text, int x, int y, int fontSize, Color color);

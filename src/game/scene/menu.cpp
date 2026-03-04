@@ -34,7 +34,7 @@ void OpenWars::Game::MenuScene::createUI() {
          Colors::AMBER_600},
         {"WAR ROOM",
          "Play against selected scenarios and score the highest!",
-         []() { SceneManager::get().changeTo(*new GameScene()); },
+         []() { SceneManager::get().changeTo<GameScene>(); },
          true,
          Colors::RED_400,
          Colors::RED_900,

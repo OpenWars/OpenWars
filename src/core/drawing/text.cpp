@@ -6,21 +6,26 @@
 #include <map>
 #include <string>
 
+std::map<int, TTF_Font*> OpenWars::Drawing::fonts;
+
 TTF_Font* OpenWars::Drawing::getFont(int size) {
-    if(fonts.find(size) == fonts.end()) {
-        fonts[size] = OpenWars::Assets::Manager::get().loadFont(
+    auto it = fonts.find(size);
+    if(it == fonts.end()) {
+        TTF_Font* font = OpenWars::Assets::Manager::get().loadFont(
             "fonts/FreeSans.ttf",
             size
         );
 
-        if(!fonts[size]) {
+        if(!font) {
             IO::Logging::error(false, "Failed to load font size %d", size);
         } else {
             IO::Logging::debug("Successfully loaded font size %d", size);
         }
-    }
 
-    return fonts[size];
+        fonts[size] = font;
+        return font;
+    }
+    return it->second;
 }
 
 void OpenWars::Drawing::drawText(

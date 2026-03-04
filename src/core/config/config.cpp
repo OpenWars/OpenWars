@@ -10,9 +10,8 @@ OpenWars::Config::Manager::Manager(const std::string& appName)
 }
 
 bool OpenWars::Config::Manager::load() {
-    if(!IO::FileSystem::exists(configFile)) {
+    if(!IO::FileSystem::exists(configFile))
         return save();
-    }
 
     std::lock_guard<std::mutex> lk(mutex);
 
@@ -33,14 +32,13 @@ bool OpenWars::Config::Manager::load() {
         std::string key = trim(line.substr(0, pos));
         std::string val = trim(line.substr(pos + 1));
 
-        // Graphics
         std::apply(
             [&](auto&&... f) {
                 (..., (key == f.name ? setField(graphics, f, val) : void()));
             },
             Graphics::fields
         );
-        // Player
+
         std::apply(
             [&](auto&&... f) {
                 (..., (key == f.name ? setField(player, f, val) : void()));
@@ -53,18 +51,14 @@ bool OpenWars::Config::Manager::load() {
 }
 
 void OpenWars::Config::Manager::init() {
-    this->load();
-    this->dump();
-
-    if(!this->load()) {
-        // Default settings
-        this->graphics.multisampling = false;
-        this->graphics.vsync = 1;
-        this->graphics.showFps = true;
-        this->graphics.displayDebugInfo = true;
-
-        this->save();
+    if(!load()) {
+        graphics.multisampling = false;
+        graphics.vsync = 1;
+        graphics.showFps = true;
+        graphics.displayDebugInfo = true;
+        save();
     }
+    dump();
 }
 
 bool OpenWars::Config::Manager::save() {
@@ -77,6 +71,7 @@ bool OpenWars::Config::Manager::save() {
         },
         Graphics::fields
     );
+
     std::apply(
         [&](auto&&... f) {
             (..., (oss << f.name << "=" << getFieldValue(player, f) << "\n"));
@@ -98,12 +93,9 @@ std::string OpenWars::Config::Manager::trim(const std::string& s) {
 
 void OpenWars::Config::Manager::dump() {
     IO::Logging::debug("%s", "=== Configuration Dump ===");
-
     IO::Logging::debug("%s", "[Graphics]");
     dumpStruct(graphics, Graphics::fields);
-
     IO::Logging::debug("%s", "[Player]");
     dumpStruct(player, Player::fields);
-
     IO::Logging::debug("%s", "=== End Configuration Dump ===");
 }

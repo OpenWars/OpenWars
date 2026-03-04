@@ -14,7 +14,7 @@ OpenWars::Game::MapRenderer::~MapRenderer() {
 }
 
 void OpenWars::Game::MapRenderer::loadSpritesheets() {
-    Drawing::SpriteSheet* sheet = Drawing::SpriteSheet::loadFromAssets(
+    SpriteSheet* sheet = SpriteSheet::loadFromAssets(
         "sprites/terrain_clear.png",
         TILE_SIZE,
         TILE_SIZE
@@ -34,42 +34,43 @@ void OpenWars::Game::MapRenderer::loadSpritesheets() {
 }
 
 void OpenWars::Game::MapRenderer::unloadSpritesheets() {
-    for(auto& [weather, sheet] : spritesheets) {
+    for(auto& [weather, sheet] : spritesheets)
         delete sheet;
-    }
     spritesheets.clear();
 }
 
 void OpenWars::Game::MapRenderer::initializeTileFrames() {
-    if(!gameMap) {
+    if(!gameMap)
         return;
-    }
 
-    int width = gameMap->getWidth();
-    int height = gameMap->getHeight();
+    const int width = gameMap->getWidth();
+    const int height = gameMap->getHeight();
+    tileFrameWidth = width;
 
-    auto coord1Based = [this](int row, int col) {
-        return (row - 1) * spritesheetCols + (col - 1);
-    };
+    tileFrames.resize(width * height);
+    animatedTileIndices.clear();
 
-    tileFrames.resize(height);
     for(int y = 0; y < height; ++y) {
-        tileFrames[y].resize(width);
         for(int x = 0; x < width; ++x) {
-            TileFrame& frame = tileFrames[y][x];
-            TerrainType terrainType = gameMap->getTerrain(x, y)->getType();
+            const int flat = y * width + x;
+            TileFrame& frame = tileFrames[flat];
+            const TerrainType type = gameMap->getTerrain(x, y)->getType();
 
-            frame.spriteIndex = getTerrainSpriteIndex(terrainType, x, y);
+            frame.spriteIndex = getTerrainSpriteIndex(type, x, y);
 
-            if(terrainType == TerrainType::Sea) {
+            if(type == TerrainType::Sea) {
                 frame.animationSpeed = 1.0f;
                 frame.frameCount = 3;
                 frame.spriteIndex = coord1Based(3, 1);
-            } else if(terrainType == TerrainType::River) {
+            } else if(type == TerrainType::River) {
                 frame.animationSpeed = 0.0f;
                 frame.frameCount = 1;
                 frame.spriteIndex = coord1Based(5, 3);
             }
+
+            // Track only the tiles that actually animate.
+            if(frame.animationSpeed > 0.0f)
+                animatedTileIndices.push_back(flat);
         }
     }
 }
@@ -79,18 +80,11 @@ int OpenWars::Game::MapRenderer::getTerrainSpriteIndex(
     int x,
     int y
 ) const {
-    auto coord1Based = [this](int row, int col) {
-        return (row - 1) * spritesheetCols + (col - 1);
-    };
-
     switch(type) {
     case TerrainType::Plain:
         return coord1Based(1, 1);
     case TerrainType::Woods:
-        if(y % 2 == 0) {
-            return coord1Based(1, 4);
-        }
-        return coord1Based(1, 3);
+        return (y % 2 == 0) ? coord1Based(1, 4) : coord1Based(1, 3);
     case TerrainType::Mountain:
         return coord1Based(2, 5);
     case TerrainType::Sea:
@@ -109,10 +103,8 @@ int OpenWars::Game::MapRenderer::getTerrainSpriteIndex(
 int OpenWars::Game::MapRenderer::getTileFrameIndex(
     const TileFrame& frame
 ) const {
-    if(frame.frameCount <= 1) {
+    if(frame.frameCount <= 1)
         return frame.spriteIndex;
-    }
-
     int animFrame =
         static_cast<int>(frame.animationTime / ANIMATION_FRAME_TIME) %
         frame.frameCount;
@@ -123,10 +115,6 @@ int OpenWars::Game::MapRenderer::getAnimationFrameIndex(
     TerrainType type,
     int animFrame
 ) const {
-    auto coord1Based = [this](int row, int col) {
-        return (row - 1) * spritesheetCols + (col - 1);
-    };
-
     switch(type) {
     case TerrainType::Sea:
         return coord1Based(3, 1 + animFrame);
@@ -139,7 +127,6 @@ int OpenWars::Game::MapRenderer::getAnimationFrameIndex(
 
 OpenWars::Game::MapRenderer::TerrainLayer
 OpenWars::Game::MapRenderer::getTerrainLayer(TerrainType type) const {
-    // Foreground layer: elevated and visually prominent terrain
     switch(type) {
     case TerrainType::Woods:
     case TerrainType::Mountain:
@@ -151,42 +138,30 @@ OpenWars::Game::MapRenderer::getTerrainLayer(TerrainType type) const {
     case TerrainType::CommTower:
     case TerrainType::Silo:
         return TerrainLayer::Foreground;
-
-    // Background layer: plains and base terrain
-    case TerrainType::Plain:
-    case TerrainType::Road:
-    case TerrainType::River:
-    case TerrainType::Coast:
-    case TerrainType::Sea:
-    case TerrainType::City:
-    case TerrainType::Pipe:
     default:
         return TerrainLayer::Background;
     }
 }
 
 void OpenWars::Game::MapRenderer::update(float deltaTime) {
-    animationAccum += deltaTime;
-    if(animationAccum >= ANIMATION_FRAME_TIME) {
-        animationAccum -= ANIMATION_FRAME_TIME;
+    if(animatedTileIndices.empty())
+        return;
 
-        for(auto& row : tileFrames) {
-            for(auto& frame : row) {
-                if(frame.animationSpeed > 0.0f) {
-                    frame.animationTime += frame.animationSpeed;
-                }
-            }
-        }
-    }
+    animationAccum += deltaTime;
+    if(animationAccum < ANIMATION_FRAME_TIME)
+        return;
+    animationAccum -= ANIMATION_FRAME_TIME;
+
+    for(int flat : animatedTileIndices)
+        tileFrames[flat].animationTime += tileFrames[flat].animationSpeed;
 }
 
 OpenWars::Vector2 OpenWars::Game::MapRenderer::getTileAtScreenPos(
     const Vector2& screenPos,
     IO::Graphics::Camera* camera
 ) const {
-    if(!camera || !gameMap) {
+    if(!camera || !gameMap)
         return Vector2{-1, -1};
-    }
 
     Vector3 cameraPos = camera->getPosition();
     float zoom = camera->getZoom();
@@ -197,39 +172,28 @@ OpenWars::Vector2 OpenWars::Game::MapRenderer::getTileAtScreenPos(
     float camOffsetX = viewportW / 2.0f - (cameraPos.x * zoom);
     float camOffsetY = viewportH / 2.0f - (cameraPos.y * zoom);
 
-    // Convert screen coordinates to tile coordinates
     int tileX = (int)((screenPos.x - camOffsetX) / scaledTileSize);
     int tileY = (int)((screenPos.y - camOffsetY) / scaledTileSize);
 
-    // Check if tile is within bounds
-    if(gameMap->isInBounds(tileX, tileY)) {
+    if(gameMap->isInBounds(tileX, tileY))
         return Vector2{(float)tileX, (float)tileY};
-    }
-
     return Vector2{-1, -1};
 }
 
 void OpenWars::Game::MapRenderer::render(IO::Graphics::Camera* camera) {
-    if(tileFrames.empty() || !camera) {
+    if(tileFrames.empty() || !camera || !gameMap)
         return;
-    }
 
     auto it = spritesheets.find(static_cast<int>(currentWeather));
-    if(it == spritesheets.end()) {
+    if(it == spritesheets.end())
         return;
-    }
 
     SpriteSheet* sheet = it->second;
-    if(!sheet) {
+    if(!sheet)
         return;
-    }
 
-    if(!gameMap) {
-        return;
-    }
-
-    int mapWidth = gameMap->getWidth();
-    int mapHeight = gameMap->getHeight();
+    const int mapWidth = gameMap->getWidth();
+    const int mapHeight = gameMap->getHeight();
 
     Vector3 cameraPos = camera->getPosition();
     float zoom = camera->getZoom();
@@ -240,51 +204,41 @@ void OpenWars::Game::MapRenderer::render(IO::Graphics::Camera* camera) {
     float camOffsetX = viewportW / 2.0f - (cameraPos.x * zoom);
     float camOffsetY = viewportH / 2.0f - (cameraPos.y * zoom);
 
-    auto coord1Based = [this](int row, int col) {
-        return (row - 1) * spritesheetCols + (col - 1);
-    };
+    const int plainIdx = coord1Based(1, 1);
 
-    // First pass: render plains as background for all tiles
+    // Pass 1: plain underlay for foreground terrain
     for(int y = 0; y < mapHeight; ++y) {
         for(int x = 0; x < mapWidth; ++x) {
             Terrain* terrain = gameMap->getTerrain(x, y);
             if(!terrain)
                 continue;
-
-            // For foreground terrain, render plains underneath
-            if(getTerrainLayer(terrain->getType()) ==
-               TerrainLayer::Foreground) {
-                float screenX = (x * scaledTileSize) + camOffsetX;
-                float screenY = (y * scaledTileSize) + camOffsetY;
-
-                // Only draw if visible in viewport
-                if(screenX + scaledTileSize > 0 && screenX < viewportW &&
-                   screenY + scaledTileSize > 0 && screenY < viewportH) {
-                    int plainSpriteIndex = coord1Based(1, 1);
-                    sheet->drawFrame(plainSpriteIndex, screenX, screenY, zoom);
-                }
-            }
-        }
-    }
-
-    // Second pass: render all terrain (both background and foreground)
-    for(int y = 0; y < mapHeight; ++y) {
-        for(int x = 0; x < mapWidth; ++x) {
-            Terrain* terrain = gameMap->getTerrain(x, y);
-            if(!terrain)
+            if(getTerrainLayer(terrain->getType()) != TerrainLayer::Foreground)
                 continue;
-
-            const TileFrame& frame = tileFrames[y][x];
-            int frameIndex = getTileFrameIndex(frame);
 
             float screenX = (x * scaledTileSize) + camOffsetX;
             float screenY = (y * scaledTileSize) + camOffsetY;
+            if(screenX + scaledTileSize <= 0 || screenX >= viewportW)
+                continue;
+            if(screenY + scaledTileSize <= 0 || screenY >= viewportH)
+                continue;
 
-            // Only draw if visible in viewport
-            if(screenX + scaledTileSize > 0 && screenX < viewportW &&
-               screenY + scaledTileSize > 0 && screenY < viewportH) {
-                sheet->drawFrame(frameIndex, screenX, screenY, zoom);
-            }
+            sheet->drawFrame(plainIdx, screenX, screenY, zoom);
+        }
+    }
+
+    // Pass 2: all terrain
+    for(int y = 0; y < mapHeight; ++y) {
+        for(int x = 0; x < mapWidth; ++x) {
+            float screenX = (x * scaledTileSize) + camOffsetX;
+            float screenY = (y * scaledTileSize) + camOffsetY;
+            if(screenX + scaledTileSize <= 0 || screenX >= viewportW)
+                continue;
+            if(screenY + scaledTileSize <= 0 || screenY >= viewportH)
+                continue;
+
+            const int flat = y * tileFrameWidth + x;
+            int frameIndex = getTileFrameIndex(tileFrames[flat]);
+            sheet->drawFrame(frameIndex, screenX, screenY, zoom);
         }
     }
 }

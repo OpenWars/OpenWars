@@ -9,98 +9,78 @@ OpenWars::Game::Scene& OpenWars::Game::SceneManager::getCurrent() {
     return *currentScene;
 }
 
-void OpenWars::Game::SceneManager::changeTo(
-    OpenWars::Game::Scene& target,
+void OpenWars::Game::SceneManager::changeToOwned(
+    std::unique_ptr<Scene> target,
     float transitionDuration
 ) {
-    if(currentScene == &target || transition.active) {
+    if(!target || currentScene == target.get() || transition.active)
         return;
-    }
 
-    nextScene = &target;
+    // Take ownership before grabbing the raw pointer.
+    Scene* rawNext = target.get();
+    ownedScenes.push_back(std::move(target));
+
+    nextScene = rawNext;
     transition.active = true;
     transition.progress = 0.0f;
     transition.duration = transitionDuration;
 
-    // Start exit transition
-    if(currentScene) {
+    if(currentScene)
         currentScene->onPause();
-    }
 
-    IO::Logging::debug("Scene changed to %s.", typeid(target).name());
+    IO::Logging::debug("Scene changed to %s.", typeid(*nextScene).name());
 }
 
 bool OpenWars::Game::SceneManager::handleInput(
     const IO::Input::InputState& state
 ) {
-    if(transition.active) {
+    if(transition.active)
         return false;
-    }
 
-    // Handle scene input first
-    if(currentScene) {
+    if(currentScene)
         currentScene->handleInput(state);
-    }
 
-    // Then pass to UI
-    if(currentScene && currentScene->getUIHandler()) {
+    if(currentScene && currentScene->getUIHandler())
         return currentScene->getUIHandler()->handleInput(state);
-    }
 
     return false;
 }
 
 void OpenWars::Game::SceneManager::update(float deltaTime) {
-    if(transition.active) {
+    if(transition.active)
         updateTransition(deltaTime);
-    }
 
-    if(currentScene && !transition.active) {
+    if(currentScene && !transition.active)
         currentScene->update(deltaTime);
-    }
 }
 
 void OpenWars::Game::SceneManager::render() {
-    if(currentScene) {
+    if(currentScene)
         currentScene->render();
-    }
 
-    if(transition.active) {
+    if(transition.active)
         renderTransition();
-    }
 }
 
 void OpenWars::Game::SceneManager::updateTransition(float deltaTime) {
     transition.progress += deltaTime / transition.duration;
 
-    // Switch scene at midpoint
     if(transition.progress >= 0.5f && currentScene != nextScene) {
-        if(currentScene) {
+        if(currentScene)
             currentScene->onExit();
-        }
         currentScene = nextScene;
-        if(currentScene) {
+        if(currentScene)
             currentScene->onEnter();
-        }
     }
 
-    if(transition.progress >= 1.0f) {
+    if(transition.progress >= 1.0f)
         completeTransition();
-    }
 }
 
 void OpenWars::Game::SceneManager::renderTransition() {
-    // Fade out during first half, fade in during second half
     float alpha = transition.progress < 0.5f
                       ? transition.progress * 2.0f
                       : (1.0f - transition.progress) * 2.0f;
-
-    // During transition, show the current scene and fade it out
-    // At the midpoint, scene switches and fades in
-    if(transition.progress >= 0.5f && nextScene != nullptr) {
-        // Second half: new scene is rendering, fade it in
-        // Current scene will be switched by completeTransition
-    }
 
     Drawing::drawRectangle(
         0,
@@ -115,14 +95,26 @@ void OpenWars::Game::SceneManager::completeTransition() {
     nextScene = nullptr;
     transition.active = false;
 
-    if(transition.onComplete) {
+    // Prune scenes that are no longer current (free their memory).
+    ownedScenes.erase(
+        std::remove_if(
+            ownedScenes.begin(),
+            ownedScenes.end(),
+            [this](const std::unique_ptr<Scene>& s) {
+                return s.get() != currentScene;
+            }
+        ),
+        ownedScenes.end()
+    );
+
+    if(transition.onComplete)
         transition.onComplete();
-    }
 }
+
+// ---------------------------------------------------------------------------
 
 void OpenWars::Game::FadeTransition::render(float progress) {
     float alpha = progress < 0.5f ? progress * 2.0f : (1.0f - progress) * 2.0f;
-
     Drawing::drawRectangle(
         0,
         0,
@@ -133,26 +125,23 @@ void OpenWars::Game::FadeTransition::render(float progress) {
 }
 
 void OpenWars::Game::SlideTransition::render(float progress) {
-    float slideAmount =
-        progress < 0.5f ? progress * 2.0f : (1.0f - progress) * 2.0f;
+    float slide = progress < 0.5f ? progress * 2.0f : (1.0f - progress) * 2.0f;
 
     Drawing::Rectangle rect =
         {0, 0, (float)getWindowWidth(), (float)getWindowHeight()};
-
     switch(direction) {
     case Left:
-        rect.x = -rect.width * (1.0f - slideAmount);
+        rect.x = -rect.width * (1.0f - slide);
         break;
     case Right:
-        rect.x = rect.width * (1.0f - slideAmount);
+        rect.x = rect.width * (1.0f - slide);
         break;
     case Up:
-        rect.y = -rect.height * (1.0f - slideAmount);
+        rect.y = -rect.height * (1.0f - slide);
         break;
     case Down:
-        rect.y = rect.height * (1.0f - slideAmount);
+        rect.y = rect.height * (1.0f - slide);
         break;
     }
-
     drawRectangleRec(rect, Color(0, 0, 0, 255));
 }

@@ -4,6 +4,7 @@
 #include "../../io/input/input.hpp"
 #include <memory>
 #include <functional>
+#include <vector>
 
 namespace OpenWars::Game {
     enum class SceneEvent { Enter, Exit, Pause, Resume, Update, Render };
@@ -21,7 +22,7 @@ namespace OpenWars::Game {
         } state;
 
       public:
-        Scene(const std::string& name)
+        explicit Scene(const std::string& name)
             : sceneName(name) {
             uiHandler = std::make_unique<OpenWars::UI::Handler>();
         }
@@ -39,32 +40,34 @@ namespace OpenWars::Game {
         }
 
         virtual void update(float deltaTime) {
-            if(uiHandler) {
+            if(uiHandler)
                 uiHandler->update(deltaTime);
-            }
         }
-
         virtual void render() {
-            if(uiHandler) {
+            if(uiHandler)
                 uiHandler->renderOverlay();
-            }
         }
-
-        virtual void handleInput(const IO::Input::InputState& state) {};
+        virtual void handleInput(const IO::Input::InputState&) {
+        }
 
         OpenWars::UI::Handler* getUIHandler() {
             return uiHandler.get();
         }
-
         const std::string& getName() const {
             return sceneName;
         }
-
         bool isActive() const {
             return state.active;
         }
     };
+
     class SceneManager {
+        /*
+         * Owned scene pool – scenes live here until replaced or the manager
+         * is destroyed.
+         */
+        std::vector<std::unique_ptr<Scene>> ownedScenes;
+
         Scene* currentScene = nullptr;
         Scene* nextScene = nullptr;
 
@@ -82,11 +85,29 @@ namespace OpenWars::Game {
         }
 
         Scene& getCurrent();
-        void changeTo(Scene& target, float transitionDuration = 0.7f);
+
+        /*
+         * Transfer ownership of a heap-allocated scene, then transition to it.
+         */
+        void changeToOwned(
+            std::unique_ptr<Scene> target,
+            float transitionDuration = 0.7f
+        );
+
+        /*
+         * Convenience template: allocate + own + transition in one call.
+         */
+        template <typename T, typename... Args>
+        void changeTo(float transitionDuration = 0.7f, Args&&... args) {
+            changeToOwned(
+                std::make_unique<T>(std::forward<Args>(args)...),
+                transitionDuration
+            );
+        }
+
         bool handleInput(const IO::Input::InputState& state);
         void update(float deltaTime);
         void render();
-
         bool isTransitioning() const {
             return transition.active;
         }
@@ -97,12 +118,13 @@ namespace OpenWars::Game {
         void completeTransition();
 
       protected:
-        SceneManager() {};
-        ~SceneManager() {};
-
+        SceneManager() = default;
+        ~SceneManager() = default;
         SceneManager(const SceneManager&) = delete;
         SceneManager& operator=(const SceneManager&) = delete;
     };
+
+    // Transition effects
 
     class TransitionEffect {
       public:
@@ -114,7 +136,7 @@ namespace OpenWars::Game {
         Color color;
 
       public:
-        FadeTransition(Color fadeColor = Color(0, 0, 0, 255))
+        explicit FadeTransition(Color fadeColor = Color(0, 0, 0, 255))
             : color(fadeColor) {
         }
         void render(float progress) override;
@@ -128,7 +150,7 @@ namespace OpenWars::Game {
         Direction direction;
 
       public:
-        SlideTransition(Direction dir)
+        explicit SlideTransition(Direction dir)
             : direction(dir) {
         }
         void render(float progress) override;
