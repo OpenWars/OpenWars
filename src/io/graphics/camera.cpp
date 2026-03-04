@@ -132,9 +132,9 @@ namespace OpenWars::IO::Graphics {
         , up(0, 1, 0)
         , fov(45.0f)
         , projection(Orthographic)
-        , zoomLevel(1.0f)
-        , minZoom(0.1f)
-        , maxZoom(10.0f) {
+        , zoomLevel(2.0f) // Start at 2x
+        , minZoom(1.0f)
+        , maxZoom(4.0f) {
     }
 
     Vector3 Camera::getPosition() const {
@@ -204,16 +204,29 @@ namespace OpenWars::IO::Graphics {
     }
 
     void Camera::panTo(const Vector3& worldPos, float duration) {
+        const float TILE_SIZE = 16.0f;
+        Vector3 snappedPos = worldPos;
+        snappedPos.x =
+            std::floor(worldPos.x / TILE_SIZE) * TILE_SIZE + TILE_SIZE / 2.0f;
+        snappedPos.y =
+            std::floor(worldPos.y / TILE_SIZE) * TILE_SIZE + TILE_SIZE / 2.0f;
+
         panStart = position;
-        panEnd = worldPos;
+        panEnd = snappedPos;
         panDuration = duration;
         panElapsed = 0.0f;
         panAnimating = true;
     }
 
     void Camera::instantPan(const Vector3& worldPos) {
-        position = worldPos;
-        target = worldPos + (target - position); // Maintain offset
+        const float TILE_SIZE = 16.0f;
+        position.x =
+            std::floor(worldPos.x / TILE_SIZE) * TILE_SIZE + TILE_SIZE / 2.0f;
+        position.y =
+            std::floor(worldPos.y / TILE_SIZE) * TILE_SIZE + TILE_SIZE / 2.0f;
+        position.z = worldPos.z;
+
+        target = position; // Camera looks at where it is positioned
         clampToBoundaries();
         invalidateMatrices();
     }
@@ -233,9 +246,16 @@ namespace OpenWars::IO::Graphics {
     }
 
     void Camera::applyZoom(float amount) {
-        zoomLevel *= (1.0f + amount);
-        clampZoom();
-        invalidateMatrices();
+        // Advance Wars style: discrete zoom levels with smooth transitions
+        // Calculate target zoom level
+        float newZoom = zoomLevel + amount;
+
+        // Snap to nearest 0.25 increment for more controlled zooming
+        newZoom = std::round(newZoom * 4.0f) / 4.0f;
+
+        if(newZoom != zoomLevel) {
+            zoomTo(newZoom, 0.15f); // Quick zoom animation
+        }
     }
 
     void Camera::fitToArea(
@@ -280,22 +300,28 @@ namespace OpenWars::IO::Graphics {
         if(panAnimating) {
             panElapsed += deltaTime;
             float progress = std::min(1.0f, panElapsed / panDuration);
-            progress = easeInOutCubic(progress);
+
+            // Use a snappier easing for Advance Wars feel
+            progress = easeOutQuad(progress);
 
             position = panStart + (panEnd - panStart) * progress;
-            target = position + (target - position); // Maintain offset
+            target = position; // Keep target at position
 
             if(panElapsed >= panDuration) {
                 panAnimating = false;
                 position = panEnd;
+                target = position;
             }
+            clampToBoundaries();
             invalidateMatrices();
         }
 
         if(zoomAnimating) {
             zoomElapsed += deltaTime;
             float progress = std::min(1.0f, zoomElapsed / zoomDuration);
-            progress = easeInOutCubic(progress);
+
+            // Smooth zoom animation
+            progress = easeOutQuad(progress);
 
             zoomLevel = zoomStart + (zoomEnd - zoomStart) * progress;
 
@@ -409,7 +435,7 @@ namespace OpenWars::IO::Graphics {
         target = Vector3{0, 0, 0};
         up = Vector3{0, 1, 0};
         fov = 45.0f;
-        zoomLevel = 1.0f;
+        zoomLevel = 2.0f;
         stopAnimations();
         invalidateMatrices();
     }
@@ -421,6 +447,10 @@ namespace OpenWars::IO::Graphics {
             float f = 2.0f * t - 2.0f;
             return 0.5f * f * f * f + 1.0f;
         }
+    }
+
+    float Camera::easeOutQuad(float t) const {
+        return t * (2.0f - t);
     }
 
     void Camera::clampToBoundaries() {
@@ -486,9 +516,13 @@ namespace OpenWars::IO::Graphics {
         if(!camera)
             return;
 
+        // Handle mouse wheel zoom with Advance Wars style
         if(input.scrollY != 0.0f) {
-            camera->applyZoom(input.scrollY * zoomSpeed);
+            // Each scroll step is 0.5 zoom levels
+            camera->applyZoom(input.scrollY * 0.5f);
         }
+
+        // todo: + and - keys for zooming in/out for keyboard users
     }
 
     void CameraController::setPanSpeed(float speed) {

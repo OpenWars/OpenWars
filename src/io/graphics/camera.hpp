@@ -61,12 +61,12 @@ namespace OpenWars::IO::Graphics {
         int getViewportHeight() const;
 
         void pan(float deltaX, float deltaY);
-        void panTo(const Vector3& worldPos, float duration = 0.5f);
+        void panTo(const Vector3& worldPos, float duration = 0.3f);
         void instantPan(const Vector3& worldPos);
 
         float getZoom() const;
         void setZoom(float z);
-        void zoomTo(float targetZoom, float duration = 0.3f);
+        void zoomTo(float targetZoom, float duration = 0.15f);
         void applyZoom(float amount);
 
         void fitToArea(
@@ -140,6 +140,7 @@ namespace OpenWars::IO::Graphics {
         mutable bool projMatrixDirty = true;
 
         float easeInOutCubic(float t) const;
+        float easeOutQuad(float t) const;
         void invalidateMatrices() {
             viewMatrixDirty = true;
             projMatrixDirty = true;
