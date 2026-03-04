@@ -34,8 +34,8 @@ void OpenWars::Game::GameScene::initializeCamera() {
     camera->instantPan(Vector3{mapCenterX, mapCenterY, 10.0f});
     camera->setBoundaries(0.0f, mapPixelWidth, 0.0f, mapPixelHeight);
 
-    camera->setZoomLimits(1.0f, 4.0f);
-    camera->setZoom(2.0f);
+    camera->setZoomLimits(1.0f, 3.5f);
+    camera->setZoom(2.0f); // Start at 2.5x for good visibility
 }
 
 void OpenWars::Game::GameScene::onEnter() {
@@ -137,15 +137,12 @@ void OpenWars::Game::GameScene::update(float deltaTime) {
         cursorMoveTimer = 0.0f;
     }
 
-    // Camera follows cursor tile with smooth animation (Advance Wars style)
     if(camera) {
         const int TILE_SIZE = 16;
         float cursorWorldX = (cursorTile.x + 0.5f) * TILE_SIZE;
         float cursorWorldY = (cursorTile.y + 0.5f) * TILE_SIZE;
 
-        // Use panTo for smooth Advance Wars-style camera movement
-        // The camera will snap to tile centers automatically
-        camera->panTo(Vector3{cursorWorldX, cursorWorldY, 10.0f}, 0.25f);
+        camera->panTo(Vector3{cursorWorldX, cursorWorldY, 10.0f}, 0.3f);
     }
 }
 

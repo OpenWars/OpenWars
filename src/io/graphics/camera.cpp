@@ -134,7 +134,7 @@ namespace OpenWars::IO::Graphics {
         , projection(Orthographic)
         , zoomLevel(2.0f) // Start at 2x
         , minZoom(1.0f)
-        , maxZoom(4.0f) {
+        , maxZoom(3.5f) {
     }
 
     Vector3 Camera::getPosition() const {
@@ -246,15 +246,12 @@ namespace OpenWars::IO::Graphics {
     }
 
     void Camera::applyZoom(float amount) {
-        // Advance Wars style: discrete zoom levels with smooth transitions
-        // Calculate target zoom level
-        float newZoom = zoomLevel + amount;
+        float newZoom = zoomLevel + amount * 0.3f;
 
-        // Snap to nearest 0.25 increment for more controlled zooming
-        newZoom = std::round(newZoom * 4.0f) / 4.0f;
+        newZoom = std::clamp(newZoom, minZoom, maxZoom);
 
-        if(newZoom != zoomLevel) {
-            zoomTo(newZoom, 0.15f); // Quick zoom animation
+        if(std::abs(newZoom - zoomLevel) > 0.01f) {
+            zoomTo(newZoom, 0.2f);
         }
     }
 
@@ -301,7 +298,7 @@ namespace OpenWars::IO::Graphics {
             panElapsed += deltaTime;
             float progress = std::min(1.0f, panElapsed / panDuration);
 
-            // Use a snappier easing for Advance Wars feel
+            // todo: does it feel better with easeOutCubic?
             progress = easeOutQuad(progress);
 
             position = panStart + (panEnd - panStart) * progress;
@@ -320,8 +317,7 @@ namespace OpenWars::IO::Graphics {
             zoomElapsed += deltaTime;
             float progress = std::min(1.0f, zoomElapsed / zoomDuration);
 
-            // Smooth zoom animation
-            progress = easeOutQuad(progress);
+            progress = easeOutCubic(progress);
 
             zoomLevel = zoomStart + (zoomEnd - zoomStart) * progress;
 
@@ -435,7 +431,7 @@ namespace OpenWars::IO::Graphics {
         target = Vector3{0, 0, 0};
         up = Vector3{0, 1, 0};
         fov = 45.0f;
-        zoomLevel = 2.0f;
+        zoomLevel = 2.5f;
         stopAnimations();
         invalidateMatrices();
     }
@@ -451,6 +447,11 @@ namespace OpenWars::IO::Graphics {
 
     float Camera::easeOutQuad(float t) const {
         return t * (2.0f - t);
+    }
+
+    float Camera::easeOutCubic(float t) const {
+        float f = 1.0f - t;
+        return 1.0f - f * f * f;
     }
 
     void Camera::clampToBoundaries() {
@@ -522,7 +523,8 @@ namespace OpenWars::IO::Graphics {
             camera->applyZoom(input.scrollY * 0.5f);
         }
 
-        // todo: + and - keys for zooming in/out for keyboard users
+        // Optional: Add keyboard zoom controls (+ and - keys)
+        // This would require adding those keys to InputState
     }
 
     void CameraController::setPanSpeed(float speed) {

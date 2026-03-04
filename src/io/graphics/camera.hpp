@@ -141,6 +141,7 @@ namespace OpenWars::IO::Graphics {
 
         float easeInOutCubic(float t) const;
         float easeOutQuad(float t) const;
+        float easeOutCubic(float t) const;
         void invalidateMatrices() {
             viewMatrixDirty = true;
             projMatrixDirty = true;
