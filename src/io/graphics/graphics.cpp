@@ -11,12 +11,17 @@ namespace OpenWars::IO::Graphics {
     static SDL_Window* window = nullptr;
     static SDL_Renderer* renderer = nullptr;
     static Camera mainCamera;
-    static bool shouldCloseFlag = false;
     static uint64_t lastFrameTime = 0;
     static float deltaTime = 0.0f;
     static int frameCount = 0;
     static double lastFPSTime = 0.0;
     static int currentFPS = 0;
+
+    // SDL_GetWindowSize() is a non-trivial call (goes through the SDL window
+    // subsystem).  We re-query it exactly once per frame in beginFrame() and
+    // let every other call in the same frame read the cached values.
+    static int cachedWindowWidth = 1024;
+    static int cachedWindowHeight = 512;
 
     void init(int vsync, bool multisampling) {
         SDL_SetAppMetadata(
@@ -58,6 +63,8 @@ namespace OpenWars::IO::Graphics {
         SDL_SetRenderVSync(renderer, vsync);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
+        SDL_GetWindowSize(window, &cachedWindowWidth, &cachedWindowHeight);
+
         lastFrameTime = SDL_GetTicksNS();
     }
 
@@ -71,6 +78,8 @@ namespace OpenWars::IO::Graphics {
     }
 
     void exit() {
+        Drawing::TextCache::clear();
+
         for(auto& [size, font] : Drawing::fonts) {
             if(font)
                 TTF_CloseFont(font);
@@ -87,7 +96,7 @@ namespace OpenWars::IO::Graphics {
     }
 
     bool shouldClose() {
-        return shouldCloseFlag;
+        return false; // driven by event manager
     }
 
     void beginFrame() {
@@ -103,16 +112,18 @@ namespace OpenWars::IO::Graphics {
             lastFPSTime = currentTimeSeconds;
         }
 
+        if(window)
+            SDL_GetWindowSize(window, &cachedWindowWidth, &cachedWindowHeight);
+
+        Drawing::TextCache::tick();
+
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
     }
 
     void beginAttached() {
-        // TODO (sdl3_gpu?)
     }
-
     void endAttached() {
-        // TODO (same as beginAttached)
     }
 
     void swapBuffers() {
@@ -124,28 +135,23 @@ namespace OpenWars::IO::Graphics {
         SDL_RenderClear(renderer);
     }
 
+    // ── Window size: return cached values, no SDL call ───────────────────────
     int getWindowWidth() {
-        int w = 0;
-        if(window)
-            SDL_GetWindowSize(window, &w, nullptr);
-        return w;
+        return cachedWindowWidth;
     }
 
     int getWindowHeight() {
-        int h = 0;
-        if(window)
-            SDL_GetWindowSize(window, nullptr, &h);
-        return h;
+        return cachedWindowHeight;
     }
 
-    int getMonitorRefreshRate(int monitor) {
+    int getMonitorRefreshRate(int /*monitor*/) {
         const SDL_DisplayMode* mode =
             SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
         return mode ? (int)mode->refresh_rate : 60;
     }
 
     int getCurrentMonitor() {
-        return 0; // sdl uses display IDs, simplify for now
+        return 0;
     }
 
     float getFrameTime() {
@@ -168,7 +174,8 @@ namespace OpenWars::IO::Graphics {
         return mainCamera;
     }
 
-    void updateCamera(float deltaTime) {
-        mainCamera.update(deltaTime);
+    void updateCamera(float dt) {
+        mainCamera.update(dt);
     }
+
 } // namespace OpenWars::IO::Graphics

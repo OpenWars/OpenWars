@@ -6,10 +6,6 @@
 #include <map>
 #include <string>
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Font cache (unchanged)
-// ─────────────────────────────────────────────────────────────────────────────
-
 std::map<int, TTF_Font*> OpenWars::Drawing::fonts;
 
 TTF_Font* OpenWars::Drawing::getFont(int size) {
@@ -37,7 +33,7 @@ uint64_t OpenWars::Drawing::TextCache::frameCounter = 0;
 void OpenWars::Drawing::TextCache::tick() {
     ++frameCounter;
 
-    // every 60 frames
+    // Only scan for stale entries every 60 frames to keep tick() cheap.
     if(frameCounter % 60 != 0)
         return;
 
@@ -138,12 +134,46 @@ void OpenWars::Drawing::drawFPS(int x, int y, int currentFPS) {
     drawText(fpsText.c_str(), x, y, 20, Color(0, 255, 0, 255));
 }
 
+// TTF_GetStringSize() re-runs the shaper on every call.  UI code (carousel
+// item bounds, button layout) calls measureText in tight loops, so we cache
+// the width result keyed by (text, fontSize).  The cache grows at most as fast
+// as the number of distinct (string, size) pairs ever seen — in practice a few
+// dozen entries.
+namespace {
+    struct MeasureKey {
+        std::string text;
+        int fontSize;
+
+        bool operator==(const MeasureKey& o) const noexcept {
+            return fontSize == o.fontSize && text == o.text;
+        }
+    };
+
+    struct MeasureKeyHash {
+        size_t operator()(const MeasureKey& k) const noexcept {
+            size_t h = std::hash<std::string>{}(k.text);
+            h ^= std::hash<int>{}(k.fontSize) + 0x9e3779b9u + (h << 6) +
+                 (h >> 2);
+            return h;
+        }
+    };
+
+    std::unordered_map<MeasureKey, int, MeasureKeyHash> measureCache;
+} // anonymous namespace
+
 int OpenWars::Drawing::measureText(const char* text, int fontSize) {
+    MeasureKey key{text, fontSize};
+
+    auto it = measureCache.find(key);
+    if(it != measureCache.end())
+        return it->second;
+
     TTF_Font* font = getFont(fontSize);
     if(!font)
         return 0;
 
     int w = 0;
     TTF_GetStringSize(font, text, 0, &w, nullptr);
+    measureCache.emplace(std::move(key), w);
     return w;
 }

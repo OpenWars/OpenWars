@@ -1,6 +1,7 @@
 #include "assets.hpp"
 #include "../../io/log/logging.hpp"
 #include <cstring>
+#include <vector>
 
 OpenWars::Assets::Manager::Manager() {
     IO::Logging::debug(
@@ -94,9 +95,30 @@ SDL_IOStream* OpenWars::Assets::Manager::loadRW(const std::string& path) const {
     if(data.empty())
         return nullptr;
 
-    SDL_IOStream* s = SDL_IOFromDynamicMem();
-    SDL_WriteIO(s, data.data(), data.size());
-    SDL_SeekIO(s, 0, SDL_IO_SEEK_SET);
+    // Move the decompressed bytes onto the heap so their lifetime can be tied
+    // to the IOStream instead of this stack frame.
+    auto* owned = new std::vector<unsigned char>(std::move(data));
+
+    SDL_IOStream* s = SDL_IOFromMem(owned->data(), (Sint64)owned->size());
+    if(!s) {
+        delete owned;
+        return nullptr;
+    }
+
+    // Attach the vector as a property with a cleanup callback.
+    // SDL will invoke this callback when SDL_CloseIO(s) is called, ensuring the
+    // decompressed buffer is freed at exactly the right moment regardless of
+    // which code path closes the stream.
+    SDL_SetPointerPropertyWithCleanup(
+        SDL_GetIOProperties(s),
+        "ow.asset_data",
+        owned,
+        [](void* /*userdata*/, void* value) {
+            delete static_cast<std::vector<unsigned char>*>(value);
+        },
+        nullptr
+    );
+
     return s;
 }
 

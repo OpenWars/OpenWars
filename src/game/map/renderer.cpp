@@ -68,7 +68,6 @@ void OpenWars::Game::MapRenderer::initializeTileFrames() {
                 frame.spriteIndex = coord1Based(5, 3);
             }
 
-            // Track only the tiles that actually animate.
             if(frame.animationSpeed > 0.0f)
                 animatedTileIndices.push_back(flat);
         }
@@ -180,6 +179,33 @@ OpenWars::Vector2 OpenWars::Game::MapRenderer::getTileAtScreenPos(
     return Vector2{-1, -1};
 }
 
+static void computeVisibleRange(
+    float camOffsetX,
+    float camOffsetY,
+    float scaledTileSize,
+    int viewportW,
+    int viewportH,
+    int mapWidth,
+    int mapHeight,
+    int& outMinX,
+    int& outMaxX,
+    int& outMinY,
+    int& outMaxY
+) {
+    // First tile whose right edge enters the screen on the left:
+    //   tileX * s + camOffset + s >= 0  →  tileX >= -camOffset/s - 1
+    outMinX = std::max(0, (int)std::floor(-camOffsetX / scaledTileSize));
+    outMaxX = std::min(
+        mapWidth - 1,
+        (int)std::floor((viewportW - camOffsetX) / scaledTileSize)
+    );
+    outMinY = std::max(0, (int)std::floor(-camOffsetY / scaledTileSize));
+    outMaxY = std::min(
+        mapHeight - 1,
+        (int)std::floor((viewportH - camOffsetY) / scaledTileSize)
+    );
+}
+
 void OpenWars::Game::MapRenderer::render(IO::Graphics::Camera* camera) {
     if(tileFrames.empty() || !camera || !gameMap)
         return;
@@ -204,11 +230,30 @@ void OpenWars::Game::MapRenderer::render(IO::Graphics::Camera* camera) {
     float camOffsetX = viewportW / 2.0f - (cameraPos.x * zoom);
     float camOffsetY = viewportH / 2.0f - (cameraPos.y * zoom);
 
+    int minX, maxX, minY, maxY;
+    computeVisibleRange(
+        camOffsetX,
+        camOffsetY,
+        scaledTileSize,
+        viewportW,
+        viewportH,
+        mapWidth,
+        mapHeight,
+        minX,
+        maxX,
+        minY,
+        maxY
+    );
+
+    // Nothing on screen at all.
+    if(minX > maxX || minY > maxY)
+        return;
+
     const int plainIdx = coord1Based(1, 1);
 
     // Pass 1: plain underlay for foreground terrain
-    for(int y = 0; y < mapHeight; ++y) {
-        for(int x = 0; x < mapWidth; ++x) {
+    for(int y = minY; y <= maxY; ++y) {
+        for(int x = minX; x <= maxX; ++x) {
             Terrain* terrain = gameMap->getTerrain(x, y);
             if(!terrain)
                 continue;
@@ -217,24 +262,15 @@ void OpenWars::Game::MapRenderer::render(IO::Graphics::Camera* camera) {
 
             float screenX = (x * scaledTileSize) + camOffsetX;
             float screenY = (y * scaledTileSize) + camOffsetY;
-            if(screenX + scaledTileSize <= 0 || screenX >= viewportW)
-                continue;
-            if(screenY + scaledTileSize <= 0 || screenY >= viewportH)
-                continue;
-
             sheet->drawFrame(plainIdx, screenX, screenY, zoom);
         }
     }
 
-    // Pass 2: all terrain
-    for(int y = 0; y < mapHeight; ++y) {
-        for(int x = 0; x < mapWidth; ++x) {
+    // Pass 2: all terrain (only visible range)
+    for(int y = minY; y <= maxY; ++y) {
+        for(int x = minX; x <= maxX; ++x) {
             float screenX = (x * scaledTileSize) + camOffsetX;
             float screenY = (y * scaledTileSize) + camOffsetY;
-            if(screenX + scaledTileSize <= 0 || screenX >= viewportW)
-                continue;
-            if(screenY + scaledTileSize <= 0 || screenY >= viewportH)
-                continue;
 
             const int flat = y * tileFrameWidth + x;
             int frameIndex = getTileFrameIndex(tileFrames[flat]);
