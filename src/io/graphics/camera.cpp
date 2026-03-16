@@ -245,13 +245,29 @@ namespace OpenWars::IO::Graphics {
         zoomAnimating = true;
     }
 
-    void Camera::applyZoom(float amount) {
+    void Camera::applyZoom(float amount, const Vector2& mouseScreenPos) {
         float baseZoom = zoomAnimating ? zoomEnd : zoomLevel;
         float newZoom = std::clamp(baseZoom + amount * 0.3f, minZoom, maxZoom);
 
-        if(std::abs(newZoom - baseZoom) > 0.01f) {
-            zoomTo(newZoom, 0.2f);
-        }
+        if(std::abs(newZoom - baseZoom) < 0.01f)
+            return;
+
+        // World point under the cursor before zoom
+        Vector3 worldBefore = screenToWorld(mouseScreenPos, 0.0f);
+
+        zoomTo(newZoom, 0.2f);
+
+        // World point under the cursor after zoom would shift
+        float scale = baseZoom / newZoom;
+        Vector3 offset;
+        offset.x = (worldBefore.x - position.x) * (1.0f - scale);
+        offset.y = (worldBefore.y - position.y) * (1.0f - scale);
+
+        // Pan to compensate, chaining same way as zoom
+        Vector3 newPos = position;
+        newPos.x -= offset.x;
+        newPos.y -= offset.y;
+        panTo(newPos, 0.2f);
     }
 
     void Camera::fitToArea(
@@ -470,8 +486,22 @@ namespace OpenWars::IO::Graphics {
         float minY = std::min(minBoundY + halfH, maxBoundY - halfH);
         float maxY = std::max(minBoundY + halfH, maxBoundY - halfH);
 
-        position.x = std::clamp(position.x, minX, maxX);
-        position.y = std::clamp(position.y, minY, maxY);
+        float clampedX = std::clamp(position.x, minX, maxX);
+        float clampedY = std::clamp(position.y, minY, maxY);
+
+        // If we're outside bounds, animate back instead of snapping
+        if(std::abs(clampedX - position.x) > 0.5f ||
+           std::abs(clampedY - position.y) > 0.5f) {
+            if(!panAnimating) {
+                Vector3 corrected = position;
+                corrected.x = clampedX;
+                corrected.y = clampedY;
+                panTo(corrected, 0.15f);
+            }
+        } else {
+            position.x = clampedX;
+            position.y = clampedY;
+        }
     }
 
     void Camera::clampZoom() {
@@ -518,7 +548,7 @@ namespace OpenWars::IO::Graphics {
         // Handle mouse wheel zoom with Advance Wars style
         if(input.scrollY != 0.0f) {
             // Each scroll step is 0.5 zoom levels
-            camera->applyZoom(input.scrollY * 0.5f);
+            camera->applyZoom(input.scrollY * 0.5f, input.mousePos);
         }
 
         // Optional: Add keyboard zoom controls (+ and - keys)

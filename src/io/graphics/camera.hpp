@@ -67,7 +67,7 @@ namespace OpenWars::IO::Graphics {
         float getZoom() const;
         void setZoom(float z);
         void zoomTo(float targetZoom, float duration = 0.15f);
-        void applyZoom(float amount);
+        void applyZoom(float amount, const Vector2& mouseScreenPos);
 
         void fitToArea(
             float x,
