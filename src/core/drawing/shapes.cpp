@@ -1,6 +1,8 @@
 #include "shapes.hpp"
 #include "../../io/graphics/graphics.hpp"
+#include <SDL3/SDL_oldnames.h>
 #include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_render.h>
 #include <cmath>
 
 void OpenWars::Drawing::drawTriangle(
@@ -103,6 +105,33 @@ void OpenWars::Drawing::drawRectangle(
         color.a
     );
     SDL_RenderFillRect(IO::Graphics::getRenderer(), &rect);
+}
+
+void OpenWars::Drawing::drawRectangleOutline(
+    int x,
+    int y,
+    int width,
+    int height,
+    Color color
+) {
+    SDL_FRect rect = {(float)x, (float)y, (float)width, (float)height};
+    SDL_SetRenderDrawColor(
+        IO::Graphics::getRenderer(),
+        color.r,
+        color.g,
+        color.b,
+        color.a
+    );
+
+    SDL_RenderLines(
+        IO::Graphics::getRenderer(),
+        (const SDL_FPoint[]){{rect.x, rect.y},
+                             {rect.x + rect.w, rect.y},
+                             {rect.x + rect.w, rect.y + rect.h},
+                             {rect.x, rect.y + rect.h},
+                             {rect.x, rect.y}},
+        5
+    );
 }
 
 void OpenWars::Drawing::drawRectangleRec(Drawing::Rectangle rec, Color color) {

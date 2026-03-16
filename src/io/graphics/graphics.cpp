@@ -135,7 +135,6 @@ namespace OpenWars::IO::Graphics {
         SDL_RenderClear(renderer);
     }
 
-    // ── Window size: return cached values, no SDL call ───────────────────────
     int getWindowWidth() {
         return cachedWindowWidth;
     }

@@ -217,7 +217,15 @@ void OpenWars::Game::GameScene::render() {
                 (int)screenY,
                 (int)scaledTileSize,
                 (int)scaledTileSize,
-                Color(255, 255, 0, 100)
+                Colors::alpha(Colors::SKY_400, 0.4f)
+            );
+
+            Drawing::drawRectangleOutline(
+                screenX,
+                screenY,
+                scaledTileSize,
+                scaledTileSize,
+                Colors::alpha(Colors::SKY_400, 0.4f)
             );
         }
     }
