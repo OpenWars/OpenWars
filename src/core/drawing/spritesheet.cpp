@@ -119,11 +119,7 @@ int SpriteSheet::getFrameCount() const {
 void SpriteSheet::drawFrame(int frameIndex, float x, float y, float scale) {
     if(!texture)
         return;
-    if(frameIndex < 0)
-        return;
-
-    int maxFrames = getFrameCount();
-    if(frameIndex >= maxFrames)
+    if(frameIndex < 0 || frameIndex >= getFrameCount())
         return;
 
     int col = frameIndex % cols;
@@ -143,14 +139,59 @@ void SpriteSheet::drawFrame(int frameIndex, float x, float y, float scale) {
     SDL_RenderTexture(IO::Graphics::getRenderer(), texture, &src, &dst);
 }
 
+void SpriteSheet::drawFrame(
+    int frameIndex,
+    float x,
+    float y,
+    float scale,
+    int rotation
+) {
+    // Fast path: no rotation needed
+    if(rotation == 0) {
+        drawFrame(frameIndex, x, y, scale);
+        return;
+    }
+
+    if(!texture)
+        return;
+    if(frameIndex < 0 || frameIndex >= getFrameCount())
+        return;
+
+    int col = frameIndex % cols;
+    int row = frameIndex / cols;
+
+    SDL_FRect src = {
+        (float)(col * frameW) + 0.25f,
+        (float)(row * frameH) + 0.25f,
+        (float)frameW - 0.5f,
+        (float)frameH - 0.5f
+    };
+
+    float dstW = frameW * scale;
+    float dstH = frameH * scale;
+    SDL_FRect dst = {x, y, dstW, dstH};
+
+    // Rotate around the tile centre so x,y stays the top-left corner
+    // regardless of angle.
+    SDL_FPoint centre = {dstW / 2.0f, dstH / 2.0f};
+
+    double angleDeg = 90.0 * rotation; // 0=0° · 1=90° · 2=180° · 3=270°
+
+    SDL_RenderTextureRotated(
+        IO::Graphics::getRenderer(),
+        texture,
+        &src,
+        &dst,
+        angleDeg,
+        &centre,
+        SDL_FLIP_NONE
+    );
+}
+
 void SpriteSheet::drawFrameInto(int frameIndex, const SDL_FRect& dstRect) {
     if(!texture)
         return;
-    if(frameIndex < 0)
-        return;
-
-    int maxFrames = getFrameCount();
-    if(frameIndex >= maxFrames)
+    if(frameIndex < 0 || frameIndex >= getFrameCount())
         return;
 
     int col = frameIndex % cols;

@@ -39,6 +39,104 @@ void OpenWars::Game::MapRenderer::unloadSpritesheets() {
     spritesheets.clear();
 }
 
+/*
+ * Connection-mask bit layout:  N=bit0  S=bit1  E=bit2  W=bit3
+ *
+ * Rotation transforms connections 90° CW per step:
+ *   N→E  E→S  S→W  W→N
+ *
+ * Road sprites (1-based row, col):
+ *   (2, 8)  SE corner           right + down
+ *   (2, 9)  EW straight         left  + right
+ *   (2,10)  EWS T-junction      left  + right + down  (missing N)
+ *   (3,10)  NSEW cross          all four sides
+ *
+ * All 16 connection masks can be expressed with these four sprites + rotation,
+ * except the five degenerate cases below (0 or 1 connections), which have no
+ * dedicated sprite and are approximated with the appropriate straight tile.
+ */
+OpenWars::Game::MapRenderer::SpriteSelection
+OpenWars::Game::MapRenderer::getRoadSpriteAndRotation(int mask) {
+    switch(mask) {
+    case 0b0000:
+        return {2, 9, 0}; // isolated   → EW straight
+    case 0b0001:
+        return {2, 9, 1}; // N only     → NS straight
+    case 0b0010:
+        return {2, 9, 1}; // S only     → NS straight
+    case 0b0100:
+        return {2, 9, 0}; // E only     → EW straight
+    case 0b1000:
+        return {2, 9, 0}; // W only     → EW straight
+    case 0b0011:
+        return {2, 9, 1}; // NS  (EW rotated 90°CW)
+    case 0b1100:
+        return {2, 9, 0}; // EW  (base)
+    case 0b0110:
+        return {2, 8, 0}; // SE  (base)
+    case 0b1010:
+        return {2, 8, 1}; // SW  (SE rot 90°CW)
+    case 0b1001:
+        return {2, 8, 2}; // NW  (SE rot 180°)
+    case 0b0101:
+        return {2, 8, 3}; // NE  (SE rot 270°CW)
+    case 0b1110:
+        return {2, 10, 0}; // SEW / EWS  (base, missing N)
+    case 0b1011:
+        return {2, 10, 1}; // NSW        (EWS rot 90°CW,  missing E)
+    case 0b1101:
+        return {2, 10, 2}; // NEW        (EWS rot 180°,   missing S)
+    case 0b0111:
+        return {2, 10, 3}; // NSE        (EWS rot 270°CW, missing W)
+    case 0b1111:
+        return {3, 10, 0}; // NSEW
+    default:
+        return {2, 9, 0}; // unreachable
+    }
+}
+
+/*
+ * River sprites (1-based row, col):
+ *   (5,3)  NS straight – animated; frame 0 is row 5, frame 1 is row 6
+ *          ("variation 1 on top of variation 2" in the sprite sheet)
+ *   (5,4)  SE corner – static
+ *
+ * T-junctions and cross are not available in the supplied sprite sheet.
+ * They are approximated with the dominant straight direction.
+ * Single-stub and isolated tiles also approximate with straight.
+ */
+OpenWars::Game::MapRenderer::SpriteSelection
+OpenWars::Game::MapRenderer::getRiverSpriteAndRotation(int mask) {
+    switch(mask) {
+    case 0b0011:
+        return {5, 3, 0}; // NS  (base)
+    case 0b1100:
+        return {5, 3, 1}; // EW  (NS rot 90°CW)
+    case 0b0110:
+        return {5, 4, 0}; // SE  (base)
+    case 0b1010:
+        return {5, 4, 1}; // SW  (SE rot 90°CW)
+    case 0b1001:
+        return {5, 4, 2}; // NW  (SE rot 180°)
+    case 0b0101:
+        return {5, 4, 3}; // NE  (SE rot 270°CW)
+    case 0b0111:
+        return {5, 3, 0}; // NSE → NS straight
+    case 0b1011:
+        return {5, 3, 0}; // NSW → NS straight
+    case 0b1110:
+        return {5, 3, 1}; // SEW → EW straight
+    case 0b1101:
+        return {5, 3, 1}; // NEW → EW straight
+    case 0b1111:
+        return {5, 3, 0};
+    default: {
+        bool hasNS = mask & 0b0011;
+        return {5, 3, hasNS ? 0 : 1};
+    }
+    }
+}
+
 void OpenWars::Game::MapRenderer::initializeTileFrames() {
     if(!gameMap)
         return;
@@ -49,6 +147,26 @@ void OpenWars::Game::MapRenderer::initializeTileFrames() {
 
     tileFrames.resize(width * height);
     animatedTileIndices.clear();
+    auto isRoadLike = [](TerrainType t) {
+        switch(t) {
+        case TerrainType::Road:
+        case TerrainType::City:
+        case TerrainType::Factory:
+        case TerrainType::HQ:
+        case TerrainType::Airport:
+        case TerrainType::Port:
+        case TerrainType::CommTower:
+        case TerrainType::Lab:
+            return true;
+        default:
+            return false;
+        }
+    };
+
+    auto isRiverLike = [](TerrainType t) {
+        return t == TerrainType::River || t == TerrainType::Sea ||
+               t == TerrainType::Coast;
+    };
 
     for(int y = 0; y < height; ++y) {
         for(int x = 0; x < width; ++x) {
@@ -58,14 +176,32 @@ void OpenWars::Game::MapRenderer::initializeTileFrames() {
 
             frame.spriteIndex = getTerrainSpriteIndex(type, x, y);
 
-            if(type == TerrainType::Sea) {
+            if(type == TerrainType::Road) {
+                int mask = computeConnectionMask(x, y, isRoadLike);
+                auto sel = getRoadSpriteAndRotation(mask);
+                frame.spriteIndex = coord1Based(sel.row, sel.col);
+                frame.rotation = sel.rotation;
+            } else if(type == TerrainType::River) {
+                int mask = computeConnectionMask(x, y, isRiverLike);
+                auto sel = getRiverSpriteAndRotation(mask);
+                frame.spriteIndex = coord1Based(sel.row, sel.col);
+                frame.rotation = sel.rotation;
+                // Animate only the straight variant (col 3).
+                // The two frames sit in the SAME COLUMN, one row apart:
+                //   frame 0 → (5,3),  frame 1 → (6,3)
+                // frameStride = spritesheetCols jumps one full row in the
+                // flat index instead of one column.
+                if(sel.col == 3) {
+                    frame.animationSpeed = 1.0f;
+                    frame.frameCount = 2;
+                    frame.frameStride = spritesheetCols;
+                }
+            } else if(type == TerrainType::Sea) {
                 frame.animationSpeed = 1.0f;
                 frame.frameCount = 3;
                 frame.spriteIndex = coord1Based(3, 1);
-            } else if(type == TerrainType::River) {
-                frame.animationSpeed = 0.0f;
-                frame.frameCount = 1;
-                frame.spriteIndex = coord1Based(5, 3);
+                // frameStride stays 1: frames move right along row 3
+                // (3,1) → (3,2) → (3,3)
             }
 
             if(frame.animationSpeed > 0.0f)
@@ -93,7 +229,9 @@ int OpenWars::Game::MapRenderer::getTerrainSpriteIndex(
     case TerrainType::River:
         return coord1Based(5, 3);
     case TerrainType::Road:
-        return coord1Based(1, 1);
+        // initializeTileFrames will refine this to the correct variant;
+        // this is only the initial fallback (EW straight).
+        return coord1Based(2, 9);
     default:
         return coord1Based(1, 1);
     }
@@ -107,21 +245,9 @@ int OpenWars::Game::MapRenderer::getTileFrameIndex(
     int animFrame =
         static_cast<int>(frame.animationTime / ANIMATION_FRAME_TIME) %
         frame.frameCount;
-    return frame.spriteIndex + animFrame;
-}
-
-int OpenWars::Game::MapRenderer::getAnimationFrameIndex(
-    TerrainType type,
-    int animFrame
-) const {
-    switch(type) {
-    case TerrainType::Sea:
-        return coord1Based(3, 1 + animFrame);
-    case TerrainType::River:
-        return coord1Based(5 + animFrame, 3);
-    default:
-        return 0;
-    }
+    // frameStride lets us step by 1 (same row, next column) for Sea,
+    // or by spritesheetCols (same column, next row) for River.
+    return frame.spriteIndex + animFrame * frame.frameStride;
 }
 
 OpenWars::Game::MapRenderer::TerrainLayer
@@ -192,8 +318,6 @@ static void computeVisibleRange(
     int& outMinY,
     int& outMaxY
 ) {
-    // First tile whose right edge enters the screen on the left:
-    //   tileX * s + camOffset + s >= 0  →  tileX >= -camOffset/s - 1
     outMinX = std::max(0, (int)std::floor(-camOffsetX / scaledTileSize));
     outMaxX = std::min(
         mapWidth - 1,
@@ -245,13 +369,12 @@ void OpenWars::Game::MapRenderer::render(IO::Graphics::Camera* camera) {
         maxY
     );
 
-    // Nothing on screen at all.
     if(minX > maxX || minY > maxY)
         return;
 
     const int plainIdx = coord1Based(1, 1);
 
-    // Pass 1: plain underlay for foreground terrain
+    // Pass 1: plain underlay for foreground terrain (no rotation needed)
     for(int y = minY; y <= maxY; ++y) {
         for(int x = minX; x <= maxX; ++x) {
             Terrain* terrain = gameMap->getTerrain(x, y);
@@ -266,15 +389,19 @@ void OpenWars::Game::MapRenderer::render(IO::Graphics::Camera* camera) {
         }
     }
 
-    // Pass 2: all terrain (only visible range)
+    // Pass 2: all terrain with per-tile rotation.
+    // NOTE: SpriteSheet::drawFrame must accept a 5th int parameter for
+    // rotation (0=0° · 1=90°CW · 2=180° · 3=270°CW).
     for(int y = minY; y <= maxY; ++y) {
         for(int x = minX; x <= maxX; ++x) {
             float screenX = (x * scaledTileSize) + camOffsetX;
             float screenY = (y * scaledTileSize) + camOffsetY;
 
             const int flat = y * tileFrameWidth + x;
-            int frameIndex = getTileFrameIndex(tileFrames[flat]);
-            sheet->drawFrame(frameIndex, screenX, screenY, zoom);
+            const TileFrame& frame = tileFrames[flat];
+            int frameIndex = getTileFrameIndex(frame);
+            sheet
+                ->drawFrame(frameIndex, screenX, screenY, zoom, frame.rotation);
         }
     }
 }
@@ -284,4 +411,22 @@ void OpenWars::Game::MapRenderer::setWeather(Weather weather) {
         currentWeather = weather;
         IO::Logging::debug("Weather changed to %d", static_cast<int>(weather));
     }
+}
+
+template <typename Pred>
+int OpenWars::Game::MapRenderer::computeConnectionMask(
+    int x,
+    int y,
+    Pred connectable
+) const {
+    // N=bit0  S=bit1  E=bit2  W=bit3
+    constexpr int dx[] = {0, 0, 1, -1};
+    constexpr int dy[] = {-1, 1, 0, 0};
+    int mask = 0;
+    for(int d = 0; d < 4; ++d) {
+        auto* t = gameMap->getTerrain(x + dx[d], y + dy[d]);
+        if(t && connectable(t->getType()))
+            mask |= (1 << d);
+    }
+    return mask;
 }

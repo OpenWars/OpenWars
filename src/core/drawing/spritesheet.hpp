@@ -20,6 +20,12 @@ namespace OpenWars::Drawing {
         // applied uniformly.
         void drawFrame(int frameIndex, float x, float y, float scale = 1.0f);
 
+        // Draw a frame with rotation. rotation: 0=0° · 1=90°CW · 2=180° ·
+        // 3=270°CW Rotates around the tile centre so x,y remain the top-left
+        // corner.
+        void
+        drawFrame(int frameIndex, float x, float y, float scale, int rotation);
+
         // Draw a frame into the supplied destination rectangle.
         void drawFrameInto(int frameIndex, const SDL_FRect& dstRect);
 
