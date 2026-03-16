@@ -246,11 +246,10 @@ namespace OpenWars::IO::Graphics {
     }
 
     void Camera::applyZoom(float amount) {
-        float newZoom = zoomLevel + amount * 0.3f;
+        float baseZoom = zoomAnimating ? zoomEnd : zoomLevel;
+        float newZoom = std::clamp(baseZoom + amount * 0.3f, minZoom, maxZoom);
 
-        newZoom = std::clamp(newZoom, minZoom, maxZoom);
-
-        if(std::abs(newZoom - zoomLevel) > 0.01f) {
+        if(std::abs(newZoom - baseZoom) > 0.01f) {
             zoomTo(newZoom, 0.2f);
         }
     }
@@ -316,17 +315,18 @@ namespace OpenWars::IO::Graphics {
         if(zoomAnimating) {
             zoomElapsed += deltaTime;
             float progress = std::min(1.0f, zoomElapsed / zoomDuration);
-
             progress = easeOutCubic(progress);
-
             zoomLevel = zoomStart + (zoomEnd - zoomStart) * progress;
 
             if(zoomElapsed >= zoomDuration) {
                 zoomAnimating = false;
                 zoomLevel = zoomEnd;
+                clampToBoundaries();
+                invalidateMatrices();
+            } else {
+                invalidateMatrices();
             }
             clampZoom();
-            invalidateMatrices();
         }
     }
 
@@ -465,8 +465,6 @@ namespace OpenWars::IO::Graphics {
         float halfW = (viewportW / 2.0f) * orthoScale;
         float halfH = (viewportH / 2.0f) * orthoScale;
 
-        // Clamp bounds to prevent invalid ranges (when viewport is larger than
-        // bounds)
         float minX = std::min(minBoundX + halfW, maxBoundX - halfW);
         float maxX = std::max(minBoundX + halfW, maxBoundX - halfW);
         float minY = std::min(minBoundY + halfH, maxBoundY - halfH);
@@ -498,7 +496,7 @@ namespace OpenWars::IO::Graphics {
                 -halfW,
                 halfW,
                 -halfH,
-                halfH,
+                halfH, // ← back to zoomLevel, not zoomEnd
                 0.1f,
                 1000.0f
             );
