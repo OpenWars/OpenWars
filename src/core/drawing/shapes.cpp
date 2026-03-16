@@ -122,14 +122,19 @@ void OpenWars::Drawing::drawRectangleOutline(
         color.b,
         color.a
     );
+    
+    
+    const SDL_FPoint p[] = {
+        {rect.x, rect.y},
+        {rect.x + rect.w, rect.y},
+        {rect.x + rect.w, rect.y + rect.h},
+        {rect.x, rect.y + rect.h},
+        {rect.x, rect.y}
+    };
 
     SDL_RenderLines(
         IO::Graphics::getRenderer(),
-        (const SDL_FPoint[]){{rect.x, rect.y},
-                             {rect.x + rect.w, rect.y},
-                             {rect.x + rect.w, rect.y + rect.h},
-                             {rect.x, rect.y + rect.h},
-                             {rect.x, rect.y}},
+        p,
         5
     );
 }
