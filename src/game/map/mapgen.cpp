@@ -66,7 +66,7 @@ namespace OpenWars::Game {
         // Apply smoothed terrain
         for(int y = 0; y < height; ++y) {
             for(int x = 0; x < width; ++x) {
-                map->setTerrain(x, y, smoothed[y][x], 0);
+                map->setTerrain(x, y, smoothed[y][x]);
             }
         }
     }
@@ -80,7 +80,7 @@ namespace OpenWars::Game {
             int y = heightDist(generator);
             auto terrain = map->getTerrain(x, y);
             if(terrain && terrain->getType() == TerrainType::Plain) {
-                map->setTerrain(x, y, type, 2);
+                map->setTerrain(x, y, type);
             }
         }
     }
@@ -91,7 +91,7 @@ namespace OpenWars::Game {
             for(int x = 0; x < map->getWidth(); ++x) {
                 auto terrain = map->getTerrain(x, y);
                 if(terrain && terrain->getType() == TerrainType::Plain) {
-                    map->setTerrain(x, y, TerrainType::Road, 0);
+                    map->setTerrain(x, y, TerrainType::Road);
                 }
             }
         }
@@ -119,11 +119,7 @@ namespace OpenWars::Game {
                     type = TerrainType::Mountain;
                 }
 
-                int defense = type == TerrainType::Mountain   ? 4
-                              : type == TerrainType::Woods    ? 2
-                              : type == TerrainType::Mountain ? 1
-                                                              : 0;
-                map->setTerrain(x, y, type, defense);
+                map->setTerrain(x, y, type);
             }
         }
 
@@ -138,7 +134,7 @@ namespace OpenWars::Game {
         // Fill with sea
         for(int y = 0; y < height; ++y) {
             for(int x = 0; x < width; ++x) {
-                map->setTerrain(x, y, TerrainType::Sea, 0);
+                map->setTerrain(x, y, TerrainType::Sea);
             }
         }
 
@@ -159,7 +155,7 @@ namespace OpenWars::Game {
                         int dx = x - cx;
                         int dy = y - cy;
                         if(dx * dx + dy * dy <= size * size) {
-                            map->setTerrain(x, y, TerrainType::Plain, 0);
+                            map->setTerrain(x, y, TerrainType::Plain);
                         }
                     }
                 }
@@ -181,7 +177,7 @@ namespace OpenWars::Game {
         // Fill with plain
         for(int y = 0; y < height; ++y) {
             for(int x = 0; x < width; ++x) {
-                map->setTerrain(x, y, TerrainType::Plain, 0);
+                map->setTerrain(x, y, TerrainType::Plain);
             }
         }
 
@@ -191,7 +187,7 @@ namespace OpenWars::Game {
             int x = (r + 1) * width / (numRivers + 1);
             for(int y = 0; y < height; ++y) {
                 if(map->isInBounds(x, y)) {
-                    map->setTerrain(x, y, TerrainType::River, 0);
+                    map->setTerrain(x, y, TerrainType::River);
                 }
                 // Meander slightly
                 if(distribution(generator) < 0.3f) {
@@ -206,7 +202,7 @@ namespace OpenWars::Game {
             std::uniform_int_distribution<> heightDist(2, height - 3);
             int x = widthDist(generator);
             int y = heightDist(generator);
-            map->fillRectangle(x, y, 3, 3, TerrainType::Woods, 2);
+            map->fillRectangle(x, y, 3, 3, TerrainType::Woods);
         }
 
         addStructures(map.get(), 4, TerrainType::City);
@@ -235,8 +231,7 @@ namespace OpenWars::Game {
                     type = TerrainType::Road;
                 }
 
-                int defense = type == TerrainType::Mountain ? 4 : 1;
-                map->setTerrain(x, y, type, defense);
+                map->setTerrain(x, y, type);
             }
         }
 
@@ -251,82 +246,72 @@ namespace OpenWars::Game {
         // Fill base with Plain
         for(int y = 0; y < height; ++y) {
             for(int x = 0; x < width; ++x) {
-                map->setTerrain(x, y, TerrainType::Plain, 0);
+                map->setTerrain(x, y, TerrainType::Plain);
             }
         }
 
         // Top-left: Mountains
-        map->fillRectangle(0, 0, 4, 4, TerrainType::Mountain, 4);
-        map->fillRectangle(0, 0, 4, 2, TerrainType::HighMountain, 4);
+        map->fillRectangle(0, 0, 4, 4, TerrainType::Mountain);
+        map->fillRectangle(0, 0, 4, 2, TerrainType::HighMountain);
 
         // Top-right: Forest
-        map->fillRectangle(width - 4, 0, 4, 4, TerrainType::Woods, 2);
+        map->fillRectangle(width - 4, 0, 4, 4, TerrainType::Woods);
 
         // Bottom-left: Sea
-        map->fillRectangle(0, height - 4, 4, 4, TerrainType::Sea, 0);
+        map->fillRectangle(0, height - 4, 4, 4, TerrainType::Sea);
 
         // Coast bordering the sea (one row/col above and right of sea block)
         for(int x = 0; x < 4; ++x) {
-            map->setTerrain(x, height - 5, TerrainType::Coast, 0);
+            map->setTerrain(x, height - 5, TerrainType::Coast);
         }
 
         for(int y = height - 4; y < height; ++y) {
-            map->setTerrain(4, y, TerrainType::Coast, 0);
+            map->setTerrain(4, y, TerrainType::Coast);
         }
 
         // coast on corners too
-        map->setTerrain(4, height - 5, TerrainType::Coast, 0);
-        map->setTerrain(4, height - 4, TerrainType::Coast, 0);
+        map->setTerrain(4, height - 5, TerrainType::Coast);
+        map->setTerrain(4, height - 4, TerrainType::Coast);
 
         // River flowing vertically near left-center
         for(int y = 0; y < height - 4; ++y) {
-            map->setTerrain(width / 4, y, TerrainType::River, 0);
+            map->setTerrain(width / 4, y, TerrainType::River);
         }
 
         // Horizontal road across center
         for(int x = 0; x < width; ++x) {
-            map->setTerrain(x, height / 2, TerrainType::Road, 0);
+            map->setTerrain(x, height / 2, TerrainType::Road);
         }
 
         // Vertical road across center
         for(int y = 0; y < height; ++y) {
-            map->setTerrain(width / 2, y, TerrainType::Road, 0);
+            map->setTerrain(width / 2, y, TerrainType::Road);
         }
 
         // Pipe segment along top edge
         for(int x = 4; x < width / 2 - 1; ++x) {
-            map->setTerrain(x, 1, TerrainType::Pipe, 0);
+            map->setTerrain(x, 1, TerrainType::Pipe);
         }
 
         // Player 1 side (left)
-        map->setTerrain(1, 1, TerrainType::HQ, 4);
-        map->setTerrain(3, height / 2 - 3, TerrainType::Factory, 3);
-        map->setTerrain(5, height / 2 - 3, TerrainType::City, 2);
-        map->setTerrain(3, height / 2 + 3, TerrainType::Airport, 2);
-        map->setTerrain(5, height / 2 + 3, TerrainType::Port, 1);
+        map->setTerrain(1, 1, TerrainType::HQ);
+        map->setTerrain(3, height / 2 - 3, TerrainType::Factory);
+        map->setTerrain(5, height / 2 - 3, TerrainType::City);
+        map->setTerrain(3, height / 2 + 3, TerrainType::Airport);
+        map->setTerrain(5, height / 2 + 3, TerrainType::Port);
 
         // Player 2 side (right)
-        map->setTerrain(width - 2, height - 2, TerrainType::HQ, 4);
-        map->setTerrain(width - 4, height / 2 - 3, TerrainType::Factory, 3);
-        map->setTerrain(width - 6, height / 2 - 3, TerrainType::City, 2);
-        map->setTerrain(width - 4, height / 2 + 3, TerrainType::Airport, 2);
-        map->setTerrain(width - 6, height / 2 + 3, TerrainType::Port, 1);
+        map->setTerrain(width - 2, height - 2, TerrainType::HQ);
+        map->setTerrain(width - 4, height / 2 - 3, TerrainType::Factory);
+        map->setTerrain(width - 6, height / 2 - 3, TerrainType::City);
+        map->setTerrain(width - 4, height / 2 + 3, TerrainType::Airport);
+        map->setTerrain(width - 6, height / 2 + 3, TerrainType::Port);
 
         // Neutral structures in center quadrants
-        map->setTerrain(
-            width / 2 - 3,
-            height / 2 - 3,
-            TerrainType::CommTower,
-            1
-        );
-        map->setTerrain(
-            width / 2 + 3,
-            height / 2 - 3,
-            TerrainType::CommTower,
-            1
-        );
-        map->setTerrain(width / 2 - 3, height / 2 + 3, TerrainType::Lab, 1);
-        map->setTerrain(width / 2 + 3, height / 2 + 3, TerrainType::Silo, 0);
+        map->setTerrain(width / 2 - 3, height / 2 - 3, TerrainType::CommTower);
+        map->setTerrain(width / 2 + 3, height / 2 - 3, TerrainType::CommTower);
+        map->setTerrain(width / 2 - 3, height / 2 + 3, TerrainType::Lab);
+        map->setTerrain(width / 2 + 3, height / 2 + 3, TerrainType::Silo);
 
         return map;
     }
@@ -349,8 +334,7 @@ namespace OpenWars::Game {
                     type = TerrainType::Plain;
                 }
 
-                int defense = type == TerrainType::Mountain ? 4 : 1;
-                map->setTerrain(x, y, type, defense);
+                map->setTerrain(x, y, type);
             }
         }
 
@@ -359,19 +343,14 @@ namespace OpenWars::Game {
             for(int x = 0; x < width / 2; ++x) {
                 auto terrain = map->getTerrain(width / 2 - 1 - x, y);
                 if(terrain) {
-                    map->setTerrain(
-                        width / 2 + x,
-                        y,
-                        terrain->getType(),
-                        terrain->getDefenseStars()
-                    );
+                    map->setTerrain(width / 2 + x, y, terrain->getType());
                 }
             }
         }
 
         // Add bases at opposite corners
-        map->setTerrain(2, height / 2 - 1, TerrainType::Factory, 3);
-        map->setTerrain(width - 3, height / 2 - 1, TerrainType::Factory, 3);
+        map->setTerrain(2, height / 2 - 1, TerrainType::Factory);
+        map->setTerrain(width - 3, height / 2 - 1, TerrainType::Factory);
 
         addRoads(map.get());
         smoothTerrain(map.get());

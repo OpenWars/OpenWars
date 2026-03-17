@@ -9,7 +9,7 @@
 
 namespace OpenWars::Game {
     class Map {
-      private:
+        private:
         int width;
         int height;
 
@@ -24,7 +24,7 @@ namespace OpenWars::Game {
             return y * width + x;
         }
 
-      public:
+        public:
         Map(int width, int height);
         virtual ~Map() = default;
 
@@ -37,29 +37,25 @@ namespace OpenWars::Game {
         Terrain* getTerrain(int x, int y) const;
         Terrain* getTerrain(const Vector2& pos) const;
 
-        void setTerrain(int x, int y, TerrainType type, int defense = 0);
-        void setTerrain(const Vector2& pos, TerrainType type, int defense = 0);
+        void setTerrain(int x, int y, TerrainType type);
+        void setTerrain(const Vector2& pos, TerrainType type);
 
-        int
-        getMovementCost(const Vector2& pos, MovementType movementType) const;
+        int getMovementCost(
+            const Vector2& pos,
+            MovementType movementType
+        ) const;
         bool isPassable(const Vector2& pos, MovementType movementType) const;
 
         std::vector<Vector2> getTilesByType(TerrainType type) const;
 
-        void fillRectangle(
-            int x,
-            int y,
-            int w,
-            int h,
-            TerrainType type,
-            int defense = 0
-        );
+        void fillRectangle(int x, int y, int w, int h, TerrainType type);
 
         void clear();
 
         float getAverageDefense(int x, int y, int radius) const;
 
-        void
-        forEachTile(std::function<void(int, int, Terrain*)> callback) const;
+        void forEachTile(
+            std::function<void(int, int, Terrain*)> callback
+        ) const;
     };
 } // namespace OpenWars::Game

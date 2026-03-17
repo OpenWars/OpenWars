@@ -27,10 +27,32 @@ namespace OpenWars::Game {
         TerrainType type;
         int defenseStars;
 
+        static int defaultDefense(TerrainType type) {
+            switch(type) {
+            case TerrainType::Plain:
+                return 1;
+            case TerrainType::Woods:
+                return 2;
+            case TerrainType::City:
+            case TerrainType::Factory:
+            case TerrainType::Airport:
+            case TerrainType::Port:
+            case TerrainType::CommTower:
+            case TerrainType::Lab:
+            case TerrainType::Silo:
+                return 3;
+            case TerrainType::Mountain:
+            case TerrainType::HQ:
+                return 4;
+            default:
+                return 0;
+            }
+        }
+
         public:
-        Terrain(TerrainType type, int defense)
+        explicit Terrain(TerrainType type)
             : type(type)
-            , defenseStars(defense) {
+            , defenseStars(defaultDefense(type)) {
         }
 
         int getDefenseStars() const {

@@ -8,7 +8,7 @@ namespace OpenWars::Game {
         , height(height) {
         tiles.resize(width * height);
         for(int i = 0; i < width * height; ++i)
-            tiles[i] = std::make_unique<Terrain>(TerrainType::Plain, 0);
+            tiles[i] = std::make_unique<Terrain>(TerrainType::Plain);
     }
 
     int Map::getWidth() const {
@@ -36,18 +36,20 @@ namespace OpenWars::Game {
         return getTerrain((int)pos.x, (int)pos.y);
     }
 
-    void Map::setTerrain(int x, int y, TerrainType type, int defense) {
+    void Map::setTerrain(int x, int y, TerrainType type) {
         if(!isInBounds(x, y))
             return;
-        tiles[index(x, y)] = std::make_unique<Terrain>(type, defense);
+        tiles[index(x, y)] = std::make_unique<Terrain>(type);
     }
 
-    void Map::setTerrain(const Vector2& pos, TerrainType type, int defense) {
-        setTerrain((int)pos.x, (int)pos.y, type, defense);
+    void Map::setTerrain(const Vector2& pos, TerrainType type) {
+        setTerrain((int)pos.x, (int)pos.y, type);
     }
 
-    int
-    Map::getMovementCost(const Vector2& pos, MovementType movementType) const {
+    int Map::getMovementCost(
+        const Vector2& pos,
+        MovementType movementType
+    ) const {
         Terrain* terrain = getTerrain(pos);
         return terrain ? terrain->getMovementCost(movementType) : -1;
     }
@@ -66,23 +68,16 @@ namespace OpenWars::Game {
         return result;
     }
 
-    void Map::fillRectangle(
-        int x,
-        int y,
-        int w,
-        int h,
-        TerrainType type,
-        int defense
-    ) {
+    void Map::fillRectangle(int x, int y, int w, int h, TerrainType type) {
         for(int ty = y; ty < y + h; ++ty)
             for(int tx = x; tx < x + w; ++tx)
                 if(isInBounds(tx, ty))
-                    setTerrain(tx, ty, type, defense);
+                    setTerrain(tx, ty, type);
     }
 
     void Map::clear() {
         for(int i = 0; i < width * height; ++i)
-            tiles[i] = std::make_unique<Terrain>(TerrainType::Plain, 0);
+            tiles[i] = std::make_unique<Terrain>(TerrainType::Plain);
     }
 
     float Map::getAverageDefense(int x, int y, int radius) const {
@@ -99,8 +94,9 @@ namespace OpenWars::Game {
         return count > 0 ? sum / count : 0.0f;
     }
 
-    void
-    Map::forEachTile(std::function<void(int, int, Terrain*)> callback) const {
+    void Map::forEachTile(
+        std::function<void(int, int, Terrain*)> callback
+    ) const {
         for(int y = 0; y < height; ++y)
             for(int x = 0; x < width; ++x)
                 callback(x, y, tiles[index(x, y)].get());
