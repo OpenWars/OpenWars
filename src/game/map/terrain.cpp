@@ -21,6 +21,7 @@ int OpenWars::Game::Terrain::getMovementCost(MovementType movementType) {
         case TerrainType::Silo:
             return 2;
         case TerrainType::Mountain:
+        case TerrainType::HighMountain:
             return 4;
         case TerrainType::Pipe:
             return 1;
@@ -46,6 +47,7 @@ int OpenWars::Game::Terrain::getMovementCost(MovementType movementType) {
         case TerrainType::Woods:
             return 3;
         case TerrainType::Mountain:
+        case TerrainType::HighMountain:
         case TerrainType::Silo:
             return -1; // Impassable
         case TerrainType::River:
@@ -71,6 +73,7 @@ int OpenWars::Game::Terrain::getMovementCost(MovementType movementType) {
         case TerrainType::Woods:
             return 2;
         case TerrainType::Mountain:
+        case TerrainType::HighMountain:
         case TerrainType::Silo:
             return -1; // Impassable
         case TerrainType::River:

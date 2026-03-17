@@ -8,6 +8,7 @@ namespace OpenWars::Game {
         Road,
         Woods,
         Mountain,
+        HighMountain,
         River,
         Coast,
         Sea,
@@ -26,7 +27,7 @@ namespace OpenWars::Game {
         TerrainType type;
         int defenseStars;
 
-      public:
+        public:
         Terrain(TerrainType type, int defense)
             : type(type)
             , defenseStars(defense) {

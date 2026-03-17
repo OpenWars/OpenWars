@@ -1,6 +1,7 @@
 #include "renderer.hpp"
 #include "../map/map.hpp"
 #include "../../io/log/logging.hpp"
+#include <asm-generic/errno.h>
 
 using namespace OpenWars::IO::Graphics;
 using namespace OpenWars::Drawing;
@@ -217,7 +218,10 @@ void OpenWars::Game::MapRenderer::initializeTileFrames() {
 
             frame.spriteIndex = getTerrainSpriteIndex(type, x, y);
 
-            if(type == TerrainType::Road) {
+            if(type == TerrainType::HighMountain) {
+                // todo: unhardcode this
+                frame.overlayIndex = coord1Based(1, 6);
+            } else if(type == TerrainType::Road) {
                 int mask = computeConnectionMask(x, y, isRoadLike);
                 auto sel = getRoadSpriteAndRotation(mask);
                 frame.spriteIndex = coord1Based(sel.row, sel.col);
@@ -238,12 +242,14 @@ void OpenWars::Game::MapRenderer::initializeTileFrames() {
                 }
                 int seaMask = (~landMask) & 0b1111;
 
-                // No cardinal sea: check diagonals for inner-corner detection.
+                // No cardinal sea: check diagonals for inner-corner
+                // detection.
                 if(seaMask == 0) {
                     // Order: NE(0) SE(1) SW(2) NW(3)
                     constexpr int ddx[] = {1, 1, -1, -1};
                     constexpr int ddy[] = {-1, 1, 1, -1};
-                    // Each diagonal sea maps to the matching cardinal pair mask
+                    // Each diagonal sea maps to the matching cardinal pair
+                    // mask
                     constexpr int diagToSeaMask[] = {
                         0b0101, // NE diag → sea N+E
                         0b0110, // SE diag → sea S+E
@@ -286,6 +292,8 @@ int OpenWars::Game::MapRenderer::getTerrainSpriteIndex(
         return (y % 2 == 0) ? coord1Based(1, 4) : coord1Based(1, 3);
     case TerrainType::Mountain:
         return coord1Based(2, 5);
+    case TerrainType::HighMountain: // ← new
+        return coord1Based(2, 6);
     case TerrainType::Sea:
         return coord1Based(3, 1);
     case TerrainType::Coast:
@@ -316,6 +324,7 @@ OpenWars::Game::MapRenderer::getTerrainLayer(TerrainType type) const {
     switch(type) {
     case TerrainType::Woods:
     case TerrainType::Mountain:
+    case TerrainType::HighMountain:
     case TerrainType::HQ:
     case TerrainType::Factory:
     case TerrainType::Airport:
@@ -461,6 +470,22 @@ void OpenWars::Game::MapRenderer::render(IO::Graphics::Camera* camera) {
             int frameIndex = getTileFrameIndex(frame);
             sheet
                 ->drawFrame(frameIndex, screenX, screenY, zoom, frame.rotation);
+        }
+    }
+
+    // Pass 3: upper-tile overlays (e.g. HighMountain top half).
+    // Iterate y from minY-1 so tiles at minY can still paint their overlay
+    // above the visible area (the draw call clips naturally).
+    for(int y = minY; y <= maxY; ++y) {
+        for(int x = minX; x <= maxX; ++x) {
+            const int flat = y * tileFrameWidth + x;
+            const TileFrame& frame = tileFrames[flat];
+            if(frame.overlayIndex == 0)
+                continue;
+
+            float screenX = (x * scaledTileSize) + camOffsetX;
+            float screenY = ((y - 1) * scaledTileSize) + camOffsetY;
+            sheet->drawFrame(frame.overlayIndex, screenX, screenY, zoom);
         }
     }
 }

@@ -12,9 +12,10 @@ namespace OpenWars::Game {
     enum class Weather { Clear, Rain, Snow };
 
     class MapRenderer {
-      private:
+        private:
         struct TileFrame {
             int spriteIndex = 0;
+            int overlayIndex = 0;
             float animationTime = 0.0f;
             float animationSpeed = 0.0f;
             int frameCount = 1;
@@ -24,7 +25,6 @@ namespace OpenWars::Game {
             // rows 5→6 at col 3).
             int frameStride = 1;
             // 0=0° · 1=90°CW · 2=180° · 3=270°CW
-            // Requires SpriteSheet::drawFrame to accept a rotation parameter.
             int rotation = 0;
         };
 
@@ -77,7 +77,7 @@ namespace OpenWars::Game {
         int getTileFrameIndex(const TileFrame& frame) const;
         TerrainLayer getTerrainLayer(TerrainType type) const;
 
-      public:
+        public:
         MapRenderer(Map* map);
         ~MapRenderer();
 

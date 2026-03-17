@@ -257,6 +257,7 @@ namespace OpenWars::Game {
 
         // Top-left: Mountains
         map->fillRectangle(0, 0, 4, 4, TerrainType::Mountain, 4);
+        map->fillRectangle(0, 0, 4, 2, TerrainType::HighMountain, 4);
 
         // Top-right: Forest
         map->fillRectangle(width - 4, 0, 4, 4, TerrainType::Woods, 2);
