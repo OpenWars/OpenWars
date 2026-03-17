@@ -64,20 +64,14 @@ namespace OpenWars::Game {
         int computeConnectionMask(int x, int y, Pred connectable) const;
 
         // Chooses the road sprite + rotation for a given connection mask.
-        // Sprites used (1-based row,col):
-        //   SE corner  (2,8)  · EW straight  (2,9)
-        //   EWS T-jct  (2,10) · NSEW cross   (3,10)
-        // Isolated / single-stub cases (no dedicated sprite) approximate
-        // with the most appropriate straight tile.
         static SpriteSelection getRoadSpriteAndRotation(int mask);
 
         // Chooses the river sprite + rotation for a given connection mask.
-        // Sprites used:
-        //   NS straight animated (5,3) – frames in rows 5 and 6 at col 3
-        //   SE corner static      (5,4)
-        // T-junctions and cross are not available and approximate with
-        // straight.
         static SpriteSelection getRiverSpriteAndRotation(int mask);
+
+        // Chooses the coast sprite + rotation for a given sea-neighbour mask.
+        // mask bits indicate which neighbours are TerrainType::Sea.
+        static SpriteSelection getCoastSpriteAndRotation(int mask);
 
         int getTerrainSpriteIndex(TerrainType type, int x, int y) const;
         int getTileFrameIndex(const TileFrame& frame) const;

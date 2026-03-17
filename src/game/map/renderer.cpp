@@ -45,15 +45,9 @@ void OpenWars::Game::MapRenderer::unloadSpritesheets() {
  * Rotation transforms connections 90° CW per step:
  *   N→E  E→S  S→W  W→N
  *
- * Road sprites (1-based row, col):
- *   (2, 8)  SE corner           right + down
- *   (2, 9)  EW straight         left  + right
- *   (2,10)  EWS T-junction      left  + right + down  (missing N)
- *   (3,10)  NSEW cross          all four sides
- *
  * All 16 connection masks can be expressed with these four sprites + rotation,
- * except the five degenerate cases below (0 or 1 connections), which have no
- * dedicated sprite and are approximated with the appropriate straight tile.
+ * except the five degenerate cases (0 or 1 connections), which have no
+ * dedicated sprite and are approximated with the nearest straight tile.
  */
 OpenWars::Game::MapRenderer::SpriteSelection
 OpenWars::Game::MapRenderer::getRoadSpriteAndRotation(int mask) {
@@ -96,30 +90,29 @@ OpenWars::Game::MapRenderer::getRoadSpriteAndRotation(int mask) {
 }
 
 /*
- * River sprites (1-based row, col):
- *   (5,3)  NS straight – animated; frame 0 is row 5, frame 1 is row 6
- *          ("variation 1 on top of variation 2" in the sprite sheet)
- *   (5,4)  SE corner – static
+ * This function always returns row 5 for the straight case (col 3).
+ * initializeTileFrames bumps row to 6 when y is odd.
  *
- * T-junctions and cross are not available in the supplied sprite sheet.
- * They are approximated with the dominant straight direction.
- * Single-stub and isolated tiles also approximate with straight.
+ * T-junctions and cross have no sprite; approximated with straight.
  */
 OpenWars::Game::MapRenderer::SpriteSelection
 OpenWars::Game::MapRenderer::getRiverSpriteAndRotation(int mask) {
     switch(mask) {
+    // Straight
     case 0b0011:
         return {5, 3, 0}; // NS  (base)
     case 0b1100:
         return {5, 3, 1}; // EW  (NS rot 90°CW)
+    // Corners
     case 0b0110:
-        return {5, 4, 0}; // SE  (base)
+        return {5, 3, 0}; // SE  (base)
     case 0b1010:
-        return {5, 4, 1}; // SW  (SE rot 90°CW)
+        return {5, 3, 1}; // SW  (SE rot 90°CW)
     case 0b1001:
-        return {5, 4, 2}; // NW  (SE rot 180°)
+        return {5, 3, 2}; // NW  (SE rot 180°)
     case 0b0101:
-        return {5, 4, 3}; // NE  (SE rot 270°CW)
+        return {5, 3, 3}; // NE  (SE rot 270°CW)
+    // T-junctions (todo: sprite)
     case 0b0111:
         return {5, 3, 0}; // NSE → NS straight
     case 0b1011:
@@ -128,12 +121,54 @@ OpenWars::Game::MapRenderer::getRiverSpriteAndRotation(int mask) {
         return {5, 3, 1}; // SEW → EW straight
     case 0b1101:
         return {5, 3, 1}; // NEW → EW straight
+    // Cross (todo: sprite)
     case 0b1111:
         return {5, 3, 0};
+    // Isolated
     default: {
         bool hasNS = mask & 0b0011;
         return {5, 3, hasNS ? 0 : 1};
     }
+    }
+}
+
+/*
+ * Mask bits indicate which neighbours are TerrainType::Sea.
+ * T-junctions and opposite-sides have no sprite; approximated.
+ */
+OpenWars::Game::MapRenderer::SpriteSelection
+OpenWars::Game::MapRenderer::getCoastSpriteAndRotation(int mask) {
+    switch(mask) {
+    case 0b0100:
+        return {6, 1, 0}; // sea E            (base)
+    case 0b0010:
+        return {6, 1, 1}; // sea S            (rot 90°CW)
+    case 0b1000:
+        return {6, 1, 2}; // sea W            (rot 180°)
+    case 0b0001:
+        return {6, 1, 3}; // sea N            (rot 270°CW)
+    case 0b0110:
+        return {5, 1, 0}; // sea SE           (base)
+    case 0b1010:
+        return {5, 1, 1}; // sea SW           (rot 90°CW)
+    case 0b1001:
+        return {5, 1, 2}; // sea NW           (rot 180°)
+    case 0b0101:
+        return {5, 1, 3}; // sea NE           (rot 270°CW)
+    case 0b0011:
+        return {6, 1, 3}; // sea N+S → N straight
+    case 0b1100:
+        return {6, 1, 0}; // sea E+W → E straight
+    case 0b0111:
+        return {6, 1, 0}; // sea N+S+E → E straight
+    case 0b1011:
+        return {6, 1, 2}; // sea N+S+W → W straight
+    case 0b1110:
+        return {6, 1, 1}; // sea S+E+W → S straight
+    case 0b1101:
+        return {6, 1, 3}; // sea N+E+W → N straight
+    default:
+        return {6, 1, 0};
     }
 }
 
@@ -147,6 +182,7 @@ void OpenWars::Game::MapRenderer::initializeTileFrames() {
 
     tileFrames.resize(width * height);
     animatedTileIndices.clear();
+
     auto isRoadLike = [](TerrainType t) {
         switch(t) {
         case TerrainType::Road:
@@ -168,6 +204,11 @@ void OpenWars::Game::MapRenderer::initializeTileFrames() {
                t == TerrainType::Coast;
     };
 
+    // For coast: only pure Sea neighbours determine which edge faces the sea.
+    auto isLandLike = [](TerrainType t) {
+        return t != TerrainType::Sea && t != TerrainType::River;
+    };
+
     for(int y = 0; y < height; ++y) {
         for(int x = 0; x < width; ++x) {
             const int flat = y * width + x;
@@ -186,22 +227,45 @@ void OpenWars::Game::MapRenderer::initializeTileFrames() {
                 auto sel = getRiverSpriteAndRotation(mask);
                 frame.spriteIndex = coord1Based(sel.row, sel.col);
                 frame.rotation = sel.rotation;
-                // Animate only the straight variant (col 3).
-                // The two frames sit in the SAME COLUMN, one row apart:
-                //   frame 0 → (5,3),  frame 1 → (6,3)
-                // frameStride = spritesheetCols jumps one full row in the
-                // flat index instead of one column.
-                if(sel.col == 3) {
-                    frame.animationSpeed = 1.0f;
-                    frame.frameCount = 2;
-                    frame.frameStride = spritesheetCols;
+            } else if(type == TerrainType::Coast) {
+                constexpr int cdx[] = {0, 0, 1, -1};
+                constexpr int cdy[] = {-1, 1, 0, 0};
+                int landMask = 0;
+                for(int d = 0; d < 4; ++d) {
+                    auto* t = gameMap->getTerrain(x + cdx[d], y + cdy[d]);
+                    if(!t || isLandLike(t->getType()))
+                        landMask |= (1 << d);
                 }
+                int seaMask = (~landMask) & 0b1111;
+
+                // No cardinal sea: check diagonals for inner-corner detection.
+                if(seaMask == 0) {
+                    // Order: NE(0) SE(1) SW(2) NW(3)
+                    constexpr int ddx[] = {1, 1, -1, -1};
+                    constexpr int ddy[] = {-1, 1, 1, -1};
+                    // Each diagonal sea maps to the matching cardinal pair mask
+                    constexpr int diagToSeaMask[] = {
+                        0b0101, // NE diag → sea N+E
+                        0b0110, // SE diag → sea S+E
+                        0b1010, // SW diag → sea S+W
+                        0b1001, // NW diag → sea N+W
+                    };
+                    for(int d = 0; d < 4; ++d) {
+                        auto* t = gameMap->getTerrain(x + ddx[d], y + ddy[d]);
+                        if(t && !isLandLike(t->getType())) {
+                            seaMask = diagToSeaMask[d];
+                            break;
+                        }
+                    }
+                }
+
+                auto sel = getCoastSpriteAndRotation(seaMask);
+                frame.spriteIndex = coord1Based(sel.row, sel.col);
+                frame.rotation = sel.rotation;
             } else if(type == TerrainType::Sea) {
                 frame.animationSpeed = 1.0f;
                 frame.frameCount = 3;
                 frame.spriteIndex = coord1Based(3, 1);
-                // frameStride stays 1: frames move right along row 3
-                // (3,1) → (3,2) → (3,3)
             }
 
             if(frame.animationSpeed > 0.0f)
@@ -229,8 +293,7 @@ int OpenWars::Game::MapRenderer::getTerrainSpriteIndex(
     case TerrainType::River:
         return coord1Based(5, 3);
     case TerrainType::Road:
-        // initializeTileFrames will refine this to the correct variant;
-        // this is only the initial fallback (EW straight).
+        // initializeTileFrames will refine this to the correct variant.
         return coord1Based(2, 9);
     default:
         return coord1Based(1, 1);
@@ -245,8 +308,6 @@ int OpenWars::Game::MapRenderer::getTileFrameIndex(
     int animFrame =
         static_cast<int>(frame.animationTime / ANIMATION_FRAME_TIME) %
         frame.frameCount;
-    // frameStride lets us step by 1 (same row, next column) for Sea,
-    // or by spritesheetCols (same column, next row) for River.
     return frame.spriteIndex + animFrame * frame.frameStride;
 }
 
@@ -390,8 +451,6 @@ void OpenWars::Game::MapRenderer::render(IO::Graphics::Camera* camera) {
     }
 
     // Pass 2: all terrain with per-tile rotation.
-    // NOTE: SpriteSheet::drawFrame must accept a 5th int parameter for
-    // rotation (0=0° · 1=90°CW · 2=180° · 3=270°CW).
     for(int y = minY; y <= maxY; ++y) {
         for(int x = minX; x <= maxX; ++x) {
             float screenX = (x * scaledTileSize) + camOffsetX;

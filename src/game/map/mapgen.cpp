@@ -248,34 +248,84 @@ namespace OpenWars::Game {
     std::unique_ptr<Map> MapGenerator::generateTestMap(int width, int height) {
         auto map = std::make_unique<Map>(width, height);
 
-        // Create a simple test map with distinct terrain types
+        // Fill base with Plain
+        for(int y = 0; y < height; ++y) {
+            for(int x = 0; x < width; ++x) {
+                map->setTerrain(x, y, TerrainType::Plain, 0);
+            }
+        }
+
         // Top-left: Mountains
         map->fillRectangle(0, 0, 4, 4, TerrainType::Mountain, 4);
 
         // Top-right: Forest
         map->fillRectangle(width - 4, 0, 4, 4, TerrainType::Woods, 2);
 
-        // Bottom-left: Water
+        // Bottom-left: Sea
         map->fillRectangle(0, height - 4, 4, 4, TerrainType::Sea, 0);
 
-        // Bottom-right: City area
-        map->fillRectangle(width - 4, height - 4, 4, 4, TerrainType::City, 2);
+        // Coast bordering the sea (one row/col above and right of sea block)
+        for(int x = 0; x < 4; ++x) {
+            map->setTerrain(x, height - 5, TerrainType::Coast, 0);
+        }
 
-        // Center: Roads crossing
+        for(int y = height - 4; y < height; ++y) {
+            map->setTerrain(4, y, TerrainType::Coast, 0);
+        }
+
+        // coast on corners too
+        map->setTerrain(4, height - 5, TerrainType::Coast, 0);
+        map->setTerrain(4, height - 4, TerrainType::Coast, 0);
+
+        // River flowing vertically near left-center
+        for(int y = 0; y < height - 4; ++y) {
+            map->setTerrain(width / 4, y, TerrainType::River, 0);
+        }
+
+        // Horizontal road across center
         for(int x = 0; x < width; ++x) {
             map->setTerrain(x, height / 2, TerrainType::Road, 0);
         }
+
+        // Vertical road across center
         for(int y = 0; y < height; ++y) {
             map->setTerrain(width / 2, y, TerrainType::Road, 0);
         }
 
-        // Add some bases
-        map->setTerrain(2, 2, TerrainType::Factory, 3);
-        map->setTerrain(width - 3, height - 3, TerrainType::Factory, 3);
+        // Pipe segment along top edge
+        for(int x = 4; x < width / 2 - 1; ++x) {
+            map->setTerrain(x, 1, TerrainType::Pipe, 0);
+        }
 
-        // Add HQ units at specific points
-        map->setTerrain(1, 1, TerrainType::HQ, 3);
-        map->setTerrain(width - 2, height - 2, TerrainType::HQ, 3);
+        // Player 1 side (left)
+        map->setTerrain(1, 1, TerrainType::HQ, 4);
+        map->setTerrain(3, height / 2 - 3, TerrainType::Factory, 3);
+        map->setTerrain(5, height / 2 - 3, TerrainType::City, 2);
+        map->setTerrain(3, height / 2 + 3, TerrainType::Airport, 2);
+        map->setTerrain(5, height / 2 + 3, TerrainType::Port, 1);
+
+        // Player 2 side (right)
+        map->setTerrain(width - 2, height - 2, TerrainType::HQ, 4);
+        map->setTerrain(width - 4, height / 2 - 3, TerrainType::Factory, 3);
+        map->setTerrain(width - 6, height / 2 - 3, TerrainType::City, 2);
+        map->setTerrain(width - 4, height / 2 + 3, TerrainType::Airport, 2);
+        map->setTerrain(width - 6, height / 2 + 3, TerrainType::Port, 1);
+
+        // Neutral structures in center quadrants
+        map->setTerrain(
+            width / 2 - 3,
+            height / 2 - 3,
+            TerrainType::CommTower,
+            1
+        );
+        map->setTerrain(
+            width / 2 + 3,
+            height / 2 - 3,
+            TerrainType::CommTower,
+            1
+        );
+        map->setTerrain(width / 2 - 3, height / 2 + 3, TerrainType::Lab, 1);
+        map->setTerrain(width / 2 + 3, height / 2 + 3, TerrainType::Silo, 0);
 
         return map;
     }

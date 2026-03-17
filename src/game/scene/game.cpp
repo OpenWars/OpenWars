@@ -12,7 +12,7 @@ using namespace OpenWars::Drawing;
 
 OpenWars::Game::GameScene::GameScene()
     : Scene("GameScene") {
-    gameMap = MapGenerator::generateRandom(20, 20);
+    gameMap = MapGenerator::generateTestMap(40, 40);
     camera = std::make_unique<IO::Graphics::Camera>();
 }
 
