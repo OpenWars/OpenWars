@@ -8,7 +8,7 @@ namespace OpenWars::Game {
      * Procedural map generation utilities for Advance Wars style maps.
      */
     class MapGenerator {
-      public:
+        public:
         /**
          * Generates a completely random map.
          * @param width Map width in tiles
@@ -60,7 +60,7 @@ namespace OpenWars::Game {
         static std::unique_ptr<Map>
         generateSymmetricalMap(int width, int height);
 
-      private:
+        private:
         /**
          * Perlin-like noise function for terrain generation.
          */

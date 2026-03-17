@@ -35,7 +35,7 @@ namespace OpenWars::UI {
     };
 
     class Component {
-      protected:
+        protected:
         std::string id;
         ComponentState state;
         Handler* parentHandler = nullptr;
@@ -50,7 +50,7 @@ namespace OpenWars::UI {
             float padding = 0;
         } layout;
 
-      public:
+        public:
         Component(const std::string& id = "")
             : id(id) {
         }
@@ -126,7 +126,7 @@ namespace OpenWars::UI {
             id = newId;
         }
 
-      protected:
+        protected:
         void invalidate();
         void dispatchEvent(EventType type, void* data = nullptr) {
             Event event{type, this, data};
@@ -146,7 +146,7 @@ namespace OpenWars::UI {
         IO::Input::InputState currentInputState;
         IO::Input::InputState previousInputState;
 
-      public:
+        public:
         virtual ~Handler() = default;
 
         void addComponent(std::unique_ptr<Component> c);
@@ -164,7 +164,7 @@ namespace OpenWars::UI {
 
         void bringToFront(Component* component);
 
-      private:
+        private:
         bool hasAnimatingComponents() const;
     };
 
@@ -184,7 +184,7 @@ namespace OpenWars::UI {
     };
 
     class LayoutManager {
-      public:
+        public:
         static void layoutHorizontal(
             std::vector<Component*>& components,
             const Drawing::Rectangle& bounds,

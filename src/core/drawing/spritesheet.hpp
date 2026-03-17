@@ -5,7 +5,7 @@
 
 namespace OpenWars::Drawing {
     class SpriteSheet {
-      public:
+        public:
         // Load a spritesheet image from the embedded assets. Returns nullptr on
         // failure.
         static SpriteSheet* loadFromAssets(
@@ -37,7 +37,7 @@ namespace OpenWars::Drawing {
             return rows;
         }
 
-      private:
+        private:
         SpriteSheet() = default;
 
         SDL_Texture* texture = nullptr;

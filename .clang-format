@@ -7,6 +7,8 @@ ColumnLimit: 80
 AllowShortFunctionsOnASingleLine: None
 AlwaysBreakAfterReturnType: None
 BreakBeforeBraces: Attach
+AccessModifierOffset: 0
+BreakAfterReturnType: ExceptShortType
 
 BinPackParameters: false
 AlignAfterOpenBracket: BlockIndent
