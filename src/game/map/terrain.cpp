@@ -27,6 +27,7 @@ int OpenWars::Game::Terrain::getMovementCost(MovementType movementType) {
         case TerrainType::Pipe:
             return 1;
         case TerrainType::River:
+        case TerrainType::Reef:
         case TerrainType::Sea:
             return -1; // Impassable
         }
@@ -54,6 +55,7 @@ int OpenWars::Game::Terrain::getMovementCost(MovementType movementType) {
             return -1; // Impassable
         case TerrainType::River:
         case TerrainType::Sea:
+        case TerrainType::Reef:
         case TerrainType::Pipe:
             return -1; // Impassable
         }
@@ -81,6 +83,7 @@ int OpenWars::Game::Terrain::getMovementCost(MovementType movementType) {
             return -1; // Impassable
         case TerrainType::River:
         case TerrainType::Sea:
+        case TerrainType::Reef:
         case TerrainType::Pipe:
             return -1; // Impassable
         }
@@ -93,7 +96,7 @@ int OpenWars::Game::Terrain::getMovementCost(MovementType movementType) {
         switch(type) {
         case TerrainType::Sea:
         case TerrainType::Coast:
-            return 1;
+        case TerrainType::Reef:
         case TerrainType::Port:
             return 1;
         default:
@@ -105,6 +108,7 @@ int OpenWars::Game::Terrain::getMovementCost(MovementType movementType) {
         case TerrainType::Sea:
         case TerrainType::Coast:
         case TerrainType::Port:
+        case TerrainType::Reef:
             return 1;
         default:
             return -1;

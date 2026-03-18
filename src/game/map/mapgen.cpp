@@ -259,6 +259,7 @@ namespace OpenWars::Game {
 
         // Bottom-left: Sea
         map->fillRectangle(0, height - 4, 4, 4, TerrainType::Sea);
+        map->fillRectangle(0, height - 4, 2, 2, TerrainType::Reef);
 
         // Coast bordering the sea (one row/col above and right of sea block)
         for(int x = 0; x < 4; ++x) {

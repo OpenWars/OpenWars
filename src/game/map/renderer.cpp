@@ -210,7 +210,8 @@ void OpenWars::Game::MapRenderer::initializeTileFrames() {
 
     // For coast: only pure Sea neighbours determine which edge faces the sea.
     auto isLandLike = [](TerrainType t) {
-        return t != TerrainType::Sea && t != TerrainType::River;
+        return t != TerrainType::Sea && t != TerrainType::River &&
+               t != TerrainType::Reef;
     };
 
     for(int y = 0; y < height; ++y) {
@@ -275,6 +276,10 @@ void OpenWars::Game::MapRenderer::initializeTileFrames() {
                 frame.underlay.spriteIndex = coord1Based(3, 1);
                 frame.underlay.animationSpeed = 1.0f;
                 frame.underlay.frameCount = 3;
+            } else if(type == TerrainType::Reef) {
+                frame.underlay.spriteIndex = coord1Based(3, 1);
+                frame.underlay.animationSpeed = 1.0f;
+                frame.underlay.frameCount = 3;
             } else if(type == TerrainType::Sea) {
                 frame.base.animationSpeed = 1.0f;
                 frame.base.frameCount = 3;
@@ -309,12 +314,13 @@ int OpenWars::Game::MapRenderer::getTerrainSpriteIndex(
         return coord1Based(2, 6);
     case TerrainType::Sea:
         return coord1Based(3, 1);
+    case TerrainType::Reef:
+        return coord1Based(3, 4);
     case TerrainType::Coast:
         return coord1Based(5, 1);
     case TerrainType::River:
         return coord1Based(5, 3);
     case TerrainType::Road:
-        // initializeTileFrames will refine this to the correct variant.
         return coord1Based(2, 9);
     case TerrainType::Bridge:
         return coord1Based(3, 8);
@@ -347,6 +353,7 @@ OpenWars::Game::MapRenderer::getTerrainLayer(TerrainType type) const {
     case TerrainType::CommTower:
     case TerrainType::Silo:
     case TerrainType::Coast:
+    case TerrainType::Reef:
         return TerrainLayer::Foreground;
     default:
         return TerrainLayer::Background;

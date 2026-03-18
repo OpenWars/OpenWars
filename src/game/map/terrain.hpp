@@ -13,6 +13,7 @@ namespace OpenWars::Game {
         River,
         Coast,
         Sea,
+        Reef,
         City,
         Factory,
         Airport,
@@ -31,6 +32,7 @@ namespace OpenWars::Game {
         static int defaultDefense(TerrainType type) {
             switch(type) {
             case TerrainType::Plain:
+            case TerrainType::Reef:
                 return 1;
             case TerrainType::Woods:
                 return 2;
