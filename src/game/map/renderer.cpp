@@ -63,6 +63,7 @@ OpenWars::Game::MapRenderer::getRoadSpriteAndRotation(int mask) {
         return {2, 9, 0}; // E only     → EW straight
     case 0b1000:
         return {2, 9, 0}; // W only     → EW straight
+        //
     case 0b0011:
         return {2, 9, 1}; // NS  (EW rotated 90°CW)
     case 0b1100:
@@ -113,18 +114,18 @@ OpenWars::Game::MapRenderer::getRiverSpriteAndRotation(int mask) {
         return {5, 3, 2}; // NW  (SE rot 180°)
     case 0b0101:
         return {5, 3, 3}; // NE  (SE rot 270°CW)
-    // T-junctions (todo: sprite)
+    // T-junctions
     case 0b0111:
-        return {5, 3, 0}; // NSE → NS straight
+        return {6, 4, 1}; // NSE → NS straight
     case 0b1011:
-        return {5, 3, 0}; // NSW → NS straight
+        return {6, 4, 2}; // NSW → NS straight
     case 0b1110:
-        return {5, 3, 1}; // SEW → EW straight
+        return {6, 4, 3}; // SEW → EW straight
     case 0b1101:
-        return {5, 3, 1}; // NEW → EW straight
-    // Cross (todo: sprite)
+        return {6, 4, 0}; // NEW → EW straight
+    // Cross
     case 0b1111:
-        return {5, 3, 0};
+        return {6, 3, 0};
     // Isolated
     default: {
         bool hasNS = mask & 0b0011;
