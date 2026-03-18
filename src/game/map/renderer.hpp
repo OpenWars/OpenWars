@@ -13,18 +13,18 @@ namespace OpenWars::Game {
 
     class MapRenderer {
         private:
-        struct TileFrame {
+        struct AnimState {
             int spriteIndex = 0;
-            int overlayIndex = 0;
             float animationTime = 0.0f;
             float animationSpeed = 0.0f;
             int frameCount = 1;
-            // Step between animation frames in the flat sprite index.
-            // Use 1 for frames laid out in the same row (e.g. Sea: cols 1→2→3).
-            // Use spritesheetCols for frames in the same column (e.g. River:
-            // rows 5→6 at col 3).
             int frameStride = 1;
-            // 0=0° · 1=90°CW · 2=180° · 3=270°CW
+        };
+
+        struct TileFrame {
+            AnimState base;
+            AnimState underlay;
+            int overlayIndex = 0;
             int rotation = 0;
         };
 
@@ -74,7 +74,7 @@ namespace OpenWars::Game {
         static SpriteSelection getCoastSpriteAndRotation(int mask);
 
         int getTerrainSpriteIndex(TerrainType type, int x, int y) const;
-        int getTileFrameIndex(const TileFrame& frame) const;
+        int getTileFrameIndex(const AnimState& anim) const;
         TerrainLayer getTerrainLayer(TerrainType type) const;
 
         public:

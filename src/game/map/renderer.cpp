@@ -1,6 +1,7 @@
 #include "renderer.hpp"
 #include "../map/map.hpp"
 #include "../../io/log/logging.hpp"
+#include "terrain.hpp"
 #include <asm-generic/errno.h>
 
 using namespace OpenWars::IO::Graphics;
@@ -218,7 +219,7 @@ void OpenWars::Game::MapRenderer::initializeTileFrames() {
             TileFrame& frame = tileFrames[flat];
             const TerrainType type = gameMap->getTerrain(x, y)->getType();
 
-            frame.spriteIndex = getTerrainSpriteIndex(type, x, y);
+            frame.base.spriteIndex = getTerrainSpriteIndex(type, x, y);
 
             if(type == TerrainType::HighMountain) {
                 // todo: unhardcode this
@@ -226,12 +227,12 @@ void OpenWars::Game::MapRenderer::initializeTileFrames() {
             } else if(type == TerrainType::Road) {
                 int mask = computeConnectionMask(x, y, isRoadLike);
                 auto sel = getRoadSpriteAndRotation(mask);
-                frame.spriteIndex = coord1Based(sel.row, sel.col);
+                frame.base.spriteIndex = coord1Based(sel.row, sel.col);
                 frame.rotation = sel.rotation;
             } else if(type == TerrainType::River) {
                 int mask = computeConnectionMask(x, y, isRiverLike);
                 auto sel = getRiverSpriteAndRotation(mask);
-                frame.spriteIndex = coord1Based(sel.row, sel.col);
+                frame.base.spriteIndex = coord1Based(sel.row, sel.col);
                 frame.rotation = sel.rotation;
             } else if(type == TerrainType::Coast) {
                 constexpr int cdx[] = {0, 0, 1, -1};
@@ -268,18 +269,28 @@ void OpenWars::Game::MapRenderer::initializeTileFrames() {
                 }
 
                 auto sel = getCoastSpriteAndRotation(seaMask);
-                frame.spriteIndex = coord1Based(sel.row, sel.col);
+                frame.base.spriteIndex = coord1Based(sel.row, sel.col);
                 frame.rotation = sel.rotation;
+
+                frame.underlay.spriteIndex = coord1Based(3, 1);
+                frame.underlay.animationSpeed = 1.0f;
+                frame.underlay.frameCount = 3;
             } else if(type == TerrainType::Sea) {
-                frame.animationSpeed = 1.0f;
-                frame.frameCount = 3;
-                frame.spriteIndex = coord1Based(3, 1);
+                frame.base.animationSpeed = 1.0f;
+                frame.base.frameCount = 3;
+                frame.base.spriteIndex = coord1Based(3, 1);
             }
 
-            if(frame.animationSpeed > 0.0f)
+            if(frame.base.animationSpeed > 0.0f ||
+               frame.underlay.animationSpeed > 0.0f)
                 animatedTileIndices.push_back(flat);
         }
     }
+
+    IO::Logging::debug(
+        "Animated tile count: %d",
+        (int)animatedTileIndices.size()
+    );
 }
 
 int OpenWars::Game::MapRenderer::getTerrainSpriteIndex(
@@ -313,14 +324,13 @@ int OpenWars::Game::MapRenderer::getTerrainSpriteIndex(
 }
 
 int OpenWars::Game::MapRenderer::getTileFrameIndex(
-    const TileFrame& frame
+    const AnimState& anim
 ) const {
-    if(frame.frameCount <= 1)
-        return frame.spriteIndex;
-    int animFrame =
-        static_cast<int>(frame.animationTime / ANIMATION_FRAME_TIME) %
-        frame.frameCount;
-    return frame.spriteIndex + animFrame * frame.frameStride;
+    if(anim.frameCount <= 1)
+        return anim.spriteIndex;
+    int f = static_cast<int>(anim.animationTime / ANIMATION_FRAME_TIME) %
+            anim.frameCount;
+    return anim.spriteIndex + f * anim.frameStride;
 }
 
 OpenWars::Game::MapRenderer::TerrainLayer
@@ -336,6 +346,7 @@ OpenWars::Game::MapRenderer::getTerrainLayer(TerrainType type) const {
     case TerrainType::Lab:
     case TerrainType::CommTower:
     case TerrainType::Silo:
+    case TerrainType::Coast:
         return TerrainLayer::Foreground;
     default:
         return TerrainLayer::Background;
@@ -351,8 +362,12 @@ void OpenWars::Game::MapRenderer::update(float deltaTime) {
         return;
     animationAccum -= ANIMATION_FRAME_TIME;
 
-    for(int flat : animatedTileIndices)
-        tileFrames[flat].animationTime += tileFrames[flat].animationSpeed;
+    for(int flat : animatedTileIndices) {
+        tileFrames[flat].base.animationTime +=
+            tileFrames[flat].base.animationSpeed;
+        tileFrames[flat].underlay.animationTime +=
+            tileFrames[flat].underlay.animationSpeed;
+    }
 }
 
 OpenWars::Vector2 OpenWars::Game::MapRenderer::getTileAtScreenPos(
@@ -448,7 +463,6 @@ void OpenWars::Game::MapRenderer::render(IO::Graphics::Camera* camera) {
 
     const int plainIdx = coord1Based(1, 1);
 
-    // Pass 1: plain underlay for foreground terrain (no rotation needed)
     for(int y = minY; y <= maxY; ++y) {
         for(int x = minX; x <= maxX; ++x) {
             Terrain* terrain = gameMap->getTerrain(x, y);
@@ -459,7 +473,12 @@ void OpenWars::Game::MapRenderer::render(IO::Graphics::Camera* camera) {
 
             float screenX = (x * scaledTileSize) + camOffsetX;
             float screenY = (y * scaledTileSize) + camOffsetY;
-            sheet->drawFrame(plainIdx, screenX, screenY, zoom);
+
+            const int flat = y * tileFrameWidth + x;
+            const AnimState& ul = tileFrames[flat].underlay;
+            const int under =
+                (ul.spriteIndex != 0) ? getTileFrameIndex(ul) : plainIdx;
+            sheet->drawFrame(under, screenX, screenY, zoom);
         }
     }
 
@@ -471,7 +490,7 @@ void OpenWars::Game::MapRenderer::render(IO::Graphics::Camera* camera) {
 
             const int flat = y * tileFrameWidth + x;
             const TileFrame& frame = tileFrames[flat];
-            int frameIndex = getTileFrameIndex(frame);
+            int frameIndex = getTileFrameIndex(frame.base);
             sheet
                 ->drawFrame(frameIndex, screenX, screenY, zoom, frame.rotation);
         }
