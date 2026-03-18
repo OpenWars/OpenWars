@@ -188,6 +188,7 @@ void OpenWars::Game::MapRenderer::initializeTileFrames() {
     auto isRoadLike = [](TerrainType t) {
         switch(t) {
         case TerrainType::Road:
+        case TerrainType::Bridge:
         case TerrainType::City:
         case TerrainType::Factory:
         case TerrainType::HQ:
@@ -293,7 +294,7 @@ int OpenWars::Game::MapRenderer::getTerrainSpriteIndex(
         return (y % 2 == 0) ? coord1Based(1, 4) : coord1Based(1, 3);
     case TerrainType::Mountain:
         return coord1Based(2, 5);
-    case TerrainType::HighMountain: // ← new
+    case TerrainType::HighMountain:
         return coord1Based(2, 6);
     case TerrainType::Sea:
         return coord1Based(3, 1);
@@ -304,6 +305,8 @@ int OpenWars::Game::MapRenderer::getTerrainSpriteIndex(
     case TerrainType::Road:
         // initializeTileFrames will refine this to the correct variant.
         return coord1Based(2, 9);
+    case TerrainType::Bridge:
+        return coord1Based(3, 8);
     default:
         return coord1Based(1, 1);
     }

@@ -8,6 +8,7 @@ int OpenWars::Game::Terrain::getMovementCost(MovementType movementType) {
         switch(type) {
         case TerrainType::Plain:
         case TerrainType::Road:
+        case TerrainType::Bridge:
         case TerrainType::Coast:
         case TerrainType::City:
         case TerrainType::Factory:
@@ -35,6 +36,7 @@ int OpenWars::Game::Terrain::getMovementCost(MovementType movementType) {
         switch(type) {
         case TerrainType::Plain:
         case TerrainType::Road:
+        case TerrainType::Bridge:
         case TerrainType::Coast:
         case TerrainType::City:
         case TerrainType::Airport:
@@ -62,6 +64,7 @@ int OpenWars::Game::Terrain::getMovementCost(MovementType movementType) {
         case TerrainType::Factory:
         case TerrainType::Plain:
         case TerrainType::Road:
+        case TerrainType::Bridge:
         case TerrainType::Coast:
         case TerrainType::City:
         case TerrainType::Airport:

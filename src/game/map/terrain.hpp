@@ -6,6 +6,7 @@ namespace OpenWars::Game {
     enum class TerrainType {
         Plain,
         Road,
+        Bridge,
         Woods,
         Mountain,
         HighMountain,
