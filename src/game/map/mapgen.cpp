@@ -289,10 +289,155 @@ namespace OpenWars::Game {
             map->setTerrain(width / 2, y, TerrainType::Road);
         }
 
+        // Bridge where the horizontal road crosses the river
+        // (exercises TerrainType::Bridge and its sprite index)
+        map->setTerrain(width / 4, height / 2, TerrainType::Bridge);
+
         // Pipe segment along top edge
         for(int x = 4; x < width / 2 - 1; ++x) {
             map->setTerrain(x, 1, TerrainType::Pipe);
         }
+
+        // ---------------------------------------------------------------
+        // Road connection-mask sampler (bottom-right quadrant)
+        // Exercises every branch of getRoadSpriteAndRotation.
+        //
+        // Layout (R = Road, . = Plain):
+        //
+        //   col:  +0  +1  +2  +3  +4  +5
+        //   by+0:  R   .   R   R   R   .    isolated / NS-start / NE corner
+        //   by+1:  .   .   R   .   R   .    NS-end         / NE-end
+        //   by+2:  R   R   .   .   R   R    EW straight    / SW corner
+        //   by+3:  .   .   .   .   R   .    SW-end
+        //   by+4:  R   R   R   .   R   .    SEW T-junction / cross N-arm
+        //   by+5:  .   R   .   R   R   R    SEW S-arm      / cross EW-arm
+        //   by+6:  .   .   .   .   R   .    cross S-arm
+        //
+        // Mask coverage:
+        //   0b0000  isolated         bx+0, by+0
+        //   0b0011  NS straight      bx+2, by+0 .. by+1
+        //   0b1100  EW straight      bx+0 .. bx+1, by+2
+        //   0b0101  NE corner        bx+4, by+0 .. by+1 + bx+3, by+0
+        //   0b1010  SW corner        bx+4 .. bx+5, by+2 + bx+4, by+3
+        //   0b1110  SEW T-junction   bx+0 .. bx+2, by+4 + bx+1, by+5
+        //   0b1111  NSEW cross       bx+4, by+4 .. by+6 + bx+3..bx+5, by+5
+        // ---------------------------------------------------------------
+        const int bx = width - 8;
+        const int by = height - 9;
+
+        // Isolated road (mask 0b0000)
+        map->setTerrain(bx, by, TerrainType::Road);
+
+        // NS straight (mask 0b0011)
+        map->setTerrain(bx + 2, by, TerrainType::Road);
+        map->setTerrain(bx + 2, by + 1, TerrainType::Road);
+
+        // EW straight (mask 0b1100)
+        map->setTerrain(bx, by + 2, TerrainType::Road);
+        map->setTerrain(bx + 1, by + 2, TerrainType::Road);
+
+        // NE corner (mask 0b0101): road goes N and E from the corner tile
+        map->setTerrain(bx + 4, by, TerrainType::Road);     // N arm
+        map->setTerrain(bx + 4, by + 1, TerrainType::Road); // corner tile
+        map->setTerrain(
+            bx + 3,
+            by + 1,
+            TerrainType::Road
+        ); // E arm (W neighbour)
+
+        // SW corner (mask 0b1010): road goes S and W from the corner tile
+        map->setTerrain(bx + 4, by + 2, TerrainType::Road); // corner tile
+        map->setTerrain(
+            bx + 5,
+            by + 2,
+            TerrainType::Road
+        ); // W arm (E neighbour)
+        map->setTerrain(bx + 4, by + 3, TerrainType::Road); // S arm
+
+        // SEW T-junction (mask 0b1110 — missing N)
+        map->setTerrain(bx, by + 4, TerrainType::Road);     // W arm
+        map->setTerrain(bx + 1, by + 4, TerrainType::Road); // centre
+        map->setTerrain(bx + 2, by + 4, TerrainType::Road); // E arm
+        map->setTerrain(bx + 1, by + 5, TerrainType::Road); // S arm
+
+        // NSEW cross (mask 0b1111)
+        map->setTerrain(bx + 4, by + 4, TerrainType::Road); // N arm
+        map->setTerrain(bx + 3, by + 5, TerrainType::Road); // W arm
+        map->setTerrain(bx + 4, by + 5, TerrainType::Road); // centre
+        map->setTerrain(bx + 5, by + 5, TerrainType::Road); // E arm
+        map->setTerrain(bx + 4, by + 6, TerrainType::Road); // S arm
+
+        // ---------------------------------------------------------------
+        // River connection-mask sampler (top-center strip)
+        // Exercises every branch of getRiverSpriteAndRotation.
+        //
+        // Placed one row below the Pipe strip to avoid overlap.
+        // rx = starting x, ry = starting y
+        //
+        //   NS straight   rx+0, ry .. ry+1
+        //   EW straight   rx+2 .. rx+3, ry
+        //   SE corner     rx+5, ry .. ry+1 + rx+6, ry+1  (S then E)
+        //   SW corner     rx+8 .. rx+9, ry+1 + rx+8, ry  (W then S)
+        //   NE corner     rx+11, ry .. ry+1 + rx+12, ry  (N then E)
+        //   NW corner     rx+14 .. rx+15, ry + rx+14, ry+1
+        //   NSE T-junc    rx+17, ry-1 .. ry+1 + rx+18, ry
+        //   cross         rx+20, ry-1 .. ry+1 + rx+19 .. rx+21, ry
+        // ---------------------------------------------------------------
+        const int rx = width / 2 + 2;
+        const int ry = 3;
+
+        // NS straight (mask 0b0011)
+        map->setTerrain(rx, ry, TerrainType::River);
+        map->setTerrain(rx, ry + 1, TerrainType::River);
+
+        // EW straight (mask 0b1100)
+        map->setTerrain(rx + 2, ry, TerrainType::River);
+        map->setTerrain(rx + 3, ry, TerrainType::River);
+
+        // SE corner (mask 0b0110)
+        map->setTerrain(rx + 5, ry, TerrainType::River);     // S arm
+        map->setTerrain(rx + 5, ry + 1, TerrainType::River); // corner
+        map->setTerrain(rx + 6, ry + 1, TerrainType::River); // E arm
+
+        // SW corner (mask 0b1010)
+        map->setTerrain(rx + 8, ry, TerrainType::River);     // S arm
+        map->setTerrain(rx + 8, ry + 1, TerrainType::River); // corner
+        map->setTerrain(
+            rx + 9,
+            ry + 1,
+            TerrainType::River
+        ); // W arm (E neighbour)
+
+        // NE corner (mask 0b0101)
+        map->setTerrain(rx + 11, ry, TerrainType::River); // corner
+        map->setTerrain(
+            rx + 11,
+            ry + 1,
+            TerrainType::River
+        );                                                // N arm (S neighbour)
+        map->setTerrain(rx + 12, ry, TerrainType::River); // E arm
+
+        // NW corner (mask 0b1001)
+        map->setTerrain(rx + 14, ry, TerrainType::River); // corner
+        map->setTerrain(
+            rx + 14,
+            ry + 1,
+            TerrainType::River
+        );                                                // N arm (S neighbour)
+        map->setTerrain(rx + 15, ry, TerrainType::River); // W arm (E neighbour)
+
+        // NSE T-junction (mask 0b0111)
+        map->setTerrain(rx + 17, ry - 1, TerrainType::River); // N arm
+        map->setTerrain(rx + 17, ry, TerrainType::River);     // centre
+        map->setTerrain(rx + 17, ry + 1, TerrainType::River); // S arm
+        map->setTerrain(rx + 18, ry, TerrainType::River);     // E arm
+
+        // NSEW cross (mask 0b1111)
+        map->setTerrain(rx + 20, ry - 1, TerrainType::River); // N arm
+        map->setTerrain(rx + 19, ry, TerrainType::River);     // W arm
+        map->setTerrain(rx + 20, ry, TerrainType::River);     // centre
+        map->setTerrain(rx + 21, ry, TerrainType::River);     // E arm
+        map->setTerrain(rx + 20, ry + 1, TerrainType::River); // S arm
 
         // Player 1 side (left)
         map->setTerrain(1, 1, TerrainType::HQ);
