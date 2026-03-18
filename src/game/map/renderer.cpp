@@ -105,16 +105,16 @@ OpenWars::Game::MapRenderer::getRiverSpriteAndRotation(int mask) {
     case 0b0011:
         return {5, 3, 0}; // NS  (base)
     case 0b1100:
-        return {5, 3, 1}; // EW  (NS rot 90°CW)
+        return {4, 3, 0}; // EW  (NS rot 90°CW)
     // Corners
     case 0b0110:
-        return {5, 3, 0}; // SE  (base)
+        return {5, 4, 0}; // SE  (base)
     case 0b1010:
-        return {5, 3, 1}; // SW  (SE rot 90°CW)
+        return {5, 4, 1}; // SW  (SE rot 90°CW)
     case 0b1001:
-        return {5, 3, 2}; // NW  (SE rot 180°)
+        return {5, 4, 2}; // NW  (SE rot 180°)
     case 0b0101:
-        return {5, 3, 3}; // NE  (SE rot 270°CW)
+        return {5, 4, 3}; // NE  (SE rot 270°CW)
     // T-junctions
     case 0b0111:
         return {6, 4, 1}; // NSE → NS straight
@@ -130,7 +130,7 @@ OpenWars::Game::MapRenderer::getRiverSpriteAndRotation(int mask) {
     // Isolated
     default: {
         bool hasNS = mask & 0b0011;
-        return {5, 3, hasNS ? 0 : 1};
+        return {4, 3, hasNS ? 0 : 1};
     }
     }
 }
@@ -342,7 +342,7 @@ int OpenWars::Game::MapRenderer::getTerrainSpriteIndex(
     case TerrainType::Road:
         return coord1Based(2, 9);
     case TerrainType::Bridge:
-        return coord1Based(3, 8);
+        return coord1Based(4, 8);
     default:
         return coord1Based(1, 1);
     }
@@ -371,6 +371,7 @@ OpenWars::Game::MapRenderer::getTerrainLayer(TerrainType type) const {
     case TerrainType::Lab:
     case TerrainType::CommTower:
     case TerrainType::Silo:
+    case TerrainType::Road:
     case TerrainType::Coast:
     case TerrainType::Reef:
         return TerrainLayer::Foreground;
