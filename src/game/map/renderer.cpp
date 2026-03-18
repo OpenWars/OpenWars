@@ -281,9 +281,28 @@ void OpenWars::Game::MapRenderer::initializeTileFrames() {
                 frame.underlay.animationSpeed = 1.0f;
                 frame.underlay.frameCount = 3;
             } else if(type == TerrainType::Sea) {
-                frame.base.animationSpeed = 1.0f;
-                frame.base.frameCount = 3;
-                frame.base.spriteIndex = coord1Based(3, 1);
+                // If all 4 cardinal points are plains, then display as a hole
+                // at 8,1
+                bool allPlain = true;
+                for(int dy = -1; dy <= 1 && allPlain; ++dy)
+                    for(int dx = -1; dx <= 1 && allPlain; ++dx) {
+                        if(dx == 0 && dy == 0)
+                            continue;
+                        auto* t = gameMap->getTerrain(x + dx, y + dy);
+                        if(!t || t->getType() != TerrainType::Plain)
+                            allPlain = false;
+                    }
+
+                if(allPlain) {
+                    frame.base.spriteIndex = coord1Based(8, 1);
+                    frame.underlay.spriteIndex = coord1Based(3, 1);
+                    frame.underlay.animationSpeed = 1.0f;
+                    frame.underlay.frameCount = 3;
+                } else {
+                    frame.base.animationSpeed = 1.0f;
+                    frame.base.frameCount = 3;
+                    frame.base.spriteIndex = coord1Based(3, 1);
+                }
             }
 
             if(frame.base.animationSpeed > 0.0f ||
