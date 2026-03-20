@@ -1,107 +1,64 @@
 #include "damage.hpp"
+#include "unit.hpp"
 #include "../co/co.hpp"
+#include "../map/terrain.hpp"
+#include <algorithm>
 #include <cstdlib>
 #include <ctime>
-#include <algorithm>
 
 namespace OpenWars::Game {
+
+    DamageTable& DamageTable::get() {
+        static DamageTable instance;
+        return instance;
+    }
+
+    void DamageTable::set(
+        const std::string& attackerId,
+        const std::string& defenderId,
+        int damage
+    ) {
+        chart[attackerId][defenderId] = damage;
+    }
+
+    int DamageTable::lookup(
+        const std::string& attackerId,
+        const std::string& defenderId
+    ) const {
+        auto aIt = chart.find(attackerId);
+        if(aIt == chart.end())
+            return NO_DAMAGE;
+
+        auto dIt = aIt->second.find(defenderId);
+        return dIt != aIt->second.end() ? dIt->second : NO_DAMAGE;
+    }
+
     int DamageCalculator::calculateDamage(
         const Unit* attacker,
         const Unit* defender,
         const Terrain* defenderTerrain,
         bool includeRandom
     ) {
-        // Get base damage from damage table
         int baseDamage = attacker->calculateBaseDamage(defender);
-
-        if(baseDamage == DamageTable::NO_DAMAGE) {
+        if(baseDamage == DamageTable::NO_DAMAGE)
             return 0;
-        }
 
-        // AWBW Formula:
-        // Damage = (BaseDamage × AttackerHP / 10) × (AttackerAttack / 100) ×
-        // (DefenderDefense / 100) + Random
-
-        // Step 1: Scale by attacker HP (damage scales with HP in AW)
+        // AWBW formula: (base × attackerHP/10) × (atk/100) × (100/def)
         float damage = baseDamage * (attacker->getHP() / 10.0f);
+        damage *= getAttackModifier(attacker) / 100.0f;
+        damage *= 100.0f / getDefenseModifier(defender, defenderTerrain);
 
-        // Step 2: Apply attacker's attack modifier
-        int attackMod = getAttackModifier(attacker);
-        damage *= (attackMod / 100.0f);
-
-        // Step 3: Apply defender's defense modifier
-        int defenseMod = getDefenseModifier(defender, defenderTerrain);
-        damage *= (100.0f / defenseMod);
-
-        // Step 4: Add random component (0-9)
-        if(includeRandom) {
+        if(includeRandom)
             damage += getRandomDamage();
-        }
 
-        // Apply luck from CO
-        if(attacker->getCO()) {
+        if(attacker->getCO() && includeRandom) {
             int luck = attacker->getCO()->getLuck();
-            if(luck > 0 && includeRandom) {
-                int luckDamage = std::rand() % (luck + 1);
-                damage += luckDamage;
-            }
+            if(luck > 0)
+                damage += std::rand() % (luck + 1);
         }
 
-        // Round and clamp
-        int finalDamage = (int)(damage + 0.5f);
-        finalDamage = std::max(0, finalDamage);
-        finalDamage = std::min(defender->getHP(), finalDamage);
-
-        return finalDamage;
-    }
-
-    int DamageCalculator::getAttackModifier(const Unit* unit) {
-        int modifier = 100; // Base 100%
-
-        // Apply CO bonuses
-        if(unit->getCO()) {
-            modifier = unit->getCO()->getAttackModifier();
-        }
-
-        return modifier;
-    }
-
-    int DamageCalculator::getDefenseModifier(
-        const Unit* unit,
-        const Terrain* terrain
-    ) {
-        int modifier = 100; // Base 100%
-
-        // Apply CO defense bonus
-        if(unit->getCO()) {
-            modifier = unit->getCO()->getDefenseModifier();
-        }
-
-        // Apply terrain defense
-        if(terrain) {
-            int terrainBonus = getTerrainDefenseBonus(terrain);
-
-            // In AWBW, terrain defense is multiplicative
-            // Each star adds roughly 10% defense (reduces damage by 10%)
-            // Formula: Defense = 100 + (Stars × 10)
-            modifier = (modifier * terrainBonus) / 100;
-        }
-
-        return modifier;
-    }
-
-    int DamageCalculator::getTerrainDefenseBonus(const Terrain* terrain) {
-        if(!terrain)
-            return 100;
-
-        int stars = terrain->getDefenseStars();
-
-        // Each star reduces incoming damage
-        // 1 star = 110% effective defense (reduces damage by ~9%)
-        // 2 stars = 120% effective defense (reduces damage by ~17%)
-        // 3 stars = 130% effective defense (reduces damage by ~23%)
-        // 4 stars = 140% effective defense (reduces damage by ~29%)
-        return 100 + (stars * 10);
+        int final = (int)(damage + 0.5f);
+        return std::max(0, std::min(defender->getHP(), final));
     }
 
     bool DamageCalculator::canUnitAttackTarget(
@@ -110,20 +67,36 @@ namespace OpenWars::Game {
     ) {
         if(!attacker || !target)
             return false;
+        return attacker->calculateBaseDamage(target) != DamageTable::NO_DAMAGE;
+    }
 
-        // Check if base damage exists
-        int baseDamage = attacker->calculateBaseDamage(target);
-        return baseDamage != DamageTable::NO_DAMAGE;
+    int DamageCalculator::getAttackModifier(const Unit* unit) {
+        return unit->getCO() ? unit->getCO()->getAttackModifier() : 100;
+    }
+
+    int DamageCalculator::getDefenseModifier(
+        const Unit* unit,
+        const Terrain* terrain
+    ) {
+        int modifier =
+            unit->getCO() ? unit->getCO()->getDefenseModifier() : 100;
+
+        if(terrain)
+            modifier = (modifier * getTerrainDefenseBonus(terrain)) / 100;
+
+        return modifier;
+    }
+
+    int DamageCalculator::getTerrainDefenseBonus(const Terrain* terrain) {
+        return terrain ? 100 + (terrain->getDefenseStars() * 10) : 100;
     }
 
     int DamageCalculator::getRandomDamage() {
-        // Random component from 0 to 9
         static bool seeded = false;
         if(!seeded) {
             std::srand(static_cast<unsigned int>(std::time(nullptr)));
             seeded = true;
         }
-
         return std::rand() % 10;
     }
 

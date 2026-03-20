@@ -3,75 +3,52 @@
 #include <algorithm>
 
 namespace OpenWars::Game {
-    Unit::Unit(UnitType type, int playerID, Vector2 startPos)
-        : type(type)
+
+    Unit::Unit(const UnitDefinition* def, int playerID, Vector2 startPos)
+        : definition(def)
         , playerID(playerID)
-        , gridPos(startPos)
         , commandingOfficer(nullptr)
-        , maxHP(100)
-        , currentHP(100)
-        , maxFuel(99)
-        , currentFuel(99)
-        , maxAmmo(9)
-        , currentAmmo(9)
-        , movementType(MovementType::Infantry)
-        , moveRange(3)
-        , primaryWeapon(WeaponType::MachineGun)
-        , secondaryWeapon(WeaponType::None)
-        , minAttackRange(1)
-        , maxAttackRange(1)
-        , vision(2)
-        , deploymentCost(1000)
-        , hasActed(false)
-        , isVisible(true)
-        , isHidden(false)
-        , canCapture(false)
+        , gridPos(startPos)
+        , currentFuel(def->maxFuel)
+        , currentAmmo(def->maxAmmo > 0 ? def->maxAmmo : 0)
         , teamColor(Colors::RED_500) {
     }
 
     void Unit::moveTo(const Vector2& target) {
-        if(!canMoveTo(target, nullptr)) {
+        if(!canMoveTo(target, nullptr))
             return;
-        }
 
         int distance = getManhattanDistance(gridPos, target);
         gridPos = target;
-
-        // Consume fuel based on movement
         consumeFuel(distance);
-
         hasActed = true;
     }
 
     bool Unit::canMoveTo(const Vector2& target, const Terrain* terrain) const {
-        if(hasActed)
-            return false;
-        if(!hasFuel())
+        if(hasActed || !hasFuel())
             return false;
 
-        int distance = getManhattanDistance(gridPos, target);
-
-        // Basic movement range check
-        int effectiveRange = moveRange;
-        if(commandingOfficer) {
+        int effectiveRange = definition->moveRange;
+        if(commandingOfficer)
             effectiveRange += commandingOfficer->getMovementBonus();
-        }
 
-        return distance <= effectiveRange;
+        return getManhattanDistance(gridPos, target) <= effectiveRange;
     }
 
     bool Unit::canAttack(const Unit* target) const {
-        if(!target)
-            return false;
-        if(hasActed)
-            return false;
-        if(target->playerID == playerID)
-            return false;
-        if(!hasAmmo())
+        if(!target || hasActed || target->playerID == playerID || !hasAmmo())
             return false;
 
-        int distance = getManhattanDistance(gridPos, target->gridPos);
-        return distance >= minAttackRange && distance <= maxAttackRange;
+        int dist = getManhattanDistance(gridPos, target->gridPos);
+        return dist >= definition->minAttackRange &&
+               dist <= definition->maxAttackRange;
+    }
+
+    int Unit::calculateBaseDamage(const Unit* target) const {
+        return DamageTable::get().lookup(
+            definition->id,
+            target->definition->id
+        );
     }
 
     void Unit::attack(Unit* target, const Terrain* defenderTerrain) {
@@ -84,36 +61,22 @@ namespace OpenWars::Game {
             defenderTerrain,
             true
         );
-
         target->takeDamage(damage);
 
-        // Add stars to CO based on damage dealt
-        if(commandingOfficer) {
-            int stars = damage / 10; // 1 star per 10 damage
-            commandingOfficer->addStars(stars);
-        }
+        if(commandingOfficer)
+            commandingOfficer->addStars(damage / 10);
 
-        // Counter-attack if target can counter
         if(!target->isDestroyed() && target->canCounter(this)) {
-            int counterDamage = DamageCalculator::calculateDamage(
-                target,
-                this,
-                nullptr, // Attacker doesn't get terrain defense
-                true
-            );
-
+            int counterDamage =
+                DamageCalculator::calculateDamage(target, this, nullptr, true);
             takeDamage(counterDamage);
 
-            if(target->commandingOfficer) {
-                int stars = counterDamage / 10;
-                target->commandingOfficer->addStars(stars);
-            }
+            if(target->commandingOfficer)
+                target->commandingOfficer->addStars(counterDamage / 10);
         }
 
-        // Consume ammo
-        if(maxAmmo > 0) {
+        if(definition->maxAmmo > 0)
             consumeAmmo(1);
-        }
 
         hasActed = true;
     }
@@ -125,64 +88,50 @@ namespace OpenWars::Game {
     }
 
     bool Unit::canCounter(const Unit* attacker) const {
-        if(isDestroyed())
-            return false;
-        if(!hasAmmo())
+        if(isDestroyed() || !hasAmmo() || !definition->canCounterAttack)
             return false;
 
-        // Check if we have a weapon that can hit the attacker
-        int distance = getManhattanDistance(gridPos, attacker->gridPos);
-        return distance >= minAttackRange && distance <= maxAttackRange;
+        int dist = getManhattanDistance(gridPos, attacker->gridPos);
+        return dist >= definition->minAttackRange &&
+               dist <= definition->maxAttackRange;
     }
 
-    void Unit::capture(/* Building* building */) {
-        if(!canCapture)
+    void Unit::capture() {
+        if(!definition->canCapture)
             return;
-        // Implementation would interact with building system
-        // Capture progress = HP of capturing unit
     }
 
     void Unit::join(Unit* other) {
-        if(!other)
-            return;
-        if(other->type != type)
-            return;
-        if(other->playerID != playerID)
+        if(!other || other->definition->id != definition->id ||
+           other->playerID != playerID)
             return;
 
-        // Combine HP (max 100)
-        int totalHP = currentHP + other->currentHP;
-        currentHP = std::min(100, totalHP);
-
-        // Combine ammo and fuel (take max of either)
+        currentHP = std::min(100, currentHP + other->currentHP);
         currentAmmo = std::max(currentAmmo, other->currentAmmo);
         currentFuel = std::max(currentFuel, other->currentFuel);
-
-        // Other unit is consumed/destroyed
     }
 
     void Unit::hide() {
-        isHidden = true;
-        isVisible = false;
+        hidden = true;
+        unitVisible = false;
     }
 
     void Unit::unhide() {
-        isHidden = false;
-        isVisible = true;
+        hidden = false;
+        unitVisible = true;
     }
 
     void Unit::consumeFuel(int amount) {
         currentFuel -= amount;
         if(currentFuel < 0) {
             currentFuel = 0;
-            // Unit takes damage from running out of fuel
-            takeDamage(10); // 1 HP per turn without fuel
+            takeDamage(10);
         }
     }
 
     void Unit::consumeAmmo(int amount) {
-        if(maxAmmo == -1)
-            return; // Infinite ammo
+        if(definition->maxAmmo == -1)
+            return;
 
         currentAmmo -= amount;
         if(currentAmmo < 0)
@@ -190,26 +139,49 @@ namespace OpenWars::Game {
     }
 
     void Unit::resupply() {
-        currentFuel = maxFuel;
-        currentAmmo = maxAmmo;
+        currentFuel = definition->maxFuel;
+        if(definition->maxAmmo > 0)
+            currentAmmo = definition->maxAmmo;
     }
 
     void Unit::beginTurn() {
         hasActed = false;
 
-        // Air units consume fuel per turn
-        if(movementType == MovementType::Air) {
-            consumeFuel(2); // Most air units use 2 fuel per turn
-        }
+        if(definition->movementType == MovementType::Air)
+            consumeFuel(2);
 
-        // Apply CO modifiers
-        if(commandingOfficer) {
+        if(commandingOfficer)
             commandingOfficer->applyUnitModifiers(this);
-        }
     }
 
     void Unit::endTurn() {
-        // Reset any per-turn flags
+    }
+
+    bool Unit::canLoad(const Unit* unit) const {
+        if(!unit || !hasCargoSpace())
+            return false;
+
+        const auto& loadable = definition->loadableTypes;
+        return std::find(
+                   loadable.begin(),
+                   loadable.end(),
+                   unit->definition->id
+               ) != loadable.end();
+    }
+
+    void Unit::load(std::shared_ptr<Unit> unit) {
+        if(!canLoad(unit.get()))
+            return;
+        cargo.push_back(std::move(unit));
+    }
+
+    std::shared_ptr<Unit> Unit::unload(int index) {
+        if(index < 0 || index >= (int)cargo.size())
+            return nullptr;
+
+        auto unit = cargo[index];
+        cargo.erase(cargo.begin() + index);
+        return unit;
     }
 
 } // namespace OpenWars::Game

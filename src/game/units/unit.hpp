@@ -2,164 +2,79 @@
 
 #include "../../core/vector.hpp"
 #include "../../core/colors.hpp"
+#include "definition.hpp"
 #include "../co/co.hpp"
-#include "../map/terrain.hpp"
 #include <string>
+#include <vector>
+#include <memory>
 
 namespace OpenWars::Game {
-    enum class UnitType {
-        // Infantry
-        Infantry,
-        Mech,
 
-        // Direct Combat Vehicles
-        Recon,
-        Tank,
-        MediumTank,
-        Neotank,
-        Megatank,
-        APC,
-        AntiAir,
-        Artillery,
-        Rockets,
-        Missiles,
-        PipeRunner,
-
-        // Copters
-        BattleCopter,
-        TransportCopter,
-
-        // Planes
-        Fighter,
-        Bomber,
-        StealthBomber,
-        BlackBomb,
-
-        // Ships
-        Battleship,
-        Cruiser,
-        Submarine,
-        BlackBoat,
-        Carrier,
-        Lander
-    };
-
-    enum class MovementType {
-        Infantry,
-        Mech,
-        Tire,
-        Tread,
-        Air,
-        Sea,
-        Lander,
-        Pipe
-    };
-
-    enum class WeaponType {
-        None,
-        MachineGun,
-        Bazooka,
-        Cannon,
-        AntiAir,
-        Artillery,
-        Rockets,
-        Missiles,
-        Vulcan,
-        Bombs,
-        AirToAir,
-        Torpedoes,
-        AntiShip
-    };
+    class Terrain;
 
     class Unit {
-      protected:
-        // Identity
-        UnitType type;
-        std::string name;
+        protected:
+        const UnitDefinition* definition;
         int playerID;
         CO* commandingOfficer;
-
-        // Position
         Vector2 gridPos;
 
-        // Stats
-        int maxHP;     // Always 10 in AW (displayed as 10, stored as 100)
-        int currentHP; // 1-10 (stored as 10-100 internally)
-        int maxFuel;
+        int currentHP = 100;
         int currentFuel;
-        int maxAmmo; // -1 means infinite
         int currentAmmo;
 
-        // Movement
-        MovementType movementType;
-        int moveRange;
+        bool hasActed = false;
+        bool unitVisible = true;
+        bool hidden = false;
 
-        // Combat
-        WeaponType primaryWeapon;
-        WeaponType secondaryWeapon;
-        int minAttackRange;
-        int maxAttackRange;
-        int vision;
-
-        // Cost
-        int deploymentCost;
-
-        // State
-        bool hasActed;
-        bool isVisible;
-        bool isHidden; // Submarines, stealth
-        bool canCapture;
-
-        // Visual
         Color teamColor;
 
-      public:
-        Unit(UnitType type, int playerID, Vector2 startPos);
+        std::vector<std::shared_ptr<Unit>> cargo;
+
+        public:
+        Unit(const UnitDefinition* def, int playerID, Vector2 startPos);
         virtual ~Unit() = default;
 
-        // Core actions
-        virtual bool
-        canMoveTo(const Vector2& target, const Terrain* terrain) const;
-        virtual void moveTo(const Vector2& target);
-        virtual bool canAttack(const Unit* target) const;
-        virtual int calculateBaseDamage(const Unit* target) const = 0;
-        virtual void attack(Unit* target, const Terrain* defenderTerrain);
-        virtual void takeDamage(int damage);
+        bool canMoveTo(const Vector2& target, const Terrain* terrain) const;
+        void moveTo(const Vector2& target);
+        bool canAttack(const Unit* target) const;
+        int calculateBaseDamage(const Unit* target) const;
+        void attack(Unit* target, const Terrain* defenderTerrain);
+        void takeDamage(int damage);
 
-        // Special abilities
-        virtual bool canCounter(const Unit* attacker) const;
-        virtual void capture(/* Building* building */);
-        virtual void join(Unit* other); // Merge with same unit type
-        virtual void hide();
-        virtual void unhide();
+        bool canCounter(const Unit* attacker) const;
+        void capture();
+        void join(Unit* other);
+        void hide();
+        void unhide();
+        void consumeFuel(int amount);
+        void consumeAmmo(int amount);
+        void resupply();
+        void beginTurn();
+        void endTurn();
 
-        // Fuel & Ammo
-        virtual void consumeFuel(int amount);
-        virtual void consumeAmmo(int amount);
-        virtual bool hasFuel() const {
+        bool canLoad(const Unit* unit) const;
+        void load(std::shared_ptr<Unit> unit);
+        std::shared_ptr<Unit> unload(int index);
+
+        bool hasFuel() const {
             return currentFuel > 0;
         }
-        virtual bool hasAmmo() const {
-            return maxAmmo == -1 || currentAmmo > 0;
+        bool hasAmmo() const {
+            return definition->maxAmmo == -1 || currentAmmo > 0;
         }
-        virtual void resupply();
-
-        // State management
-        virtual void beginTurn();
-        virtual void endTurn();
-        virtual bool isDestroyed() const {
+        bool isDestroyed() const {
             return currentHP <= 0;
         }
 
-        // Rendering
-        virtual void render(Vector2 screenPos) const = 0;
-
-        // Getters
-        UnitType getType() const {
-            return type;
+        const std::string& getTypeId() const {
+            return definition->id;
         }
         const std::string& getName() const {
-            return name;
+            return definition->name;
+        }
+        const UnitDefinition& getDef() const {
+            return *definition;
         }
         Vector2 getGridPos() const {
             return gridPos;
@@ -169,15 +84,12 @@ namespace OpenWars::Game {
         }
         int getDisplayHP() const {
             return (currentHP + 9) / 10;
-        } // Round up
-        int getMaxHP() const {
-            return maxHP;
         }
         int getMoveRange() const {
-            return moveRange;
+            return definition->moveRange;
         }
         MovementType getMovementType() const {
-            return movementType;
+            return definition->movementType;
         }
         bool getHasActed() const {
             return hasActed;
@@ -186,19 +98,27 @@ namespace OpenWars::Game {
             return playerID;
         }
         int getVision() const {
-            return vision;
+            return definition->vision;
         }
         int getCost() const {
-            return deploymentCost;
+            return definition->deploymentCost;
         }
         bool getCanCapture() const {
-            return canCapture;
+            return definition->canCapture;
         }
         CO* getCO() const {
             return commandingOfficer;
         }
+        bool isCargoEmpty() const {
+            return cargo.empty();
+        }
+        bool hasCargoSpace() const {
+            return (int)cargo.size() < definition->cargoCapacity;
+        }
+        const std::vector<std::shared_ptr<Unit>>& getCargo() const {
+            return cargo;
+        }
 
-        // Setters
         void setCO(CO* co) {
             commandingOfficer = co;
         }
@@ -206,9 +126,8 @@ namespace OpenWars::Game {
             teamColor = color;
         }
 
-        // Distance calculation
         static int getManhattanDistance(const Vector2& a, const Vector2& b) {
-            return std::abs(a.x - b.x) + std::abs(a.y - b.y);
+            return (int)(std::abs(a.x - b.x) + std::abs(a.y - b.y));
         }
     };
 

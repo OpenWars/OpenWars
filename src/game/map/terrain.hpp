@@ -1,7 +1,19 @@
 #pragma once
 
+#include <unordered_map>
+
 namespace OpenWars::Game {
-    enum class MovementType;
+
+    enum class MovementType {
+        Infantry,
+        Mech,
+        Tire,
+        Tread,
+        Air,
+        Sea,
+        Lander,
+        Pipe
+    };
 
     enum class TerrainType {
         Plain,
@@ -25,44 +37,50 @@ namespace OpenWars::Game {
         Silo
     };
 
+    struct TerrainDefinition {
+        int defenseStars = 0;
+        // Indexed by static_cast<int>(MovementType). -1 = impassable.
+        // Array size matches MovementType value count (8).
+        int costs[8];
+
+        TerrainDefinition() {
+            for(int& c : costs)
+                c = -1;
+        }
+
+        int movementCost(MovementType mt) const {
+            return costs[static_cast<int>(mt)];
+        }
+
+        TerrainDefinition& setCost(MovementType mt, int cost) {
+            costs[static_cast<int>(mt)] = cost;
+            return *this;
+        }
+    };
+
+    class TerrainRegistry {
+        public:
+        static TerrainRegistry& get();
+
+        void registerDefinition(TerrainType type, TerrainDefinition def);
+        const TerrainDefinition* find(TerrainType type) const;
+
+        private:
+        TerrainRegistry();
+        std::unordered_map<int, TerrainDefinition> definitions;
+    };
+
     class Terrain {
         TerrainType type;
-        int defenseStars;
-
-        static int defaultDefense(TerrainType type) {
-            switch(type) {
-            case TerrainType::Plain:
-            case TerrainType::Reef:
-                return 1;
-            case TerrainType::Woods:
-                return 2;
-            case TerrainType::City:
-            case TerrainType::Factory:
-            case TerrainType::Airport:
-            case TerrainType::Port:
-            case TerrainType::CommTower:
-            case TerrainType::Lab:
-            case TerrainType::Silo:
-                return 3;
-            case TerrainType::Mountain:
-            case TerrainType::HQ:
-                return 4;
-            default:
-                return 0;
-            }
-        }
 
         public:
         explicit Terrain(TerrainType type)
-            : type(type)
-            , defenseStars(defaultDefense(type)) {
+            : type(type) {
         }
 
-        int getDefenseStars() const {
-            return defenseStars;
-        }
-        int getMovementCost(MovementType movementType);
-        bool isPassable(MovementType movementType) {
+        int getDefenseStars() const;
+        int getMovementCost(MovementType movementType) const;
+        bool isPassable(MovementType movementType) const {
             return getMovementCost(movementType) >= 0;
         }
         TerrainType getType() const {
@@ -70,4 +88,5 @@ namespace OpenWars::Game {
         }
         void render();
     };
+
 } // namespace OpenWars::Game

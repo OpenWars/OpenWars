@@ -2,7 +2,6 @@
 
 #include "terrain.hpp"
 #include "../../core/vector.hpp"
-#include "../units/unit.hpp"
 #include <vector>
 #include <memory>
 #include <functional>
@@ -13,11 +12,6 @@ namespace OpenWars::Game {
         int width;
         int height;
 
-        /*
-         * Flat 1D storage: tiles[y * width + x]
-         *  Eliminates per-row heap allocations and pointer chasing that came
-         * with vector<vector<>>, giving better spatial locality.
-         */
         std::vector<std::unique_ptr<Terrain>> tiles;
 
         int index(int x, int y) const {
