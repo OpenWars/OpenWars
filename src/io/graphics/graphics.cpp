@@ -10,16 +10,11 @@
 namespace OpenWars::IO::Graphics {
     static SDL_Window* window = nullptr;
     static SDL_Renderer* renderer = nullptr;
-    static Camera mainCamera;
     static uint64_t lastFrameTime = 0;
     static float deltaTime = 0.0f;
     static int frameCount = 0;
     static double lastFPSTime = 0.0;
     static int currentFPS = 0;
-
-    // SDL_GetWindowSize() is a non-trivial call (goes through the SDL window
-    // subsystem).  We re-query it exactly once per frame in beginFrame() and
-    // let every other call in the same frame read the cached values.
     static int cachedWindowWidth = 1024;
     static int cachedWindowHeight = 512;
 
@@ -62,19 +57,13 @@ namespace OpenWars::IO::Graphics {
 
         SDL_SetRenderVSync(renderer, vsync);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-
         SDL_GetWindowSize(window, &cachedWindowWidth, &cachedWindowHeight);
-
         lastFrameTime = SDL_GetTicksNS();
     }
 
-    void displayDebug(bool debug, bool fps) {
-        if(fps) {
+    void displayDebug(bool /*debug*/, bool fps) {
+        if(fps)
             Drawing::drawFPS(5, 5, currentFPS);
-        }
-        if(debug) {
-            // TODO: Add debug info
-        }
     }
 
     void exit() {
@@ -95,10 +84,6 @@ namespace OpenWars::IO::Graphics {
         SDL_Quit();
     }
 
-    bool shouldClose() {
-        return false; // driven by event manager
-    }
-
     void beginFrame() {
         uint64_t currentTime = SDL_GetTicksNS();
         deltaTime = (currentTime - lastFrameTime) / 1000000000.0f;
@@ -116,14 +101,8 @@ namespace OpenWars::IO::Graphics {
             SDL_GetWindowSize(window, &cachedWindowWidth, &cachedWindowHeight);
 
         Drawing::TextCache::tick();
-
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-    }
-
-    void beginAttached() {
-    }
-    void endAttached() {
     }
 
     void swapBuffers() {
@@ -167,14 +146,6 @@ namespace OpenWars::IO::Graphics {
 
     SDL_Window* getWindow() {
         return window;
-    }
-
-    Camera& getCamera() {
-        return mainCamera;
-    }
-
-    void updateCamera(float dt) {
-        mainCamera.update(dt);
     }
 
 } // namespace OpenWars::IO::Graphics
