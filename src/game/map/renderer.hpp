@@ -8,7 +8,8 @@
 
 namespace OpenWars::Game {
     class Map;
-    enum class TerrainType;
+    class Terrain;
+
     enum class Weather { Clear, Rain, Snow };
 
     class MapRenderer {
@@ -28,24 +29,12 @@ namespace OpenWars::Game {
             int rotation = 0;
         };
 
-        // Sprite-sheet address (1-based row/col) plus the CW rotation needed
-        // to draw a particular tile variant.
-        struct SpriteSelection {
-            int row, col, rotation;
-        };
-
-        enum class TerrainLayer { Background, Foreground };
-
         Map* gameMap;
         std::unordered_map<int, Drawing::SpriteSheet*> spritesheets;
 
         std::vector<TileFrame> tileFrames;
         int tileFrameWidth = 0;
 
-        /*
-         * Indices into tileFrames that have animationSpeed > 0.
-         * update() only touches these entries, not the whole map.
-         */
         std::vector<int> animatedTileIndices;
 
         Weather currentWeather = Weather::Clear;
@@ -56,26 +45,13 @@ namespace OpenWars::Game {
 
         int coord1Based(int row, int col) const {
             return (row - 1) * spritesheetCols + (col - 1);
-        };
+        }
 
-        // Returns 4-bit neighbour-connection mask: N=bit0 S=bit1 E=bit2 W=bit3
-        // A neighbour contributes if connectable(its TerrainType) returns true.
+        int getTileFrameIndex(const AnimState& anim) const;
+
+        // Predicate receives a possibly-null Terrain* pointer.
         template <typename Pred>
         int computeConnectionMask(int x, int y, Pred connectable) const;
-
-        // Chooses the road sprite + rotation for a given connection mask.
-        static SpriteSelection getRoadSpriteAndRotation(int mask);
-
-        // Chooses the river sprite + rotation for a given connection mask.
-        static SpriteSelection getRiverSpriteAndRotation(int mask);
-
-        // Chooses the coast sprite + rotation for a given sea-neighbour mask.
-        // mask bits indicate which neighbours are TerrainType::Sea.
-        static SpriteSelection getCoastSpriteAndRotation(int mask);
-
-        int getTerrainSpriteIndex(TerrainType type, int x, int y) const;
-        int getTileFrameIndex(const AnimState& anim) const;
-        TerrainLayer getTerrainLayer(TerrainType type) const;
 
         public:
         MapRenderer(Map* map);

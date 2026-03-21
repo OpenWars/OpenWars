@@ -2,17 +2,17 @@
 
 #include "terrain.hpp"
 #include "../../core/vector.hpp"
-#include <vector>
-#include <memory>
 #include <functional>
+#include <vector>
 
 namespace OpenWars::Game {
+    class Unit;
+
     class Map {
         private:
         int width;
         int height;
-
-        std::vector<std::unique_ptr<Terrain>> tiles;
+        std::vector<Terrain> tiles;
 
         int index(int x, int y) const {
             return y * width + x;
@@ -28,11 +28,12 @@ namespace OpenWars::Game {
         bool isInBounds(const Vector2& pos) const;
         bool isInBounds(int x, int y) const;
 
-        Terrain* getTerrain(int x, int y) const;
-        Terrain* getTerrain(const Vector2& pos) const;
+        Terrain* getTerrain(int x, int y);
+        const Terrain* getTerrain(int x, int y) const;
+        const Terrain* getTerrain(const Vector2& pos) const;
 
-        void setTerrain(int x, int y, TerrainType type);
-        void setTerrain(const Vector2& pos, TerrainType type);
+        void setTerrain(int x, int y, TileTypeID id);
+        void setTerrain(const Vector2& pos, TileTypeID id);
 
         int getMovementCost(
             const Vector2& pos,
@@ -40,16 +41,16 @@ namespace OpenWars::Game {
         ) const;
         bool isPassable(const Vector2& pos, MovementType movementType) const;
 
-        std::vector<Vector2> getTilesByType(TerrainType type) const;
+        std::vector<Vector2> getTilesByType(TileTypeID id) const;
 
-        void fillRectangle(int x, int y, int w, int h, TerrainType type);
+        void fillRectangle(int x, int y, int w, int h, TileTypeID id);
 
         void clear();
 
         float getAverageDefense(int x, int y, int radius) const;
 
         void forEachTile(
-            std::function<void(int, int, Terrain*)> callback
+            std::function<void(int, int, const Terrain*)> callback
         ) const;
     };
 } // namespace OpenWars::Game

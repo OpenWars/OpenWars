@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include "../map/terrain.hpp"
+#include "../movement.hpp"
 
 namespace OpenWars::Game {
 
