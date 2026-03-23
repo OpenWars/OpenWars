@@ -133,7 +133,7 @@ namespace OpenWars::IO::Graphics {
         , up(0, 1, 0)
         , fov(45.0f)
         , projection(Orthographic)
-        , zoomLevel(2.0f) // Start at 2x
+        , zoomLevel(2.0f)
         , minZoom(1.0f)
         , maxZoom(3.5f) {
     }
@@ -206,14 +206,13 @@ namespace OpenWars::IO::Graphics {
 
     void Camera::panTo(const Vector3& worldPos, float duration) {
         const float TILE_SIZE = 16.0f;
-        Vector3 snappedPos = worldPos;
-        snappedPos.x =
-            std::floor(worldPos.x / TILE_SIZE) * TILE_SIZE + TILE_SIZE / 2.0f;
-        snappedPos.y =
-            std::floor(worldPos.y / TILE_SIZE) * TILE_SIZE + TILE_SIZE / 2.0f;
-
         panStart = position;
-        panEnd = snappedPos;
+        // Snap X and Y to tile centres; Z is not a spatial grid coordinate.
+        panEnd.x =
+            std::floor(worldPos.x / TILE_SIZE) * TILE_SIZE + TILE_SIZE / 2.0f;
+        panEnd.y =
+            std::floor(worldPos.y / TILE_SIZE) * TILE_SIZE + TILE_SIZE / 2.0f;
+        panEnd.z = worldPos.z;
         panDuration = duration;
         panElapsed = 0.0f;
         panAnimating = true;
@@ -227,7 +226,7 @@ namespace OpenWars::IO::Graphics {
             std::floor(worldPos.y / TILE_SIZE) * TILE_SIZE + TILE_SIZE / 2.0f;
         position.z = worldPos.z;
 
-        target = position; // Camera looks at where it is positioned
+        target = position;
         clampToBoundaries();
         invalidateMatrices();
     }
@@ -253,18 +252,15 @@ namespace OpenWars::IO::Graphics {
         if(std::abs(newZoom - baseZoom) < 0.01f)
             return;
 
-        // World point under the cursor before zoom
         Vector3 worldBefore = screenToWorld(mouseScreenPos, 0.0f);
 
         zoomTo(newZoom, 0.2f);
 
-        // World point under the cursor after zoom would shift
         float scale = baseZoom / newZoom;
         Vector3 offset;
         offset.x = (worldBefore.x - position.x) * (1.0f - scale);
         offset.y = (worldBefore.y - position.y) * (1.0f - scale);
 
-        // Pan to compensate, chaining same way as zoom
         Vector3 newPos = position;
         newPos.x -= offset.x;
         newPos.y -= offset.y;
@@ -314,11 +310,10 @@ namespace OpenWars::IO::Graphics {
             panElapsed += deltaTime;
             float progress = std::min(1.0f, panElapsed / panDuration);
 
-            // todo: does it feel better with easeOutCubic?
             progress = Utils::Math::easeOutQuad(progress);
 
             position = panStart + (panEnd - panStart) * progress;
-            target = position; // Keep target at position
+            target = position;
 
             if(panElapsed >= panDuration) {
                 panAnimating = false;
@@ -376,45 +371,43 @@ namespace OpenWars::IO::Graphics {
 
     Vector2 Camera::worldToScreen(const Vector3& worldPos) const {
         Matrix4 viewProj = getViewProjectionMatrix();
-        Vector3 screenPos = viewProj * worldPos;
+        Vector3 ndc = viewProj * worldPos;
 
-        // Normalize device coordinates to screen space
         int viewportW = getViewportWidth();
         int viewportH = getViewportHeight();
 
-        float screenX = (screenPos.x + 1.0f) * 0.5f * viewportW;
-        float screenY = (1.0f - (screenPos.y + 1.0f) * 0.5f) * viewportH;
+        float screenX = (ndc.x + 1.0f) * 0.5f * viewportW;
+        float screenY = (1.0f - (ndc.y + 1.0f) * 0.5f) * viewportH;
 
         return Vector2{screenX, screenY};
     }
 
     Vector3 Camera::screenToWorld(const Vector2& screenPos, float depth) const {
-        // Normalize screen coordinates to [-1, 1]
         int viewportW = getViewportWidth();
         int viewportH = getViewportHeight();
 
         float normX = (2.0f * screenPos.x) / viewportW - 1.0f;
-        float normY = 1.0f - (2.0f * screenPos.y) / viewportH;
+        // normY follows the same Y-down convention as the projection.
+        float normY = (2.0f * screenPos.y) / viewportH - 1.0f;
 
         if(projection == Orthographic) {
-            float orthoScale = 1.0f / zoomLevel;
-            Vector3 worldPos;
-            worldPos.x = target.x + normX * (viewportW / 2.0f) * orthoScale;
-            worldPos.y = target.y + normY * (viewportH / 2.0f) * orthoScale;
-            worldPos.z = depth;
-            return worldPos;
+            float halfW = (viewportW / 2.0f) / zoomLevel;
+            float halfH = (viewportH / 2.0f) / zoomLevel;
+            return Vector3{
+                position.x + normX * halfW,
+                position.y + normY * halfH,
+                depth
+            };
         }
 
-        Vector3 worldPos;
-        worldPos.x =
-            target.x +
-            normX * std::tan(fov * 3.14159265f / 180.0f / 2.0f) * depth;
-        worldPos.y =
-            target.y +
-            normY * std::tan(fov * 3.14159265f / 180.0f / 2.0f) * depth /
-                ((float)getViewportWidth() / (float)getViewportHeight());
-        worldPos.z = depth;
-        return worldPos;
+        // Perspective (approximation at a given depth plane)
+        float tanHalfFov = std::tan(fov * 3.14159265f / 180.0f / 2.0f);
+        float aspect = (float)viewportW / (float)viewportH;
+        return Vector3{
+            position.x + normX * tanHalfFov * depth * aspect,
+            position.y + normY * tanHalfFov * depth,
+            depth
+        };
     }
 
     Vector3 Camera::screenToWorldRay(const Vector2& screenPos) const {
@@ -423,8 +416,8 @@ namespace OpenWars::IO::Graphics {
         return (farPoint - nearPoint).normalize();
     }
 
-    bool Camera::isVisible(const Vector3& position, float radius) const {
-        Vector2 screenPos = worldToScreen(position);
+    bool Camera::isVisible(const Vector3& pos, float radius) const {
+        Vector2 screenPos = worldToScreen(pos);
         int viewportW = getViewportWidth();
         int viewportH = getViewportHeight();
 
@@ -460,9 +453,8 @@ namespace OpenWars::IO::Graphics {
         int viewportW = getViewportWidth();
         int viewportH = getViewportHeight();
 
-        float orthoScale = 1.0f / zoomLevel;
-        float halfW = (viewportW / 2.0f) * orthoScale;
-        float halfH = (viewportH / 2.0f) * orthoScale;
+        float halfW = (viewportW / 2.0f) / zoomLevel;
+        float halfH = (viewportH / 2.0f) / zoomLevel;
 
         float minX = std::min(minBoundX + halfW, maxBoundX - halfW);
         float maxX = std::max(minBoundX + halfW, maxBoundX - halfW);
@@ -472,7 +464,6 @@ namespace OpenWars::IO::Graphics {
         float clampedX = std::clamp(position.x, minX, maxX);
         float clampedY = std::clamp(position.y, minY, maxY);
 
-        // If we're outside bounds, animate back instead of snapping
         if(std::abs(clampedX - position.x) > 0.5f ||
            std::abs(clampedY - position.y) > 0.5f) {
             if(!panAnimating) {
@@ -491,25 +482,32 @@ namespace OpenWars::IO::Graphics {
         zoomLevel = std::clamp(zoomLevel, minZoom, maxZoom);
     }
 
+    // View is a pure translation: moves world origin to camera-relative space.
+    // Using lookAt(position, position, up) is degenerate (zero forward vector),
+    // so we compute the view matrix directly instead.
     void Camera::updateViewMatrix() const {
-        viewMatrix = Matrix4::lookAt(position, target, up);
+        viewMatrix =
+            Matrix4::translate(Vector3{-position.x, -position.y, -position.z});
         viewMatrixDirty = false;
     }
 
+    // Orthographic projection with Y pointing downward to match SDL screen
+    // coordinates (origin top-left, Y increases downward). Swapping top/bottom
+    // achieves this: mat.m[1][1] becomes negative, flipping NDC Y so that
+    // worldToScreen produces screenY = viewH/2 + (worldY - camY) * zoom.
     void Camera::updateProjectionMatrix() const {
         int viewportW = getViewportWidth();
         int viewportH = getViewportHeight();
         float aspect = (float)viewportW / (float)viewportH;
 
         if(projection == Orthographic) {
-            float orthoScale = 1.0f / zoomLevel;
-            float halfW = (viewportW / 2.0f) * orthoScale;
-            float halfH = (viewportH / 2.0f) * orthoScale;
+            float halfW = (viewportW / 2.0f) / zoomLevel;
+            float halfH = (viewportH / 2.0f) / zoomLevel;
             projectionMatrix = Matrix4::orthographic(
                 -halfW,
                 halfW,
-                -halfH,
-                halfH, // ← back to zoomLevel, not zoomEnd
+                halfH,
+                -halfH, // top/bottom swapped → Y increases downward
                 0.1f,
                 1000.0f
             );
@@ -529,12 +527,8 @@ namespace OpenWars::IO::Graphics {
             return;
 
         if(input.scrollY != 0.0f) {
-            // Each scroll step is 0.5 zoom levels
             camera->applyZoom(input.scrollY * 0.5f, input.mousePos);
         }
-
-        // Optional: Add keyboard zoom controls (+ and - keys)
-        // This would require adding those keys to InputState
     }
 
     void CameraController::setPanSpeed(float speed) {
