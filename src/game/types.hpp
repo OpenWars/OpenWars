@@ -28,20 +28,4 @@ namespace OpenWars::Game {
         Carrier,
         Lander
     };
-
-    enum class WeaponType {
-        None,
-        MachineGun,
-        Bazooka,
-        Cannon,
-        AntiAir,
-        Artillery,
-        Rockets,
-        Missiles,
-        Vulcan,
-        Bombs,
-        AirToAir,
-        Torpedoes,
-        AntiShip
-    };
 } // namespace OpenWars::Game
