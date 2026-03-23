@@ -29,6 +29,8 @@ void OpenWars::IO::Input::Handler::poll() {
     d.arrowLeft = keys[SDL_SCANCODE_LEFT];
     d.arrowRight = keys[SDL_SCANCODE_RIGHT];
     d.enter = keys[SDL_SCANCODE_RETURN];
+    d.escape = keys[SDL_SCANCODE_ESCAPE];
+    d.space = keys[SDL_SCANCODE_SPACE];
 
     float mx, my;
     uint32_t mouseButtons = SDL_GetMouseState(&mx, &my);
@@ -51,6 +53,8 @@ void OpenWars::IO::Input::Handler::poll() {
     p.arrowLeft = d.arrowLeft && !w.arrowLeft;
     p.arrowRight = d.arrowRight && !w.arrowRight;
     p.enter = d.enter && !w.enter;
+    p.escape = d.escape && !w.escape;
+    p.space = d.space && !w.space;
     p.leftClick = leftDown && !w.leftClick;
     p.rightClick = rightDown && !w.rightClick;
 

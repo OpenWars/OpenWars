@@ -10,7 +10,7 @@ namespace OpenWars::IO::Input {
             bool arrowLeft = false, arrowRight = false;
             bool arrowUp = false, arrowDown = false;
             bool leftClick = false, rightClick = false;
-            bool enter = false;
+            bool enter = false, escape = false, space = false;
         };
 
         Keys down;
