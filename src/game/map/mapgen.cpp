@@ -14,10 +14,6 @@ namespace OpenWars::Game {
         return (float)(n - std::floor(n));
     }
 
-    float MapGenerator::smoothstep(float t) {
-        return t * t * (3.0f - 2.0f * t);
-    }
-
     void MapGenerator::smoothTerrain(Map* map, int radius) {
         const int width = map->getWidth();
         const int height = map->getHeight();

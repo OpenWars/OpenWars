@@ -19,11 +19,7 @@ namespace OpenWars::IO::Graphics {
     static int cachedWindowHeight = 512;
 
     void init(int vsync, bool multisampling) {
-        SDL_SetAppMetadata(
-            OpenWars::NAME,
-            OpenWars::VERSION,
-            "org.chimoteam.openwars"
-        );
+        SDL_SetAppMetadata(app().name, app().version, "org.chimoteam.openwars");
 
         if(!SDL_Init(SDL_INIT_VIDEO)) {
             IO::Logging::error(true, "SDL init failed: %s", SDL_GetError());
@@ -35,7 +31,7 @@ namespace OpenWars::IO::Graphics {
             return;
         }
 
-        window = SDL_CreateWindow(OpenWars::NAME, 1024, 512, 0);
+        window = SDL_CreateWindow(app().name, 1024, 512, 0);
         if(!window) {
             IO::Logging::error(
                 true,

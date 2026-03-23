@@ -35,7 +35,7 @@ namespace OpenWars::IO::Graphics {
      * 2D/3D camera system
      */
     class Camera {
-      public:
+        public:
         enum ProjectionType { Orthographic = 0, Perspective = 1 };
 
         enum BoundaryMode { Unbounded = 0, Clamped = 1 };
@@ -109,7 +109,7 @@ namespace OpenWars::IO::Graphics {
 
         void reset();
 
-      private:
+        private:
         Vector3 position;
         Vector3 target;
         Vector3 up;
@@ -139,9 +139,6 @@ namespace OpenWars::IO::Graphics {
         mutable bool viewMatrixDirty = true;
         mutable bool projMatrixDirty = true;
 
-        float easeInOutCubic(float t) const;
-        float easeOutQuad(float t) const;
-        float easeOutCubic(float t) const;
         void invalidateMatrices() {
             viewMatrixDirty = true;
             projMatrixDirty = true;
@@ -157,14 +154,14 @@ namespace OpenWars::IO::Graphics {
      * Decouples input handling and camera control from scene logic.
      */
     class CameraController {
-      private:
+        private:
         Camera* camera;
 
         // Input sensitivity settings
         float panSpeed = 300.0f;
         float zoomSpeed = 0.1f;
 
-      public:
+        public:
         CameraController(Camera* cam);
 
         /**

@@ -1,9 +1,12 @@
 #pragma once
 
 namespace OpenWars {
-    const static char* NAME = "OpenWars";
-    const static char* VERSION = "0.0.1";
-    const static bool IS_TESTING_BUILD = true;
+    struct AppInfo {
+        const char* name = "OpenWars";
+        const char* version = "0.0.1";
+        bool testingBuild = false;
+    };
 
-    const static char* CONFIG_DIR = "openwars";
+    void setApp(const AppInfo& info);
+    const AppInfo& app();
 } // namespace OpenWars

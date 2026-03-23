@@ -1,6 +1,5 @@
 #include "shapes.hpp"
 #include "../../io/graphics/graphics.hpp"
-#include <SDL3/SDL_oldnames.h>
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_render.h>
 #include <cmath>
@@ -56,47 +55,47 @@ void OpenWars::Drawing::drawLineEx(
             end.x,
             end.y
         );
-    } else {
-        float angle = atan2f(end.y - start.y, end.x - start.x);
-        float halfThick = thickness / 2.0f;
-
-        float perpX = -sinf(angle) * halfThick;
-        float perpY = cosf(angle) * halfThick;
-
-        SDL_FColor fcolor = {
-            color.r / 255.0f,
-            color.g / 255.0f,
-            color.b / 255.0f,
-            color.a / 255.0f
-        };
-
-        SDL_Vertex vertices[4] = {
-            {{start.x + perpX, start.y + perpY}, fcolor, {0, 0}},
-            {{start.x - perpX, start.y - perpY}, fcolor, {0, 0}},
-            {{end.x - perpX, end.y - perpY}, fcolor, {0, 0}},
-            {{end.x + perpX, end.y + perpY}, fcolor, {0, 0}}
-        };
-
-        int indices[6] = {0, 1, 2, 0, 2, 3};
-        SDL_RenderGeometry(
-            IO::Graphics::getRenderer(),
-            nullptr,
-            vertices,
-            4,
-            indices,
-            6
-        );
+        return;
     }
+
+    float angle = atan2f(end.y - start.y, end.x - start.x);
+    float halfThick = thickness / 2.0f;
+    float perpX = -sinf(angle) * halfThick;
+    float perpY = cosf(angle) * halfThick;
+
+    SDL_FColor fcolor = {
+        color.r / 255.0f,
+        color.g / 255.0f,
+        color.b / 255.0f,
+        color.a / 255.0f
+    };
+
+    SDL_Vertex vertices[4] = {
+        {{start.x + perpX, start.y + perpY}, fcolor, {0, 0}},
+        {{start.x - perpX, start.y - perpY}, fcolor, {0, 0}},
+        {{end.x - perpX, end.y - perpY}, fcolor, {0, 0}},
+        {{end.x + perpX, end.y + perpY}, fcolor, {0, 0}}
+    };
+
+    int indices[6] = {0, 1, 2, 0, 2, 3};
+    SDL_RenderGeometry(
+        IO::Graphics::getRenderer(),
+        nullptr,
+        vertices,
+        4,
+        indices,
+        6
+    );
 }
 
 void OpenWars::Drawing::drawRectangle(
-    int x,
-    int y,
-    int width,
-    int height,
+    float x,
+    float y,
+    float width,
+    float height,
     Color color
 ) {
-    SDL_FRect rect = {(float)x, (float)y, (float)width, (float)height};
+    SDL_FRect rect = {x, y, width, height};
     SDL_SetRenderDrawColor(
         IO::Graphics::getRenderer(),
         color.r,
@@ -108,13 +107,12 @@ void OpenWars::Drawing::drawRectangle(
 }
 
 void OpenWars::Drawing::drawRectangleOutline(
-    int x,
-    int y,
-    int width,
-    int height,
+    float x,
+    float y,
+    float width,
+    float height,
     Color color
 ) {
-    SDL_FRect rect = {(float)x, (float)y, (float)width, (float)height};
     SDL_SetRenderDrawColor(
         IO::Graphics::getRenderer(),
         color.r,
@@ -122,29 +120,17 @@ void OpenWars::Drawing::drawRectangleOutline(
         color.b,
         color.a
     );
-    
-    
-    const SDL_FPoint p[] = {
-        {rect.x, rect.y},
-        {rect.x + rect.w, rect.y},
-        {rect.x + rect.w, rect.y + rect.h},
-        {rect.x, rect.y + rect.h},
-        {rect.x, rect.y}
-    };
 
-    SDL_RenderLines(
-        IO::Graphics::getRenderer(),
-        p,
-        5
-    );
+    const SDL_FPoint pts[] = {
+        {x, y},
+        {x + width, y},
+        {x + width, y + height},
+        {x, y + height},
+        {x, y}
+    };
+    SDL_RenderLines(IO::Graphics::getRenderer(), pts, 5);
 }
 
 void OpenWars::Drawing::drawRectangleRec(Drawing::Rectangle rec, Color color) {
-    drawRectangle(
-        (int)rec.x,
-        (int)rec.y,
-        (int)rec.width,
-        (int)rec.height,
-        color
-    );
+    drawRectangle(rec.x, rec.y, rec.width, rec.height, color);
 }

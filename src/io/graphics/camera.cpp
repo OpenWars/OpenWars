@@ -1,4 +1,5 @@
 #include "camera.hpp"
+#include "../../utils/math.hpp"
 #include "graphics.hpp"
 #include <cmath>
 #include <algorithm>
@@ -314,7 +315,7 @@ namespace OpenWars::IO::Graphics {
             float progress = std::min(1.0f, panElapsed / panDuration);
 
             // todo: does it feel better with easeOutCubic?
-            progress = easeOutQuad(progress);
+            progress = Utils::Math::easeOutQuad(progress);
 
             position = panStart + (panEnd - panStart) * progress;
             target = position; // Keep target at position
@@ -331,7 +332,7 @@ namespace OpenWars::IO::Graphics {
         if(zoomAnimating) {
             zoomElapsed += deltaTime;
             float progress = std::min(1.0f, zoomElapsed / zoomDuration);
-            progress = easeOutCubic(progress);
+            progress = Utils::Math::easeOutCubic(progress);
             zoomLevel = zoomStart + (zoomEnd - zoomStart) * progress;
 
             if(zoomElapsed >= zoomDuration) {
@@ -452,24 +453,6 @@ namespace OpenWars::IO::Graphics {
         invalidateMatrices();
     }
 
-    float Camera::easeInOutCubic(float t) const {
-        if(t < 0.5f) {
-            return 4.0f * t * t * t;
-        } else {
-            float f = 2.0f * t - 2.0f;
-            return 0.5f * f * f * f + 1.0f;
-        }
-    }
-
-    float Camera::easeOutQuad(float t) const {
-        return t * (2.0f - t);
-    }
-
-    float Camera::easeOutCubic(float t) const {
-        float f = 1.0f - t;
-        return 1.0f - f * f * f;
-    }
-
     void Camera::clampToBoundaries() {
         if(!hasBoundaries)
             return;
@@ -545,7 +528,6 @@ namespace OpenWars::IO::Graphics {
         if(!camera)
             return;
 
-        // Handle mouse wheel zoom with Advance Wars style
         if(input.scrollY != 0.0f) {
             // Each scroll step is 0.5 zoom levels
             camera->applyZoom(input.scrollY * 0.5f, input.mousePos);

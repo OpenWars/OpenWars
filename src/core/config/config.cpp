@@ -1,101 +1,70 @@
 #include "config.hpp"
 #include "../../io/fs/filesystem.hpp"
 #include <sstream>
-#include <tuple>
 
-OpenWars::Config::Manager::Manager(const std::string& appName)
-    : appName(appName) {
-    std::string cfgDir = IO::FileSystem::getAppConfigDir(appName);
-    configFile = cfgDir + "/config.cfg";
-}
+namespace OpenWars::Config {
+    Manager::Manager(const std::string& appName)
+        : configFile(IO::FileSystem::getAppConfigDir(appName) + "/config.cfg") {
+        registerSection(graphics);
+    }
 
-bool OpenWars::Config::Manager::load() {
-    if(!IO::FileSystem::exists(configFile))
-        return save();
+    void Manager::init() {
+        if(!load())
+            save();
+        dump();
+    }
 
-    std::lock_guard<std::mutex> lk(mutex);
+    bool Manager::load() {
+        if(!IO::FileSystem::exists(configFile))
+            return false;
 
-    std::string text = IO::FileSystem::readText(configFile);
-    if(text.empty())
+        std::lock_guard<std::mutex> lk(mutex);
+
+        std::string text = IO::FileSystem::readText(configFile);
+        if(text.empty())
+            return true;
+
+        std::istringstream iss(text);
+        std::string line;
+        while(std::getline(iss, line)) {
+            line = trim(line);
+            if(line.empty() || line[0] == '#')
+                continue;
+            auto pos = line.find('=');
+            if(pos == std::string::npos)
+                continue;
+            data[trim(line.substr(0, pos))] = trim(line.substr(pos + 1));
+        }
+
+        for(auto& s : sections)
+            s.apply();
+
         return true;
-
-    std::istringstream iss(text);
-    std::string line;
-    while(std::getline(iss, line)) {
-        line = trim(line);
-        if(line.empty() || line[0] == '#')
-            continue;
-        auto pos = line.find('=');
-        if(pos == std::string::npos)
-            continue;
-
-        std::string key = trim(line.substr(0, pos));
-        std::string val = trim(line.substr(pos + 1));
-
-        std::apply(
-            [&](auto&&... f) {
-                (..., (key == f.name ? setField(graphics, f, val) : void()));
-            },
-            Graphics::fields
-        );
-
-        std::apply(
-            [&](auto&&... f) {
-                (..., (key == f.name ? setField(player, f, val) : void()));
-            },
-            Player::fields
-        );
     }
 
-    return true;
-}
+    bool Manager::save() {
+        std::lock_guard<std::mutex> lk(mutex);
+        std::ostringstream oss;
 
-void OpenWars::Config::Manager::init() {
-    if(!load()) {
-        graphics.multisampling = false;
-        graphics.vsync = 1;
-        graphics.showFps = true;
-        graphics.displayDebugInfo = true;
-        save();
+        for(auto& s : sections)
+            s.serialize(oss);
+
+        return IO::FileSystem::writeText(configFile, oss.str());
     }
-    dump();
-}
 
-bool OpenWars::Config::Manager::save() {
-    std::lock_guard<std::mutex> lk(mutex);
-    std::ostringstream oss;
+    void Manager::dump() {
+        IO::Logging::debug("%s", "=== Config ===");
+        for(auto& s : sections)
+            s.dump();
+        IO::Logging::debug("%s", "==============");
+    }
 
-    std::apply(
-        [&](auto&&... f) {
-            (..., (oss << f.name << "=" << getFieldValue(graphics, f) << "\n"));
-        },
-        Graphics::fields
-    );
-
-    std::apply(
-        [&](auto&&... f) {
-            (..., (oss << f.name << "=" << getFieldValue(player, f) << "\n"));
-        },
-        Player::fields
-    );
-
-    return IO::FileSystem::writeText(configFile, oss.str());
-}
-
-std::string OpenWars::Config::Manager::trim(const std::string& s) {
-    size_t a = 0, b = s.size();
-    while(a < b && isspace((unsigned char)s[a]))
-        ++a;
-    while(b > a && isspace((unsigned char)s[b - 1]))
-        --b;
-    return s.substr(a, b - a);
-}
-
-void OpenWars::Config::Manager::dump() {
-    IO::Logging::debug("%s", "=== Configuration Dump ===");
-    IO::Logging::debug("%s", "[Graphics]");
-    dumpStruct(graphics, Graphics::fields);
-    IO::Logging::debug("%s", "[Player]");
-    dumpStruct(player, Player::fields);
-    IO::Logging::debug("%s", "=== End Configuration Dump ===");
-}
+    std::string Manager::trim(const std::string& s) {
+        size_t a = 0, b = s.size();
+        while(a < b && isspace((unsigned char)s[a]))
+            ++a;
+        while(b > a && isspace((unsigned char)s[b - 1]))
+            --b;
+        return s.substr(a, b - a);
+    }
+} // namespace OpenWars::Config

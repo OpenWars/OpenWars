@@ -9,10 +9,17 @@
 using namespace OpenWars;
 
 int main(int argc, char* argv[]) {
-    IO::Logging::init(argc, argv);
-    IO::Logging::log("Starting %s v%s...", OpenWars::NAME, OpenWars::VERSION);
+    setApp({"OpenWars", "0.0.1", true});
 
-    Config::Manager cfg(OpenWars::CONFIG_DIR);
+    IO::Logging::init(argc, argv);
+    IO::Logging::log(
+        "Starting %s v%s (testing: %d)...",
+        app().name,
+        app().version,
+        app().testingBuild
+    );
+
+    Config::Manager cfg("openwars");
     cfg.init();
 
     IO::Graphics::init(cfg.graphics.vsync, cfg.graphics.multisampling);

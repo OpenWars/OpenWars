@@ -16,8 +16,20 @@ namespace OpenWars::Drawing {
         }
     };
 
-    void drawRectangle(int x, int y, int width, int height, Color color);
-    void drawRectangleOutline(int x, int y, int width, int height, Color color);
+    void drawRectangle(
+        float x,
+        float y,
+        float width,
+        float height,
+        Color color
+    );
+    void drawRectangleOutline(
+        float x,
+        float y,
+        float width,
+        float height,
+        Color color
+    );
     void drawRectangleRec(Rectangle rec, Color color);
     void drawTriangle(Vector2 v1, Vector2 v2, Vector2 v3, Color color);
     void drawLineEx(Vector2 start, Vector2 end, float thickness, Color color);

@@ -17,7 +17,6 @@ namespace OpenWars::Game {
 
         private:
         static float perlinNoise(int x, int y, int seed);
-        static float smoothstep(float t);
         static void smoothTerrain(Map* map, int radius = 1);
         static void addStructures(Map* map, int count, TileTypeID type);
         static void addRoads(Map* map);
