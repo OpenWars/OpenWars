@@ -21,18 +21,14 @@ namespace OpenWars::Game {
         int distance = getManhattanDistance(gridPos, target);
         gridPos = target;
         consumeFuel(distance);
-        hasActed = true;
+        hasMoved = true;
     }
 
     bool Unit::canMoveTo(const Vector2& target, const Terrain* terrain) const {
-        if(hasActed || !hasFuel())
+        if(hasActed || hasMoved || !hasFuel())
             return false;
 
-        int effectiveRange = definition->moveRange;
-        if(commandingOfficer)
-            effectiveRange += commandingOfficer->getMovementBonus();
-
-        return getManhattanDistance(gridPos, target) <= effectiveRange;
+        return getManhattanDistance(gridPos, target) <= getEffectiveMoveRange();
     }
 
     bool Unit::canAttack(const Unit* target) const {
@@ -78,6 +74,10 @@ namespace OpenWars::Game {
         if(definition->maxAmmo > 0)
             consumeAmmo(1);
 
+        hasActed = true;
+    }
+
+    void Unit::wait() {
         hasActed = true;
     }
 
@@ -146,6 +146,7 @@ namespace OpenWars::Game {
 
     void Unit::beginTurn() {
         hasActed = false;
+        hasMoved = false;
 
         if(definition->movementType == MovementType::Air)
             consumeFuel(2);

@@ -23,6 +23,11 @@ namespace OpenWars::Game {
         int currentFuel;
         int currentAmmo;
 
+        // hasMoved: set by moveTo, cleared each turn. Prevents a second move
+        // but does NOT prevent attacking (move-then-attack is legal).
+        // hasActed: set by attack/wait, cleared each turn. Prevents all further
+        // actions including movement.
+        bool hasMoved = false;
         bool hasActed = false;
         bool unitVisible = true;
         bool hidden = false;
@@ -41,6 +46,9 @@ namespace OpenWars::Game {
         int calculateBaseDamage(const Unit* target) const;
         void attack(Unit* target, const Terrain* defenderTerrain);
         void takeDamage(int damage);
+
+        // Commit the unit's turn without attacking. Sets hasActed.
+        void wait();
 
         bool canCounter(const Unit* attacker) const;
         void capture();
@@ -88,8 +96,18 @@ namespace OpenWars::Game {
         int getMoveRange() const {
             return definition->moveRange;
         }
+        // Includes any active CO movement bonus.
+        int getEffectiveMoveRange() const {
+            int range = definition->moveRange;
+            if(commandingOfficer)
+                range += commandingOfficer->getMovementBonus();
+            return range;
+        }
         MovementType getMovementType() const {
             return definition->movementType;
+        }
+        bool getHasMoved() const {
+            return hasMoved;
         }
         bool getHasActed() const {
             return hasActed;
