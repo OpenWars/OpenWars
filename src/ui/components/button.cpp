@@ -1,4 +1,3 @@
-#include "../../utils/drawing.hpp"
 #include "../../core/drawing/text.hpp"
 #include "../../core/drawing/collision.hpp"
 #include "../../io/graphics/graphics.hpp"
@@ -31,35 +30,29 @@ OpenWars::UI::ButtonComponent::ButtonComponent(
         layout.height
     };
 
-    // init animation state
     animation.hoverProgress = 0.0f;
     animation.clickProgress = 0.0f;
 }
 
 void OpenWars::UI::ButtonComponent::updateLayout() {
-    // calc bounds if layout changed
-    float skew = Theme::SKEW / 3.f;
     state.bounds =
         {layout.x, layout.y - layout.height, layout.width, layout.height};
 }
 
-void OpenWars::UI::ButtonComponent::setOpacity(float alpha) {
-    this->alpha = alpha;
+void OpenWars::UI::ButtonComponent::setOpacity(float a) {
+    alpha = a;
 }
 
 void OpenWars::UI::ButtonComponent::update(float deltaTime) {
-    // hover animation
     float targetHover = state.hovered ? 1.0f : 0.0f;
     animation.hoverProgress +=
         (targetHover - animation.hoverProgress) * deltaTime * 10.0f;
 
-    // click animation
     if(animation.clickProgress > 0.0f) {
         animation.clickProgress =
             std::max(0.0f, animation.clickProgress - deltaTime * 8.0f);
     }
 
-    // update animation state
     state.animating =
         (std::abs(animation.hoverProgress - targetHover) > 0.01f) ||
         (animation.clickProgress > 0.01f);
@@ -81,39 +74,21 @@ void OpenWars::UI::ButtonComponent::render() {
     Color shadow =
         Colors::alpha(Colors::brightness(Colors::ZINC_600, hoverFactor), alpha);
 
-    // apply click offset
     Vector2 renderPos = {layout.x, layout.y + clickOffset};
 
-    // shadow (less offset when clicked)
     float shadowOffset = 3.0f * (1.0f - animation.clickProgress * 0.5f);
     Vector2 shadowPos = {
         renderPos.x + shadowOffset,
         renderPos.y + shadowOffset
     };
 
-    // only render shadow if not disabled
     if(state.enabled) {
-        Utils::Drawing::drawParallelogram(
-            shadowPos,
-            layout.width,
-            layout.height,
-            skew,
-            shadow
-        );
+        Theme::drawPanel(shadowPos, layout.width, layout.height, skew, shadow);
     }
 
-    // background
     Color finalBg = state.enabled ? bg : Colors::brightness(bg, -0.3f);
-    Utils::Drawing::drawParallelogram(
-        renderPos,
-        layout.width,
-        layout.height,
-        skew,
-        finalBg
-    );
-
-    // outline
-    Utils::Drawing::drawParallelogramOutline(
+    Theme::drawPanel(renderPos, layout.width, layout.height, skew, finalBg);
+    Theme::drawPanelOutline(
         renderPos,
         layout.width,
         layout.height,
@@ -122,7 +97,6 @@ void OpenWars::UI::ButtonComponent::render() {
         1.5f
     );
 
-    // text
     Vector2 labelPos = {};
     int textWidth = Drawing::measureText(label.c_str(), options.textSize);
 
@@ -130,7 +104,6 @@ void OpenWars::UI::ButtonComponent::render() {
 
     if(options.textAlignment == Alignment::Center) {
         float centerX = renderPos.x + (layout.width + skew) / 2.0f;
-
         labelPos = {
             centerX - textWidth / 2.0f,
             centerY - options.textSize / 2.0f
@@ -152,15 +125,14 @@ void OpenWars::UI::ButtonComponent::render() {
         Colors::alpha(textColor, alpha)
     );
 
-    // focus indicator
     if(state.focused && state.enabled) {
-        Utils::Drawing::drawParallelogramOutline(
+        Theme::drawPanelOutline(
             renderPos,
             layout.width,
             layout.height,
             skew,
             Colors::alpha(
-                Colors::GREEN_400,
+                Theme::FOCUS,
                 0.5f + 0.5f * std::sin(IO::Graphics::getTime() * 3)
             ),
             2.0f
@@ -174,23 +146,17 @@ bool OpenWars::UI::ButtonComponent::handleInput(
     wasHovered = isHovered;
     isHovered = checkCollisionPointRec(inputState.mousePos, getBounds());
 
-    // Dispatch hover events
     if(isHovered != wasHovered) {
         dispatchEvent(isHovered ? EventType::Hover : EventType::Blur);
         state.hovered = isHovered;
         invalidate();
     }
 
-    // Handle click
     if(isHovered && inputState.pressed.leftClick) {
-        // Trigger click animation
         animation.clickProgress = 1.0f;
-
-        // Dispatch click event
         dispatchEvent(EventType::Click);
         invalidate();
-
-        return true; // Consume input
+        return true;
     }
 
     return false;

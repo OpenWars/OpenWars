@@ -1,7 +1,7 @@
 #include "carousel.hpp"
 #include "../../core/drawing/text.hpp"
 #include "../../core/drawing/collision.hpp"
-#include "../../utils/drawing.hpp"
+#include "../../core/drawing/shapes.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -33,7 +33,6 @@ void OpenWars::UI::CarouselComponent::updateLayout() {
     float totalHeight = items.size() * options.itemHeight +
                         (items.size() - 1) * options.itemSpacing;
 
-    // Find max width needed (considering selected offset)
     float maxWidth = 0;
     for(const auto& item : items) {
         int textWidth =
@@ -46,13 +45,11 @@ void OpenWars::UI::CarouselComponent::updateLayout() {
 }
 
 void OpenWars::UI::CarouselComponent::update(float deltaTime) {
-    // Smooth selection transition
     float transitionSpeed = 8.0f;
     animation.selectionTransition +=
         (animation.targetSelection - animation.selectionTransition) *
         deltaTime * transitionSpeed;
 
-    // Update each item's horizontal offset based on whether it's selected
     for(size_t i = 0; i < items.size(); ++i) {
         float targetOffset =
             (i == (size_t)selectedIndex) ? options.selectedOffset : 0.0f;
@@ -60,7 +57,6 @@ void OpenWars::UI::CarouselComponent::update(float deltaTime) {
             (targetOffset - animation.itemOffsets[i]) * deltaTime * 10.0f;
     }
 
-    // Check if still animating
     state.animating = false;
     for(size_t i = 0; i < items.size(); ++i) {
         float targetOffset =
@@ -77,9 +73,7 @@ void OpenWars::UI::CarouselComponent::render() {
         return;
 
     int itemCount = items.size();
-
-    int visibleRange =
-        std::min(4, itemCount); // increae for more items on viewport
+    int visibleRange = std::min(4, itemCount);
 
     for(int offset = -visibleRange; offset <= visibleRange; ++offset) {
         int i = (selectedIndex + offset + itemCount) % itemCount;
@@ -96,18 +90,15 @@ void OpenWars::UI::CarouselComponent::render() {
         float alphaMultiplier = 1.0f;
 
         if(!isSelected) {
-            // Items further from selection get smaller and shift left
             float absDist = std::abs((float)distance);
             scale = std::max(0.4f, 1.0f - absDist * 0.15f);
-            distanceOffset = -absDist * 40.0f; // Move left progressively
+            distanceOffset = -absDist * 40.0f;
             alphaMultiplier = std::max(0.3f, 1.0f - absDist * 0.2f);
         }
 
-        // Use offset-based Y position for circular layout
         float itemY =
             layout.y + offset * (options.itemHeight + options.itemSpacing);
 
-        // Smoothly interpolate the X position
         float baseX = layout.x + animation.itemOffsets[i];
         float itemX = baseX + distanceOffset;
 
@@ -123,9 +114,8 @@ void OpenWars::UI::CarouselComponent::render() {
                 itemY + bgHeight / 2.0f
             };
 
-            // Large shadow
             Vector2 shadowPos = {bgPos.x + 4, bgPos.y + 4};
-            Utils::Drawing::drawParallelogram(
+            Theme::drawPanel(
                 shadowPos,
                 bgWidth,
                 bgHeight,
@@ -133,8 +123,7 @@ void OpenWars::UI::CarouselComponent::render() {
                 Colors::alpha(Colors::BLACK, 0.4f)
             );
 
-            // Main background
-            Utils::Drawing::drawParallelogram(
+            Theme::drawPanel(
                 bgPos,
                 bgWidth,
                 bgHeight,
@@ -142,9 +131,8 @@ void OpenWars::UI::CarouselComponent::render() {
                 item.background
             );
 
-            // Inner border for depth
             Vector2 innerPos = {bgPos.x + 3, bgPos.y - 3};
-            Utils::Drawing::drawParallelogramOutline(
+            Theme::drawPanelOutline(
                 innerPos,
                 bgWidth - 6,
                 bgHeight - 6,
@@ -153,8 +141,7 @@ void OpenWars::UI::CarouselComponent::render() {
                 2.0f
             );
 
-            // Outer border
-            Utils::Drawing::drawParallelogramOutline(
+            Theme::drawPanelOutline(
                 bgPos,
                 bgWidth,
                 bgHeight,
@@ -163,7 +150,6 @@ void OpenWars::UI::CarouselComponent::render() {
                 3.0f
             );
 
-            // Large text for selected
             Drawing::drawText(
                 item.label.c_str(),
                 (int)(itemX + Theme::MARGIN),
@@ -172,7 +158,6 @@ void OpenWars::UI::CarouselComponent::render() {
                 item.enabled ? Colors::WHITE : Colors::ZINC_400
             );
 
-            // Triangle indicator
             float indicatorX = itemX - (Theme::MARGIN * 2);
             float indicatorY = itemY;
             Vector2 v1 = {indicatorX - 8, indicatorY - 8};
@@ -191,7 +176,6 @@ void OpenWars::UI::CarouselComponent::render() {
                 textColor = Colors::brightness(textColor, 0.3f);
             }
 
-            // Apply alpha based on distance
             textColor = Colors::alpha(textColor, alphaMultiplier);
 
             Drawing::drawText(
@@ -214,14 +198,12 @@ bool OpenWars::UI::CarouselComponent::handleInput(
     bool consumed = false;
 
     if(inputState.pressed.arrowUp) {
-        // Wrap to last item when at first
         int newIndex = (selectedIndex - 1 + items.size()) % items.size();
         selectItem(newIndex);
         consumed = true;
     }
 
     if(inputState.pressed.arrowDown) {
-        // Wrap to first item when at last
         int newIndex = (selectedIndex + 1) % items.size();
         selectItem(newIndex);
         consumed = true;
@@ -241,17 +223,6 @@ bool OpenWars::UI::CarouselComponent::handleInput(
     if(oldHovered != hoveredIndex) {
         invalidate();
     }
-
-    // FIXME: Doesn't work too well, hover too
-    /*if(inputState.pressed.leftClick && hoveredIndex >= 0) {
-        selectItem(hoveredIndex);
-
-        if(items[hoveredIndex].enabled && items[hoveredIndex].onSelect) {
-            items[hoveredIndex].onSelect();
-        }
-
-        consumed = true;
-    }*/
 
     if(inputState.pressed.enter) {
         if(items[selectedIndex].enabled && items[selectedIndex].onSelect) {

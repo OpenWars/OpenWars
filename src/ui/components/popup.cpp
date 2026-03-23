@@ -15,7 +15,6 @@ OpenWars::UI::PopupComponent::PopupComponent(
     : Component(id)
     , title(title)
     , message(msg) {
-    // begin hidden
     state.visible = false;
 
     layoutCache.width = getWindowWidth() * 0.666f;
@@ -35,7 +34,6 @@ void OpenWars::UI::PopupComponent::updateLayout() {
         layoutCache.height
     };
 
-    // buttons
     if(!buttons.empty()) {
         float buttonAreaHeight = 60.0f;
         float buttonY =
@@ -96,7 +94,6 @@ void OpenWars::UI::PopupComponent::render() {
     if(!state.visible || animation.showProgress < 0.01f)
         return;
 
-    // Use raw progress for overlay, squared for scale/content sync
     float overlayAlpha = animation.showProgress * animation.showProgress;
 
     Drawing::drawRectangle(
@@ -118,21 +115,18 @@ void OpenWars::UI::PopupComponent::render() {
     pos.x += (layoutCache.width - width) / 2.0f;
     pos.y += (layoutCache.height - height) / 2.0f;
 
-    // Use linear progress for popup opacity so it fades with scale
     float popupAlpha = animation.showProgress;
 
-    float shadowAlpha = popupAlpha;
     Vector2 shadowOffset = {pos.x + 3, pos.y + 3};
-    Utils::Drawing::drawParallelogram(
+    Theme::drawPanel(
         shadowOffset,
         width,
         height,
         Theme::SKEW,
-        Colors::alpha(Colors::ZINC_600, shadowAlpha)
+        Colors::alpha(Colors::ZINC_600, popupAlpha)
     );
 
-    // Background with alpha
-    Utils::Drawing::drawParallelogram(
+    Theme::drawPanel(
         pos,
         width,
         height,
@@ -140,8 +134,7 @@ void OpenWars::UI::PopupComponent::render() {
         Colors::alpha(Colors::ZINC_800, popupAlpha)
     );
 
-    // Outline with alpha
-    Utils::Drawing::drawParallelogramOutline(
+    Theme::drawPanelOutline(
         pos,
         width,
         height,
@@ -150,7 +143,6 @@ void OpenWars::UI::PopupComponent::render() {
         2
     );
 
-    // Title bar with alpha
     float titleBarY = pos.y - height + 32;
     float heightFromTop = 32;
     float skewOffsetAtTitleBar = (heightFromTop / height) * Theme::SKEW;
@@ -159,7 +151,7 @@ void OpenWars::UI::PopupComponent::render() {
         titleBarY
     };
 
-    Utils::Drawing::drawParallelogram(
+    Theme::drawPanel(
         titleBarPos,
         width,
         32,
@@ -167,7 +159,6 @@ void OpenWars::UI::PopupComponent::render() {
         Colors::alpha(Colors::ZINC_600, popupAlpha)
     );
 
-    // Title text with alpha
     int titleSize = 18;
     int textWidth = Drawing::measureText(title.c_str(), titleSize);
     float centerX = pos.x + (width + Theme::SKEW) / 2.0f;
@@ -187,9 +178,7 @@ void OpenWars::UI::PopupComponent::render() {
         titleColor
     );
 
-    // Content with fade - use same alpha as popup
     float contentAlpha = popupAlpha;
-
     float topY = pos.y - height + Theme::MARGIN + 32;
     float textAreaWidth = width - (Theme::MARGIN * 2);
 
@@ -207,7 +196,6 @@ void OpenWars::UI::PopupComponent::render() {
         );
     }
 
-    // Buttons stutter on entry, fade on exit
     float baseProgress = animation.showProgress * animation.showProgress;
 
     for(size_t i = 0; i < buttons.size(); ++i) {
@@ -228,19 +216,15 @@ void OpenWars::UI::PopupComponent::render() {
         if(btnAlpha > 0.01f) {
             buttons[i]->setOpacity(btnAlpha);
 
-            // hack: DON'T modify bounds - just save/restore layout for
-            // rendering
             auto layout = buttons[i]->getBounds();
             float originalX = layout.x;
             float originalY = layout.y;
 
-            // temporarily modify layout for rendering only
             layout.x += btnYOffset * 0.5f;
             layout.y += btnYOffset * 1.6f;
 
             buttons[i]->render();
 
-            // restore
             layout.x = originalX;
             layout.y = originalY;
         }
@@ -253,14 +237,12 @@ bool OpenWars::UI::PopupComponent::handleInput(
     if(animation.showProgress < 0.5f)
         return false;
 
-    // Check if click is outside popup (for closing)
     bool clickedOutside = false;
     if(inputState.pressed.leftClick) {
         clickedOutside =
             !Drawing::checkCollisionPointRec(inputState.mousePos, getBounds());
     }
 
-    // Handle button input
     bool consumed = false;
     for(auto& btn : buttons) {
         if(btn->handleInput(inputState)) {
@@ -269,7 +251,6 @@ bool OpenWars::UI::PopupComponent::handleInput(
         }
     }
 
-    // Close on outside click if no button handled it
     if(!consumed && clickedOutside) {
         close();
         return true;
@@ -285,7 +266,6 @@ void OpenWars::UI::PopupComponent::show() {
     layoutCache.valid = false;
     invalidate();
 
-    // Bring to front if we have a parent handler
     if(parentHandler) {
         parentHandler->bringToFront(this);
     }
@@ -294,8 +274,6 @@ void OpenWars::UI::PopupComponent::show() {
 void OpenWars::UI::PopupComponent::close() {
     animation.closing = true;
     invalidate();
-
-    // Dispatch close event
     dispatchEvent(EventType::Change);
 }
 
@@ -307,7 +285,7 @@ void OpenWars::UI::PopupComponent::addButton(
 ) {
     auto btn = std::make_unique<ButtonComponent>(
         label,
-        Vector2{0, 0}, // position set by layout
+        Vector2{0, 0},
         id + "_btn_" + std::to_string(buttons.size()),
         bg,
         fg
