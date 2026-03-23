@@ -44,7 +44,6 @@ namespace OpenWars::Game {
         spritesheets.clear();
     }
 
-    // Returns true if neighborGroup is listed in def->connectsTo.
     static bool groupConnects(const TileDefinition* def, int neighborGroup) {
         for(int g : def->connectsTo) {
             if(g == neighborGroup)
@@ -90,7 +89,6 @@ namespace OpenWars::Game {
                     if(def->diagonalConnectionFallback && mask == 0) {
                         constexpr int ddx[] = {1, 1, -1, -1};
                         constexpr int ddy[] = {-1, 1, 1, -1};
-                        // NE=0b0101, SE=0b0110, SW=0b1010, NW=0b1001
                         constexpr int diagToMask[] =
                             {0b0101, 0b0110, 0b1010, 0b1001};
                         for(int d = 0; d < 4; ++d) {
@@ -112,7 +110,6 @@ namespace OpenWars::Game {
                     frame.rotation = entry.rotation;
 
                 } else {
-                    // Static sprite, with optional odd-y row alternation.
                     int row = def->sprite.row;
                     int col = def->sprite.col;
                     if(def->sprite.altRow != 0 && y % 2 != 0) {
@@ -179,17 +176,9 @@ namespace OpenWars::Game {
         if(!camera || !gameMap)
             return Vector2{-1, -1};
 
-        Vector3 cameraPos = camera->getPosition();
-        float zoom = camera->getZoom();
-        int viewportW = camera->getViewportWidth();
-        int viewportH = camera->getViewportHeight();
-
-        float scaledTileSize = TILE_SIZE * zoom;
-        float camOffsetX = viewportW / 2.0f - (cameraPos.x * zoom);
-        float camOffsetY = viewportH / 2.0f - (cameraPos.y * zoom);
-
-        int tileX = (int)((screenPos.x - camOffsetX) / scaledTileSize);
-        int tileY = (int)((screenPos.y - camOffsetY) / scaledTileSize);
+        Vector3 world = camera->screenToWorld(screenPos, 0.0f);
+        int tileX = (int)(world.x / TILE_SIZE);
+        int tileY = (int)(world.y / TILE_SIZE);
 
         if(gameMap->isInBounds(tileX, tileY))
             return Vector2{(float)tileX, (float)tileY};
@@ -236,14 +225,18 @@ namespace OpenWars::Game {
         const int mapWidth = gameMap->getWidth();
         const int mapHeight = gameMap->getHeight();
 
-        Vector3 cameraPos = camera->getPosition();
         float zoom = camera->getZoom();
         int viewportW = camera->getViewportWidth();
         int viewportH = camera->getViewportHeight();
 
         float scaledTileSize = TILE_SIZE * zoom;
-        float camOffsetX = viewportW / 2.0f - (cameraPos.x * zoom);
-        float camOffsetY = viewportH / 2.0f - (cameraPos.y * zoom);
+
+        // Derive screen-space origin from the camera matrices so the renderer
+        // stays connected to the full matrix pipeline rather than replicating
+        // the camera math here.
+        Vector2 originScreen = camera->worldToScreen(Vector3{0.0f, 0.0f, 0.0f});
+        float camOffsetX = originScreen.x;
+        float camOffsetY = originScreen.y;
 
         int minX, maxX, minY, maxY;
         computeVisibleRange(

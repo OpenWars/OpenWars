@@ -35,19 +35,17 @@ void OpenWars::Game::GameScene::initializeCamera() {
     camera->setBoundaries(0.0f, mapPixelWidth, 0.0f, mapPixelHeight);
 
     camera->setZoomLimits(1.0f, 3.5f);
-    camera->setZoom(2.0f); // Start at 2.5x for good visibility
+    camera->setZoom(2.0f);
 }
 
 void OpenWars::Game::GameScene::onEnter() {
     Scene::onEnter();
 
     if(!initialized) {
-        // Initialize rendering subsystem
         mapRenderer = std::make_unique<MapRenderer>(gameMap.get());
         mapRenderer->loadSpritesheets();
         mapRenderer->initializeTileFrames();
 
-        // Initialize camera system
         initializeCamera();
         cameraController = std::make_unique<CameraController>(camera.get());
 
@@ -64,37 +62,30 @@ void OpenWars::Game::GameScene::onExit() {
 void OpenWars::Game::GameScene::update(float deltaTime) {
     Scene::update(deltaTime);
 
-    // Update camera with input
     if(cameraController) {
         cameraController->handleInput(lastInputState);
     }
 
-    // Update camera
     if(camera) {
         camera->update(deltaTime);
     }
 
-    // Update map rendering (animations)
     if(mapRenderer) {
         mapRenderer->update(deltaTime);
     }
 
-    // Handle continuous cursor movement with key repeat
     bool anyArrowPressed =
         lastInputState.down.arrowLeft || lastInputState.down.arrowRight ||
         lastInputState.down.arrowUp || lastInputState.down.arrowDown;
 
     if(anyArrowPressed) {
         if(!cursorMoving) {
-            // Key just pressed, start the timer
             cursorMoving = true;
             cursorMoveTimer = 0.0f;
         }
 
-        // Accumulate time
         cursorMoveTimer += deltaTime;
 
-        // Check if we should move the cursor
         bool shouldMove = false;
         if(cursorMoveTimer >= cursorMoveDelay) {
             // After initial delay, move every repeat interval
@@ -108,22 +99,17 @@ void OpenWars::Game::GameScene::update(float deltaTime) {
 
         if(shouldMove) {
             Vector2 movement = {0, 0};
-            if(lastInputState.down.arrowLeft) {
+            if(lastInputState.down.arrowLeft)
                 movement.x--;
-            }
-            if(lastInputState.down.arrowRight) {
+            if(lastInputState.down.arrowRight)
                 movement.x++;
-            }
-            if(lastInputState.down.arrowUp) {
+            if(lastInputState.down.arrowUp)
                 movement.y--;
-            }
-            if(lastInputState.down.arrowDown) {
+            if(lastInputState.down.arrowDown)
                 movement.y++;
-            }
 
             cursorTile += movement;
 
-            // Clamp cursor to map bounds
             if(gameMap) {
                 int mapWidth = gameMap->getWidth();
                 int mapHeight = gameMap->getHeight();
@@ -132,7 +118,6 @@ void OpenWars::Game::GameScene::update(float deltaTime) {
             }
         }
     } else {
-        // No arrow key pressed, reset state
         cursorMoving = false;
         cursorMoveTimer = 0.0f;
     }
@@ -151,26 +136,20 @@ void OpenWars::Game::GameScene::handleInput(
 ) {
     lastInputState = input;
 
-    // Move cursor immediately on first key press (handled in update for repeat)
     if(input.pressed.arrowLeft || input.pressed.arrowRight ||
        input.pressed.arrowUp || input.pressed.arrowDown) {
         Vector2 movement = {0, 0};
-        if(input.pressed.arrowLeft) {
+        if(input.pressed.arrowLeft)
             movement.x--;
-        }
-        if(input.pressed.arrowRight) {
+        if(input.pressed.arrowRight)
             movement.x++;
-        }
-        if(input.pressed.arrowUp) {
+        if(input.pressed.arrowUp)
             movement.y--;
-        }
-        if(input.pressed.arrowDown) {
+        if(input.pressed.arrowDown)
             movement.y++;
-        }
 
         cursorTile += movement;
 
-        // Clamp cursor to map bounds
         if(gameMap) {
             int mapWidth = gameMap->getWidth();
             int mapHeight = gameMap->getHeight();
@@ -178,7 +157,6 @@ void OpenWars::Game::GameScene::handleInput(
             cursorTile.y = std::clamp((int)cursorTile.y, 0, mapHeight - 1);
         }
 
-        // Reset the repeat timer so holding key starts fresh
         cursorMoveTimer = 0.0f;
         cursorMoving = true;
     }
@@ -187,42 +165,33 @@ void OpenWars::Game::GameScene::handleInput(
 void OpenWars::Game::GameScene::render() {
     clearBackground(Color(50, 50, 50, 255));
 
-    // Render map through dedicated system
     if(mapRenderer) {
         mapRenderer->render(camera.get());
     }
 
-    // Render tile cursor overlay
     if(mapRenderer && camera) {
-        // Use cursor tile position
         Vector2 tilePos = cursorTile;
         if(tilePos.x >= 0 && tilePos.y >= 0) {
-            // Calculate screen position of the tile
-            Vector3 cameraPos = camera->getPosition();
-            float zoom = camera->getZoom();
-            int viewportW = camera->getViewportWidth();
-            int viewportH = camera->getViewportHeight();
             const int TILE_SIZE = 16;
+            float scaledTileSize = TILE_SIZE * camera->getZoom();
 
-            float scaledTileSize = TILE_SIZE * zoom;
-            float camOffsetX = viewportW / 2.0f - (cameraPos.x * zoom);
-            float camOffsetY = viewportH / 2.0f - (cameraPos.y * zoom);
+            // Use the camera matrix pipeline so the cursor stays aligned with
+            // the tile renderer under any camera transformation.
+            Vector2 tileScreen = camera->worldToScreen(
+                Vector3{tilePos.x * TILE_SIZE, tilePos.y * TILE_SIZE, 0.0f}
+            );
 
-            float screenX = ((int)tilePos.x * scaledTileSize) + camOffsetX;
-            float screenY = ((int)tilePos.y * scaledTileSize) + camOffsetY;
-
-            // Draw cursor overlay on the tile
             Drawing::drawRectangle(
-                (int)screenX,
-                (int)screenY,
-                (int)scaledTileSize,
-                (int)scaledTileSize,
+                tileScreen.x,
+                tileScreen.y,
+                scaledTileSize,
+                scaledTileSize,
                 Colors::alpha(Colors::SKY_400, 0.4f)
             );
 
             Drawing::drawRectangleOutline(
-                screenX,
-                screenY,
+                tileScreen.x,
+                tileScreen.y,
                 scaledTileSize,
                 scaledTileSize,
                 Colors::alpha(Colors::SKY_400, 0.4f)
