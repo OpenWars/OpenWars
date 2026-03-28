@@ -40,7 +40,6 @@ SpriteSheet* SpriteSheet::loadFromAssets(
         return nullptr;
     }
 
-    // Load surface from RW (IMG will free the RW when freesrc=1)
     SDL_Surface* surface = IMG_Load_IO(rw, 1);
     if(!surface) {
         IO::Logging::error(
@@ -116,6 +115,16 @@ int SpriteSheet::getFrameCount() const {
     return cols * rows;
 }
 
+void SpriteSheet::setColorMod(uint8_t r, uint8_t g, uint8_t b) {
+    if(texture)
+        SDL_SetTextureColorMod(texture, r, g, b);
+}
+
+void SpriteSheet::resetColorMod() {
+    if(texture)
+        SDL_SetTextureColorMod(texture, 255, 255, 255);
+}
+
 void SpriteSheet::drawFrame(int frameIndex, float x, float y, float scale) {
     if(!texture)
         return;
@@ -146,7 +155,6 @@ void SpriteSheet::drawFrame(
     float scale,
     int rotation
 ) {
-    // Fast path: no rotation needed
     if(rotation == 0) {
         drawFrame(frameIndex, x, y, scale);
         return;
@@ -174,8 +182,7 @@ void SpriteSheet::drawFrame(
     // Rotate around the tile centre so x,y stays the top-left corner
     // regardless of angle.
     SDL_FPoint centre = {dstW / 2.0f, dstH / 2.0f};
-
-    double angleDeg = 90.0 * rotation; // 0=0° · 1=90° · 2=180° · 3=270°
+    double angleDeg = 90.0 * rotation;
 
     SDL_RenderTextureRotated(
         IO::Graphics::getRenderer(),

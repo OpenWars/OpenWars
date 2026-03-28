@@ -6,6 +6,12 @@
 
 namespace OpenWars::Game {
 
+    struct UnitSprite {
+        int row = 0, col = 0;
+        int frameCount = 1;
+        float animSpeed = 0.0f;
+    };
+
     enum class WeaponType {
         None,
         MachineGun,
@@ -40,6 +46,7 @@ namespace OpenWars::Game {
         int cargoCapacity = 0;
         std::vector<std::string> loadableTypes;
         bool canResupply = false;
+        UnitSprite sprite;
 
         bool isIndirect() const {
             return minAttackRange > 1;

@@ -1,5 +1,6 @@
 #include "map.hpp"
 #include "tiles.hpp"
+#include <algorithm>
 
 namespace OpenWars::Game {
 
@@ -104,6 +105,40 @@ namespace OpenWars::Game {
         for(int y = 0; y < height; ++y)
             for(int x = 0; x < width; ++x)
                 callback(x, y, &tiles[index(x, y)]);
+    }
+
+    void Map::addUnit(std::shared_ptr<Unit> unit) {
+        units.push_back(std::move(unit));
+    }
+
+    void Map::removeUnit(const Vector2& pos) {
+        units.erase(
+            std::remove_if(
+                units.begin(),
+                units.end(),
+                [&pos](const std::shared_ptr<Unit>& u) {
+                    return (int)u->getGridPos().x == (int)pos.x &&
+                           (int)u->getGridPos().y == (int)pos.y;
+                }
+            ),
+            units.end()
+        );
+    }
+
+    Unit* Map::getUnitAt(int x, int y) const {
+        for(const auto& u : units) {
+            if((int)u->getGridPos().x == x && (int)u->getGridPos().y == y)
+                return u.get();
+        }
+        return nullptr;
+    }
+
+    Unit* Map::getUnitAt(const Vector2& pos) const {
+        return getUnitAt((int)pos.x, (int)pos.y);
+    }
+
+    const std::vector<std::shared_ptr<Unit>>& Map::getUnits() const {
+        return units;
     }
 
 } // namespace OpenWars::Game

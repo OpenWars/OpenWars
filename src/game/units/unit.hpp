@@ -136,6 +136,9 @@ namespace OpenWars::Game {
         const std::vector<std::shared_ptr<Unit>>& getCargo() const {
             return cargo;
         }
+        Color getTeamColor() const {
+            return teamColor;
+        }
 
         void setCO(CO* co) {
             commandingOfficer = co;

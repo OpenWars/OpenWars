@@ -2,6 +2,7 @@
 
 #include "scene.hpp"
 #include "../map/renderer.hpp"
+#include "../units/renderer.hpp"
 #include "../../io/graphics/camera.hpp"
 #include "../../io/input/input.hpp"
 #include "../../core/vector.hpp"
@@ -11,27 +12,25 @@ namespace OpenWars::Game {
     class Map;
 
     class GameScene : public Scene {
-      private:
-        // Game state
+        private:
         std::unique_ptr<Map> gameMap;
         std::unique_ptr<IO::Graphics::Camera> camera;
 
-        // Rendering and input subsystems
         std::unique_ptr<MapRenderer> mapRenderer;
+        std::unique_ptr<UnitRenderer> unitRenderer;
         std::unique_ptr<IO::Graphics::CameraController> cameraController;
 
         IO::Input::InputState lastInputState;
-        Vector2 cursorTile = {0, 0}; // Current tile cursor position
+        Vector2 cursorTile = {0, 0};
 
-        // Cursor movement timing
-        float cursorMoveDelay = 0.15f;  // Initial delay before repeat
-        float cursorMoveRepeat = 0.05f; // Repeat rate after initial delay
+        float cursorMoveDelay = 0.15f;
+        float cursorMoveRepeat = 0.05f;
         float cursorMoveTimer = 0.0f;
-        bool cursorMoving = false; // Track if any arrow key is held
+        bool cursorMoving = false;
 
         void initializeCamera();
 
-      public:
+        public:
         GameScene();
         ~GameScene() override;
 
