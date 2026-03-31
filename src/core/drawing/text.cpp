@@ -12,7 +12,7 @@ TTF_Font* OpenWars::Drawing::getFont(int size) {
     auto it = fonts.find(size);
     if(it == fonts.end()) {
         TTF_Font* font = OpenWars::Assets::Manager::get().loadFont(
-            "fonts/FreeSans.ttf",
+            "fonts/RethinkSans.ttf",
             size
         );
 
