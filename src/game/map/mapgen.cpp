@@ -1,5 +1,7 @@
 #include "mapgen.hpp"
 #include "tiles.hpp"
+#include <memory>
+#include "../units/registry.hpp"
 #include <random>
 #include <cmath>
 #include <algorithm>
@@ -293,6 +295,38 @@ namespace OpenWars::Game {
         map->setTerrain(width / 2 + 3, height / 2 - 3, Tiles::CommTower);
         map->setTerrain(width / 2 - 3, height / 2 + 3, Tiles::Lab);
         map->setTerrain(width / 2 + 3, height / 2 + 3, Tiles::Silo);
+
+        map->addUnit(
+            std::make_shared<Unit>(
+                UnitRegistry::get().find("infantry"),
+                1,
+                Vector2(2, (float)height / 2 - 3)
+            )
+        );
+
+        map->addUnit(
+            std::make_shared<Unit>(
+                UnitRegistry::get().find("infantry"),
+                2,
+                Vector2(3, (float)height / 2 - 3)
+            )
+        );
+
+        map->addUnit(
+            std::make_shared<Unit>(
+                UnitRegistry::get().find("infantry"),
+                3,
+                Vector2(4, (float)height / 2 - 3)
+            )
+        );
+
+        map->addUnit(
+            std::make_shared<Unit>(
+                UnitRegistry::get().find("infantry"),
+                4,
+                Vector2(5, (float)height / 2 - 3)
+            )
+        );
 
         return map;
     }

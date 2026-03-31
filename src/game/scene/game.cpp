@@ -28,12 +28,10 @@ void OpenWars::Game::GameScene::initializeCamera() {
     float mapPixelWidth = mapWidth * TILE_SIZE;
     float mapPixelHeight = mapHeight * TILE_SIZE;
 
-    float mapCenterX = mapPixelWidth / 2.0f;
-    float mapCenterY = mapPixelHeight / 2.0f;
-
-    camera->instantPan(Vector3{mapCenterX, mapCenterY, 10.0f});
+    camera->instantPan(
+        Vector3{mapPixelWidth / 2.0f, mapPixelHeight / 2.0f, 10.0f}
+    );
     camera->setBoundaries(0.0f, mapPixelWidth, 0.0f, mapPixelHeight);
-
     camera->setZoomLimits(1.0f, 3.5f);
     camera->setZoom(2.0f);
 }
@@ -46,6 +44,9 @@ void OpenWars::Game::GameScene::onEnter() {
         mapRenderer->loadSpritesheets();
         mapRenderer->initializeTileFrames();
 
+        unitRenderer = std::make_unique<UnitRenderer>();
+        unitRenderer->loadSpritesheets();
+
         initializeCamera();
         cameraController = std::make_unique<CameraController>(camera.get());
 
@@ -56,23 +57,24 @@ void OpenWars::Game::GameScene::onEnter() {
 void OpenWars::Game::GameScene::onExit() {
     Scene::onExit();
     mapRenderer.reset();
+    unitRenderer.reset();
     cameraController.reset();
 }
 
 void OpenWars::Game::GameScene::update(float deltaTime) {
     Scene::update(deltaTime);
 
-    if(cameraController) {
+    if(cameraController)
         cameraController->handleInput(lastInputState);
-    }
 
-    if(camera) {
+    if(camera)
         camera->update(deltaTime);
-    }
 
-    if(mapRenderer) {
+    if(mapRenderer)
         mapRenderer->update(deltaTime);
-    }
+
+    if(unitRenderer)
+        unitRenderer->update(deltaTime);
 
     bool anyArrowPressed =
         lastInputState.down.arrowLeft || lastInputState.down.arrowRight ||
@@ -88,7 +90,6 @@ void OpenWars::Game::GameScene::update(float deltaTime) {
 
         bool shouldMove = false;
         if(cursorMoveTimer >= cursorMoveDelay) {
-            // After initial delay, move every repeat interval
             float timeAfterDelay = cursorMoveTimer - cursorMoveDelay;
             if(timeAfterDelay >= cursorMoveRepeat) {
                 shouldMove = true;
@@ -124,10 +125,14 @@ void OpenWars::Game::GameScene::update(float deltaTime) {
 
     if(camera) {
         const int TILE_SIZE = 16;
-        float cursorWorldX = (cursorTile.x + 0.5f) * TILE_SIZE;
-        float cursorWorldY = (cursorTile.y + 0.5f) * TILE_SIZE;
-
-        camera->panTo(Vector3{cursorWorldX, cursorWorldY, 10.0f}, 0.3f);
+        camera->panTo(
+            Vector3{
+                (cursorTile.x + 0.5f) * TILE_SIZE,
+                (cursorTile.y + 0.5f) * TILE_SIZE,
+                10.0f
+            },
+            0.3f
+        );
     }
 }
 
@@ -165,33 +170,39 @@ void OpenWars::Game::GameScene::handleInput(
 void OpenWars::Game::GameScene::render() {
     clearBackground(Color(50, 50, 50, 255));
 
-    if(mapRenderer) {
+    if(mapRenderer)
         mapRenderer->render(camera.get());
-    }
+
+    if(unitRenderer)
+        unitRenderer->render(gameMap.get(), camera.get());
 
     if(mapRenderer && camera) {
         Vector2 tilePos = cursorTile;
         if(tilePos.x >= 0 && tilePos.y >= 0) {
+            Vector3 cameraPos = camera->getPosition();
+            float zoom = camera->getZoom();
+            int viewportW = camera->getViewportWidth();
+            int viewportH = camera->getViewportHeight();
             const int TILE_SIZE = 16;
-            float scaledTileSize = TILE_SIZE * camera->getZoom();
 
-            // Use the camera matrix pipeline so the cursor stays aligned with
-            // the tile renderer under any camera transformation.
-            Vector2 tileScreen = camera->worldToScreen(
-                Vector3{tilePos.x * TILE_SIZE, tilePos.y * TILE_SIZE, 0.0f}
-            );
+            float scaledTileSize = TILE_SIZE * zoom;
+            float camOffsetX = viewportW / 2.0f - (cameraPos.x * zoom);
+            float camOffsetY = viewportH / 2.0f - (cameraPos.y * zoom);
+
+            float screenX = ((int)tilePos.x * scaledTileSize) + camOffsetX;
+            float screenY = ((int)tilePos.y * scaledTileSize) + camOffsetY;
 
             Drawing::drawRectangle(
-                tileScreen.x,
-                tileScreen.y,
-                scaledTileSize,
-                scaledTileSize,
+                (int)screenX,
+                (int)screenY,
+                (int)scaledTileSize,
+                (int)scaledTileSize,
                 Colors::alpha(Colors::SKY_400, 0.4f)
             );
 
             Drawing::drawRectangleOutline(
-                tileScreen.x,
-                tileScreen.y,
+                screenX,
+                screenY,
                 scaledTileSize,
                 scaledTileSize,
                 Colors::alpha(Colors::SKY_400, 0.4f)
@@ -207,4 +218,6 @@ void OpenWars::Game::GameScene::setWeather(Weather weather) {
         mapRenderer->setWeather(weather);
         IO::Logging::debug("Weather changed to %d", static_cast<int>(weather));
     }
+    if(unitRenderer)
+        unitRenderer->setWeather(weather);
 }
